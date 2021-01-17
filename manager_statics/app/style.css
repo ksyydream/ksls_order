@@ -1,0 +1,189 @@
+/** 看板模块样式*/
+.kanban_div{ font-size:14px; color:#000; font-family:'微软雅黑'}
+.kanban_div .box{padding:20px; background-color:#fff; margin:0; border-radis:10px;}
+.kanban_div .box .cangku{margin:0 0 40px 0}
+.kanban_div .box .cangku table{box-shadow:0 0 10px #000; border-radius:10px;border-collapse:collapse;}
+.kanban_div .box .cangku table td{margin:0;padding:5px; border-right:1px solid #999; position:relative}
+.kanban_div .box .cangku table td:last-clild{border-right:none}
+.kanban_div .box .cangku table td p{padding:0; margin:0; color:#fff; font-size:12px; text-align:center}
+.kanban_div .box .cangku table .type1{ background:#da0000}
+.kanban_div .box .cangku table .type2{ background:#4dab34}
+.kanban_div .box .cangku table .type3{ background:#c7c22e;}
+.kanban_div .box .cangku table .type4{ background:#c7c22e;}
+.kanban_div .box .cangku table .cangku_center{ text-align:center; font-size:24px; color:#bec3e0; height:100px}
+.kanban_div .zhushi{position:absolute; right:0; top:0; padding-top:20px;    z-index: 99;}
+.kanban_div .zhushi li{ list-style:none; font-size:12px; width:100px; text-align:left}
+.kanban_div .zhushi li *{ vertical-align:middle}
+.kanban_div .zhushi li .zhanyong{ width:12px; height:12px; background:#f20000;display: inline-block; margin-right:10px}
+.kanban_div .zhushi li .kongxian{ width:12px; height:12px; background:#4dab34;display: inline-block; margin-right:10px}
+.kanban_div .zhushi li .pipei{ width:12px; height:12px; background:#c7c22e;display: inline-block; margin-right:10px}
+.fuchepai_b,.fuchepai_t{
+    position: absolute;
+    width: 108px;
+    background: #fff;
+    padding: 5px;
+    box-shadow: 0 0 10px #cacaca;
+    bottom: -36px;
+    left:-40px;
+    font-size: 12px;
+    display:none;
+    color: #666;
+    z-index:100
+}
+.fuchepai_t{bottom:55px;}
+.fuchepai_b i,.fuchepai_t i{
+    display: inline-block;
+    background: #fff;
+    width: 10px;
+    height: 10px;
+    transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    position: absolute;
+    top: -5px;
+    left: 48px;
+}
+.fuchepai_t i{bottom:0;top:22px;}
+
+.fuzhan_b,.fuzhan_t{
+    position: absolute;
+    width: 43px;
+    background: #fff;
+    padding: 5px;
+    box-shadow: 0 0 10px #cacaca;
+    bottom: -46px;
+    left:-9px;
+    font-size: 12px;
+    display:none;
+    color: #666;
+    z-index:101;
+    border:1px solid #cacaca;
+    text-align:center;
+    height:36px;
+}
+.fuzhan_t{bottom:0;top:-50px}
+.fuzhan_b i,.fuzhan_t i{
+    display: inline-block;
+    background: #fff;
+    width: 10px;
+    height: 10px;
+    transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    position: absolute;
+    top: -6px;
+    left: 15px;
+    border-left: 1px solid #cacaca;
+    border-top: 1px solid #cacaca;
+}
+.fuzhan_t i{bottom:0;top:29px;border-left: none;
+    border-top: none;border-right: 1px solid #cacaca;
+    border-bottom:1px solid #cacaca;}
+.fuzhan_a{ padding:3px; background:#F90; color:#fff;margin-bottom: 2px;z-index:98; display:block}
+.fushifang_b,.fushifang_t{
+    position: absolute;
+    width: 43px;
+    background: #fff;
+    padding: 5px;
+    box-shadow: 0 0 10px #cacaca;
+    bottom: -46px;
+    left:-9px;
+    font-size: 12px;
+    display:none;
+    color: #666;
+    z-index:100;
+    border:1px solid #cacaca;
+    text-align:center;
+    height:36px;
+}
+.fushifang_t{bottom:0;top:-50px}
+.fushifang_b i,.fushifang_t i{
+    display: inline-block;
+    background: #fff;
+    width: 10px;
+    height: 10px;
+    transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    position: absolute;
+    top: -6px;
+    left: 15px;
+    border-left: 1px solid #cacaca;
+    border-top: 1px solid #cacaca;
+}
+.fushifang_t i{bottom:0;top:29px;border-left: none;
+    border-top: none;border-right: 1px solid #cacaca;
+    border-bottom:1px solid #cacaca;}
+.fushifang_a{ padding:3px; background:#4dab34; color:#fff; position:absolute;z-index:98; display:block}
+
+.kanban_div .t_l{border-radius:10px 0 0 0 !important}
+.kanban_div .t_r{border-radius:0 10px 0 0 !important; border-right:none !important}
+.kanban_div .m_l{border-radius: 0 0 0 10px !important}
+.kanban_div .m_r{border-radius:0 0 10px 0 !important; border-right:none !important}
+
+/** 个人中心——管理员管理 样式*/
+.member_div .grouptd {
+    position: relative;
+}
+
+.member_div .group {
+    display: inline-block;
+    width: 100%;
+}
+
+.member_div .groupselect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/** 认证司机 */
+.cepai select {
+    width: 100px;
+    height: 35px;
+    line-height: 35px;
+    border: 1px solid #b4b4b4;
+    background: #fafafa;
+    font-size: 14px;
+    color: #717171;
+}
+
+.cepai input {
+    width: 48% !important
+}
+/** 通用样式 */
+.xs_pl0{
+    padding-left: 0;
+}
+.divergecss{
+    float: left;margin-top: 10px;
+}
+
+#uploadImgcontainer li{
+    list-style: none;
+    float: left;
+    position: relative;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+#uploadImgcontainer_p li{
+    list-style: none;
+    float: left;
+    position: relative;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+.yy_m_7{padding-top: 7px}
+.upload-btn{margin:10px 0 20px 5px; display: block;width: 105px; height: 36px; line-height: 36px;background: url(/assets/img/submit_bg.png) no-repeat 0 -123px;}
+.upload-btn:hover{text-decoration: none;}
+.delete-this{width:30px; height: 30px; background: #000;filter:alpha(opacity=40);opacity: 0.4; display: block;top:0; position: absolute;z-index: 99}
+.delete-this i{padding:0 5px;width:20px; height:20px; background: url(/assets/img/yy_logo_in.png) no-repeat -123px 2px; display: block; float: right;margin-right:10px; cursor: pointer;}
