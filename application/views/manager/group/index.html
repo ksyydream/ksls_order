@@ -1,0 +1,108 @@
+{{include file='manager/public/head.html'}}
+<body class="no-skin">
+{{include file='manager/public/header.html'}}
+
+<div class="main-container" id="main-container">
+    <script type="text/javascript">
+        try {
+            ace.settings.check('main-container', 'fixed')
+        } catch (e) {
+        }
+    </script>
+
+    {{include file='manager/public/sidebar.html'}}
+    <div class="main-content">
+        <div class="main-content-inner">
+            <!-- #section:basics/content.breadcrumbs -->
+            {{include file='manager/public/breadcrumbs.html'}}
+
+            <!-- /section:basics/content.breadcrumbs -->
+            <div class="page-content">
+                {{include file='manager/public/set.html'}}
+
+                <!-- /section:settings.box -->
+                <form id="search_form" class="form-inline" action="/manager/group_list" method="get">
+
+                </form>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <!-- PAGE CONTENT BEGINS -->
+                        <form id="export-form">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                    <th>用户组</th>
+                                    <th>状态</th>
+                                    <th class="center">操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {{foreach from=$data.res_list key=k item=v}}
+                                <tr>
+                                    <td>{{$v.title}}</td>
+                                    <td>{{if $v.id == 1}}启用{{else}}{{if $v.status == 1}}启用{{else}}禁用{{/if}}{{/if}}</td>
+                                    <td class="center">
+                                        <a href="/manager/group_edit/{{$v.id}}"><i class="ace-icon fa fa-book bigger-100 blue"></i>修改</a>
+                                        {{if $v.id != 1}} <a href="javascript:;" val="{{$v.id}}" class="del"><i class="ace-icon fa fa-trash-o bigger-100 red"></i>删除</a>{{/if}}
+                                    </td>
+                                    </td>
+                                </tr>
+                                {{/foreach}}
+                                </tbody>
+                            </table>
+                            <div class="cf">
+
+                            </div>
+                            <div id="page_div">
+                                {{$pager}}
+                            </div>
+                        </form>
+                        <!-- PAGE CONTENT ENDS -->
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.page-content -->
+        </div>
+    </div><!-- /.main-content -->
+    {{include file='manager/public/footer.html'}}
+
+</div><!-- /.main-container -->
+
+{{include file='manager/public/footerjs.html'}}
+<!-- inline scripts related to this page -->
+<script type="text/javascript">
+    (function ($) {
+        $(".del").click(function () {
+            var id = $(this).attr('val');
+            bootbox.confirm({
+                title: "系统提示",
+                message: "是否要删除该用户组,删除后可能会影响用户正常使用？",
+                callback: function (result) {
+                    if (result) {
+                        $.getJSON("/manager/group_del/"+id,function(data){
+                            if(data == 1){
+                                var action = "/manager/group_list/{{$page}}"
+                                $('#search_form').attr('action',action);
+                                $('#search_form').submit();
+                            }else if(data == -2){
+                                layer.msg('超级管理员不可删除!', {icon: 2});
+                            }else if(data == -99){
+                                layer.msg('你没有操作权限!', {icon: 2});
+                            }else{
+                                layer.msg('删除失败!', {icon: 2});
+                            }
+                        })
+                    }
+                },
+                buttons: {
+                    "cancel": {"label": "取消"},
+                    "confirm": {
+                        "label": "确定",
+                        "className": "btn-danger"
+                    }
+                }
+            });
+        });
+    })(jQuery);
+</script>
+</body>
+</html>

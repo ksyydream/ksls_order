@@ -1,0 +1,177 @@
+{{include file='manager/public/head.html'}}
+<body class="no-skin">
+{{include file='manager/public/header.html'}}
+<div class="main-container" id="main-container">
+    <script type="text/javascript">
+        try {
+            ace.settings.check('main-container', 'fixed')
+        } catch (e) {
+        }
+    </script>
+
+    {{include file='manager/public/sidebar.html'}}
+    <div class="main-content">
+        <div class="main-content-inner">
+            <!-- #section:basics/content.breadcrumbs -->
+            {{include file='manager/public/breadcrumbs.html'}}
+
+            <!-- /section:basics/content.breadcrumbs -->
+            <div class="page-content">
+                {{include file='manager/public/set.html'}}
+
+                <!-- /section:settings.box -->
+                <div class="row">
+                    <div class="col-xs-12">
+                        <!-- PAGE CONTENT BEGINS -->
+                        <form id="save_form" class="form-horizontal" action="/manager/menu_save" method="post">
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="form-field-10">
+                                    上级菜单 </label>
+                                <input name="id" value="{{$data.id|default:''}}" type="hidden">
+                                <div class="col-sm-9">
+                                    <select id="pid" name="pid" class="rcol-xs-10 col-sm-5">
+                                        <option value="0" {{if $data.pid|default:0 == 0}}selected="selected"{{/if}}>顶级菜单</option>
+                                        {{foreach from=$data.res_list key=k1 item=v1}}
+                                        <option value="{{$v1.id}}" {{if $v1.id == $data.pid|default:0}}selected="selected"{{/if}}>{{$v1.title}}</option>
+                                        {{/foreach}}
+                                    </select>
+                                    <span class="help-inline col-xs-12 col-sm-7">
+												<span class="middle"></span>
+											</span>
+                                </div>
+                            </div>
+                            <div class="space-4"></div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="form-field-1"> 菜单名称 </label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="title" id="title" class="rcol-xs-10 col-sm-5"
+                                           value="{{$data.title|default:''}}">
+                                    <span class="help-inline col-xs-12 col-sm-7">
+												<span class="middle"></span>
+											</span>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="form-field-2"> 链接 </label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="name" id="name" placeholder="链接，如：Index/index"
+                                           class="col-xs-10 col-sm-5" value="{{$data.name|default:''}}">
+                                    <span class="help-inline col-xs-12 col-sm-7">
+												<span class="middle"></span>
+											</span>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="form-field-2">
+                                    ICON图标 </label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="icon" id="icon" placeholder="ICON图标"
+                                           class="col-xs-10 col-sm-5" value="{{$data.icon|default:''}}">
+                                    <span class="help-inline col-xs-12 col-sm-7">
+												<span class="middle"></span>
+											</span>
+                                </div>
+                            </div>
+                            <div class="space-4"></div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="form-field-2"> 显示状态 </label>
+                                <div class="control-label no-padding-left col-sm-1">
+                                    <label>
+                                        <input name="islink" id="islink" value="1" {{if $data.islink|default:0 == 1}}checked="checked"{{/if}} class="ace ace-switch ace-switch-2" type="checkbox" />
+                                        <span class="lbl"></span>
+                                    </label>
+                                </div>
+                                <span class="help-inline col-xs-12 col-sm-7">
+												<span class="middle"></span>
+										</span>
+                            </div>
+                            <div class="space-4"></div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="form-field-2"> 排序 </label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="o" id="o" placeholder="" class="col-xs-10 col-sm-5"
+                                           value="{{$data.o|default:''}}">
+                                    <span class="help-inline col-xs-12 col-sm-7">
+												<span class="middle">越小越靠前</span>
+											</span>
+                                </div>
+                            </div>
+                            <div class="space-4"></div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="form-field-2"> 页面提示</label>
+                                <div class="col-sm-9">
+                                    <textarea name="tips" id="tips" placeholder="页面提示" class="col-xs-10 col-sm-5" rows="5">{{$data.tips|default:''}}</textarea>
+                                    <span class="help-inline col-xs-12 col-sm-7">
+												<span class="middle"></span>
+											</span>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+                            <div class="col-md-offset-2 col-md-9">
+                                <button id="save_btn" class="btn btn-info" type="button">
+                                    <i class="icon-ok bigger-110"></i>
+                                    提交
+                                </button>
+
+                                &nbsp; &nbsp; &nbsp;
+                                <a href="{{$self_url|default:'#'}}" class="btn" type="reset">
+
+                                    <i class="icon-undo bigger-110"></i>
+
+                                    重置
+
+                                </a>
+                            </div>
+                        </form>
+                        <!-- PAGE CONTENT ENDS -->
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.page-content -->
+        </div>
+    </div><!-- /.main-content -->
+    {{include file='manager/public/footer.html'}}
+
+</div><!-- /.main-container -->
+
+{{include file='manager/public/footerjs.html'}}
+<!-- inline scripts related to this page -->
+<script type="text/javascript">
+    $(function () {
+        var editor = KindEditor.create('textarea[name="tips"]', {
+            resizeType: 1,
+            allowPreviewEmoticons: false,
+            allowImageUpload: false,
+            items: [
+                'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold', 'italic', 'underline',
+                'removeformat', '|', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
+                'insertunorderedlist', '|', 'emoticons', 'link'],
+            afterBlur: function () { this.sync(); }
+        });
+        $("#save_btn").click(function () {
+            var title = $.trim($("#title").val());
+            if(title == "" ) {
+                layer.msg('请输入菜单名称', {icon: 2});
+                return false;
+            }
+            var name = $.trim($("#name").val());
+            if(name == "" ) {
+                //layer.msg('请输入链接', {icon: 2});
+                //return false;
+            }
+            var o = $.trim($("#o").val());
+            if(o == "" ) {
+                layer.msg('请输入排序', {icon: 2});
+                return false;
+            }
+            $("#save_form").submit();
+        })
+    })
+</script>
+
+</body>
+</html>

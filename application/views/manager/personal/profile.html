@@ -1,0 +1,219 @@
+{{include file='manager/public/head.html'}}
+<body class="no-skin">
+{{include file='manager/public/header.html'}}
+<div class="main-container" id="main-container">
+    <script type="text/javascript">
+        try {
+            ace.settings.check('main-container', 'fixed')
+        } catch (e) {
+        }
+    </script>
+
+    {{include file='manager/public/sidebar.html'}}
+    <div class="main-content">
+        <div class="main-content-inner">
+            <!-- #section:basics/content.breadcrumbs -->
+            {{include file='manager/public/breadcrumbs.html'}}
+
+            <!-- /section:basics/content.breadcrumbs -->
+            <div class="page-content">
+                {{include file='manager/public/set.html'}}
+
+                <!-- /section:settings.box -->
+                <div class="row">
+                    <div class="col-xs-12">
+                        <!-- PAGE CONTENT BEGINS -->
+                        <form class="form-horizontal" role="form" action="/manager/personal_save" method="post">
+
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="form-field-1"> 用户名 </label>
+                                <div class="col-sm-9">
+                                    <input type="text" id="user" name="user" class="rcol-xs-10 col-sm-5" value="{{$data.user|default:''}}">
+                                    <span class="help-inline col-xs-12 col-sm-7"></span>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="form-field-2"> 用户密码 </label>
+                                <div class="col-sm-9">
+                                    <input type="password" name="password" id="password" placeholder="用户密码"
+                                           class="col-xs-10 col-sm-5" value="">
+                                    <span class="help-inline col-xs-12 col-sm-7"><span class="middle">留空不修改</span></span>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="form-field-4"> 头像 </label>
+                                <div class="col-sm-9">
+                                    <div class="col-xs-10 col-sm-5">
+                                        <img style="width: 200px" id="imgShow" {{if !empty($data) }} src="/upload_files/head/{{$data.head}}"{{else}}src="/manager_statics/images/touxiang.png"{{/if}}>
+                                        <input type="hidden" id="hidImgName" name="head" value="{{$data.head|default:''}}" />
+                                    </div>
+                                    <span class="help-inline col-xs-12 col-sm-7">
+											</span>
+                                </div>
+
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right"> </label>
+                                <div class="col-sm-9">
+                                    <div class="col-xs-10 col-sm-5">
+                                        <div>
+                                            <button type="button" class="btn btn-primary" id="btnUploadImg">上传头像</button>
+                                        </div>
+
+                                    </div>
+                                    <span class="help-inline col-xs-12 col-sm-7">
+												<span class="middle">仅支持jpg、gif、png、bmp、jpeg，且小于2MB。</span></span>
+                                </div>
+
+                            </div>
+
+                            <div class="space-4"></div>
+
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="form-field-4"> 性别 </label>
+                                <div class="col-sm-9">
+                                    <select id="sex" name="sex" class="multiselect">
+                                        <option value="0">保密</option>
+                                        <option value="1" {{if $data.sex == 1}}selected="selected"{{/if}}>男</option>
+                                        <option value="2" {{if $data.sex == 2}}selected="selected"{{/if}}>女</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="id-date-picker-1">生日</label>
+                                <div class="col-xs-9 col-sm-9">
+                                    <div class="input-group col-xs-5">
+                                        <input class="form-control" id="birthday" name="birthday" value="{{$data.birthday|default:''|date_format:"%Y-%m-%d"}}" type="text" data-date-format="dd-mm-yyyy" />
+                                        <span class="input-group-addon"><i class="ace-icon fa fa-calendar bigger-110"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="form-field-6"> 电话号码 </label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="phone" id="phone" placeholder="电话号码" class="col-xs-10 col-sm-5 phone4js" value="{{$data.phone|default:''}}">
+                                    <span class="help-inline col-xs-12 col-sm-7"><span class="middle"></span></span>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="form-field-7"> Q&nbsp;&nbsp;Q </label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="qq" id="qq" placeholder="QQ" class="col-xs-10 col-sm-5" value="{{$data.qq|default:''}}">
+                                    <span class="help-inline col-xs-12 col-sm-7"><span class="middle"></span></span>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="form-field-8">
+                                    E-mail </label>
+                                <div class="col-sm-9">
+                                    <input type="email" name="email" id="email" placeholder="E-mail" class="col-xs-10 col-sm-5" value="{{$data.email|default:''}}">
+                                    <span class="help-inline col-xs-12 col-sm-7"><span class="middle"></span></span>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+
+                            <div class="col-md-offset-2 col-md-9">
+                                <button class="btn btn-info" type="submit">
+                                    <i class="icon-ok bigger-110"></i>
+                                    提交
+                                </button>
+
+                                &nbsp; &nbsp; &nbsp;
+                                <a href="{{$self_url|default:'#'}}" class="btn" type="reset">
+
+                                    <i class="icon-undo bigger-110"></i>
+
+                                    重置
+
+                                </a>
+                            </div>
+                        </form>
+                        <!-- PAGE CONTENT ENDS -->
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.page-content -->
+        </div>
+    </div><!-- /.main-content -->
+    {{include file='manager/public/footer.html'}}
+
+</div><!-- /.main-container -->
+
+{{include file='manager/public/footerjs.html'}}
+<!-- inline scripts related to this page -->
+<script src="/manager_statics/qwadmin/js/date-time/bootstrap-datepicker.js"></script>
+<script src="/manager_statics/app/ajaxfileupload.js"></script>
+<script type="text/javascript">
+    window.onload = function() {
+        init();  //初始化
+
+    }
+    function init() {
+        //初始化图片上传
+        var btnImg = document.getElementById("btnUploadImg");
+        var img = document.getElementById("imgShow");
+        var hidImgName = document.getElementById("hidImgName");
+        g_AjxUploadImg(btnImg, img, hidImgName);
+    }
+
+    var g_AjxTempDir = "/upload_files/head/";
+
+    //图片上传
+    function g_AjxUploadImg(btn, img, hidPut) {
+        var button = btn, interval;
+        new AjaxUpload(button, {
+            action: "/ajax_api/upload_head",
+            data: {},
+            name: 'userfile',
+            onSubmit: function(file, ext) {
+                if (!(ext && /^(jpg|JPG|png|PNG|gif|GIF)$/.test(ext))) {
+                    alert("您上传的图片格式不对，请重新选择！");
+                    return false;
+                }
+            },
+            onComplete: function(file, response) {
+                flagValue = response;
+                if (flagValue == "1") {
+                    alert("您上传的图片存在错误");
+                }
+                else {
+                    hidPut.value = response;
+                    img.src = g_AjxTempDir + response;
+
+                }
+            }
+        });
+    }
+
+    jQuery(function ($) {
+        $('#birthday').datepicker({
+            format: 'yyyy-mm-dd',
+            weekStart: 1,
+            autoclose: true,
+            todayBtn: 'linked',
+            language: 'cn'
+        });
+    });
+
+</script>
+</body>
+</html>

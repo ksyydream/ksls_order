@@ -1,0 +1,59 @@
+{{include file='manager/public/head.html'}}
+<body class="no-skin">
+{{include file='manager/public/header.html'}}
+<div class="main-container" id="main-container">
+    <script type="text/javascript">
+        try {
+            ace.settings.check('main-container', 'fixed')
+        } catch (e) {
+        }
+    </script>
+    <script src="http://cdn.bootcss.com/jquery/1.12.3/jquery.min.js"></script>
+    {{include file='manager/public/sidebar.html'}}
+    <div class="main-content kanban_div">
+        <div class="main-content-inner">
+            <!-- #section:basics/content.breadcrumbs -->
+            {{include file='manager/public/breadcrumbs.html'}}
+            <!-- /section:basics/content.breadcrumbs -->
+            <div class="page-content">
+                {{include file='manager/public/set.html'}}
+
+                <!-- /section:settings.box -->
+                <div class="row">
+                    <div class="col-xs-12">
+
+                        <!-- PAGE CONTENT BEGINS -->
+
+                        <div class="cf">
+
+                            <div class="form-inline">
+
+
+                            </div>
+
+
+                        </div>
+
+                        <div class="space-4"></div>
+
+                        <!-- PAGE CONTENT ENDS -->
+
+                    </div><!-- /.col -->
+                    <div class="box">
+
+                    </div>
+                </div><!-- /.row -->
+            </div><!-- /.page-content -->
+        </div>
+    </div><!-- /.main-content -->
+    {{include file='manager/public/footer.html'}}
+
+</div><!-- /.main-container -->
+{{include file='manager/public/footerjs.html'}}
+<!-- inline scripts related to this page -->
+<script>
+
+</script>
+
+</body>
+</html>
