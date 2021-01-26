@@ -1,0 +1,100 @@
+    <!-- #section:basics/sidebar -->
+    <div id="sidebar" class="sidebar responsive">
+        <script type="text/javascript">
+            try {
+                ace.settings.check('sidebar', 'fixed')
+            } catch (e) {
+            }
+        </script>
+
+        <div class="sidebar-shortcuts" id="sidebar-shortcuts">
+            <div class="sidebar-shortcuts-large" id="sidebar-shortcuts-large">
+                <a class="btn btn-success" href="" target="_blank">
+                    <i class="ace-icon fa fa-signal"></i>
+                </a>
+
+                <button class="btn btn-info">
+                    <i class="ace-icon fa fa-pencil"></i>
+                </button>
+
+                <!-- #section:basics/sidebar.layout.shortcuts -->
+                <button class="btn btn-warning">
+                    <i class="ace-icon fa fa-users"></i>
+                </button>
+
+                <button class="btn btn-danger">
+                    <i class="ace-icon fa fa-cogs"></i>
+                </button>
+
+                <!-- /section:basics/sidebar.layout.shortcuts -->
+            </div>
+
+            <div class="sidebar-shortcuts-mini" id="sidebar-shortcuts-mini">
+                <span class="btn btn-success"></span>
+
+                <span class="btn btn-info"></span>
+
+                <span class="btn btn-warning"></span>
+
+                <span class="btn btn-danger"></span>
+            </div>
+        </div><!-- /.sidebar-shortcuts -->
+
+        <ul class="nav nav-list">
+            {{foreach from=$menu key=key item=v}}
+            <li {{if $v.id == $current.id || $v.id == $current.pid || $v.id == $current.ppid}}class="active {{if $current.pid != 0}}open{{/if}}"{{/if}}>
+            <a href="/{{$v.name|default:'#'}}" {{if !empty($v.children)}}class="dropdown-toggle"{{/if}}>
+            <i class="{{$v.icon}}"></i>
+            <span class="menu-text">{{$v.title}}</span>
+            {{if !empty($v.children)}}<b class="arrow fa fa-angle-down"></b>{{/if}}
+            </a>
+            <b class="arrow"></b>
+            {{if !empty($v.children)}}
+            <ul class="submenu">
+                {{foreach from=$v.children key=key2 item=vv}}
+                <li {{if $vv.id == $current.id || $vv.id == $current.pid}}class="active {{if $current.ppid != 0}}open{{/if}}"{{/if}}>
+                <a href="/{{$vv.name|default:'#'}}" {{if !empty($vv.children)}}class="dropdown-toggle"{{/if}}>
+                <i class="{{$vv.icon}}"></i>
+                <span class="menu-text">{{$vv.title}}</span>
+                {{if !empty($vv.children)}}<b class="arrow fa fa-angle-down"></b>{{/if}}
+                </a>
+                <b class="arrow"></b>
+                {{if !empty($vv.children)}}
+                <ul class="submenu">
+                    {{foreach from=$vv.children key=key3 item=vvv}}
+                    <li {{if $vvv.id == $current.id}}class="active"{{/if}}>
+
+                    <a href="/{{$vvv.name|default:'#'}}">
+                        <i class="{{$vvv.icon}}"></i>
+                        {{$vvv.title}}
+                    </a>
+                    <b class="arrow"></b>
+                    </li>
+                    {{/foreach}}
+
+                </ul>
+                {{/if}}
+                </li>
+                {{/foreach}}
+            </ul>
+            {{/if}}
+            {{/foreach}}
+
+        </ul><!-- /.nav-list -->
+
+        <!-- #section:basics/sidebar.layout.minimize -->
+        <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+            <i class="ace-icon fa fa-angle-double-left" data-icon1="ace-icon fa fa-angle-double-left"
+               data-icon2="ace-icon fa fa-angle-double-right"></i>
+        </div>
+
+        <!-- /section:basics/sidebar.layout.minimize -->
+        <script type="text/javascript">
+            try {
+                ace.settings.check('sidebar', 'collapsed')
+            } catch (e) {
+            }
+        </script>
+    </div>
+
+    <!-- /section:basics/sidebar -->
