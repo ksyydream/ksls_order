@@ -20,13 +20,13 @@ class Mini_admin_model extends MY_Model
     public function check_token($admin_id, $token){
         $admin_info_ = $this->db->select()->from('admin')->where(array('token' => $token))->get()->row_array();
         if(!$admin_info_){
-            return array(array('status' => -100, 'msg' => '未找到登录信息!', "result" => ''));
+            return array('status' => -100, 'msg' => '未找到登录信息!', "result" => '');
         }
         if(time() - $admin_info_['mini_last_login'] > 60 * 30){
-            return array(array('status' => -101, 'msg' => '请登录!', "result" => ''));
+            return array('status' => -101, 'msg' => '请登录!', "result" => '');
         }
         if($admin_id != $admin_info_){
-            return array(array('status' => -101, 'msg' => '异常!', "result" => ''));
+            return array('status' => -101, 'msg' => '异常!', "result" => '');
         }
         return $this->fun_success('登录成功',$admin_info_['admin_id']);
     }
