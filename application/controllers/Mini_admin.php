@@ -22,7 +22,6 @@ class Mini_admin extends Mini_controller {
         }
         $admin_id_ = $this->get_token_uid($token,"ADMIN"); //可以不验证
         $check_re = $this->mini_admin_model->check_token($token, $admin_id_);
-        die(var_dump($check_re));
         if($check_re['status'] < 0){
             $this->ajaxReturn($check_re);
         }
