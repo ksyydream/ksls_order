@@ -70,7 +70,7 @@ class Mini_controller extends MY_Controller
 
     public function set_token_uid($uid,$role_name){
         require_once(APPPATH ."libraries/Base64.php");
-        $uid = $role_name . '_' .$uid.'_'.NOW_TIME;
+        $uid = $role_name . '_' .$uid.'_'.time();
         $uid = Base64::encrypt($uid, $this->config->item('token_key'));
         return base64_encode($uid);
     }
