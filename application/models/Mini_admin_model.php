@@ -22,7 +22,7 @@ class Mini_admin_model extends MY_Model
         if(!$admin_info_){
             return array(array('status' => -100, 'msg' => '未找到登录信息!', "result" => ''));
         }
-        if(time() - $admin_info_['last_login_time'] > 60 * 30){
+        if(time() - $admin_info_['mini_last_login'] > 60 * 30){
             return array(array('status' => -101, 'msg' => '请登录!', "result" => ''));
         }
         if($admin_id != $admin_info_){
@@ -37,7 +37,7 @@ class Mini_admin_model extends MY_Model
     }
 
     public function update_admin_tt($admin_id,$token = ''){
-        $update_data = array('last_login_time' => time());
+        $update_data = array('mini_last_login' => time());
         if($token){
             $update_data['token'] = $token;
         }
