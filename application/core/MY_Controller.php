@@ -17,7 +17,7 @@ class MY_Controller extends CI_Controller
     public function __construct ()
     {
         parent::__construct();
-		$this->load->model('sys_model');
+		//$this->load->model('sys_model');
         ini_set('date.timezone','Asia/Shanghai');
         $this->cismarty->assign('base_url',base_url());//url路径
 		//if(!@file_get_contents('./uploadfiles/profile/'.$user_pic)){
