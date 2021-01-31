@@ -52,7 +52,7 @@ class Mini_login_model extends MY_Model
         if ($miniapp === false) {
             return $this->fun_fail($this->MiniApp->getError());
         }
-        return $this->fun_success('操作成功', $miniapp['openid']);
+        return $this->fun_success('操作成功', array('openid' => $miniapp['openid']));
     }
 
 }
