@@ -7,7 +7,7 @@
  */
 
   
-class WXBizDataCrypt
+class WxBizDataCrypt
 {
     private $appid;
 	private $sessionKey;
