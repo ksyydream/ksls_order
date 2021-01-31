@@ -130,7 +130,7 @@ class WxCommon
         }
 
         $wxdata = json_decode($return, true);
-        die(var_dump($wxdata));
+        //die(var_dump($wxdata));
         if (!$result_json && $wxdata === null) {
             return $return; //不能解码，如图片
         }
