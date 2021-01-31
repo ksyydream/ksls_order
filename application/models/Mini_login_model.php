@@ -40,4 +40,19 @@ class Mini_login_model extends MY_Model
         }
     }
 
+    public function get_mini_openid(){
+        $code_ = $this->input->post('code');
+        if(!$code_){
+            return $this->fun_fail('不可缺少code');
+        }
+        //$code_ = '041wGv1w3v1yKV2ED61w3erpUO2wGv1N';
+        $config_ = array('appid' => $this->config->item('mini_appid'), 'appsecret' => $this->config->item('mini_appsecret'));
+        $this->load->library('wechat/MiniAppUtil', $config_, 'MiniApp');
+        $miniapp = $this->MiniApp->getSessionInfo($code_);
+        if ($miniapp === false) {
+            return $this->fun_fail($this->MiniApp->getError());
+        }
+        return $this->fun_success('操作成功', $miniapp['openid']);
+    }
+
 }

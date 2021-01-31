@@ -47,11 +47,11 @@ class Mini_controller extends MY_Controller
         $this->cismarty->display($html);
     }
 
-    public function get_mini_openid($code){
-        $this->load->library('wechat/MiniAppUtil',array('appid' => $this->config->item('mini_appid'), 'appsecret' => $this->config->item('mini_appsecret')));
-        $miniapp = $this->miniAppUtil->getSessionInfo($code);
-        $session = $miniapp->getSessionInfo($code);
-    }
+    //public function get_mini_openid($code){
+       //$this->load->library('wechat/MiniAppUtil',array('appid' => $this->config->item('mini_appid'), 'appsecret' => $this->config->item('mini_appsecret')));
+        //$miniapp = $this->miniAppUtil->getSessionInfo($code);
+        //$session = $miniapp->getSessionInfo($code);
+    //}
 
     public function set_base_code($token){
         require_once (APPPATH . 'libraries/Base64.php');

@@ -1,6 +1,6 @@
 <?php
 
-
+require_once(APPPATH ."libraries/wechat/WxCode.php");
 /**
  * 微信小程序第三方平台操作类
  */

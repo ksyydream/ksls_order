@@ -30,6 +30,11 @@ class Mini_login extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
+    public function get_mini_openid(){
+        $rs = $this->mini_login_model->get_mini_openid();
+        $this->ajaxReturn($rs);
+    }
+
 
 
 }
