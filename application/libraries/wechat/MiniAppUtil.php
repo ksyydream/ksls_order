@@ -1,6 +1,6 @@
 <?php
 require_once(APPPATH ."libraries/wechat/WxCommon.php");
-require_once(APPPATH ."libraries/wechat/WXBizDataCrypt.php");
+require_once(APPPATH ."libraries/wechat/WxBizDataCrypt.php");
 /**
  * 小程序官方接口类
  */
