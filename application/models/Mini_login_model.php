@@ -45,7 +45,7 @@ class Mini_login_model extends MY_Model
         if(!$code_){
             return $this->fun_fail('不可缺少code');
         }
-        //$code_ = '041wGv1w3v1yKV2ED61w3erpUO2wGv1N';
+        $code_ = '061FBR100g1t4L1vTR300RrYTs1FBR1n';
         $config_ = array('appid' => $this->config->item('mini_appid'), 'appsecret' => $this->config->item('mini_appsecret'));
         $this->load->library('wechat/MiniAppUtil', $config_, 'MiniApp');
         $miniapp = $this->MiniApp->getSessionInfo($code_);
