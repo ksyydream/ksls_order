@@ -359,10 +359,10 @@ class MY_Model extends CI_Model{
     }
 
     //验证短信
-    public function check_sms($mobile, $code){
+    public function check_sms($mobile, $code, $type){
         $sms_time_out = $this->config->item('sms_time_out');
         $sms_time_out = $sms_time_out ? $sms_time_out : 120;
-        $sms_log = $this->db->from('sms_log')->where(array('mobile' => $mobile, 'status' => 1))->order_by('add_time', 'desc')->limit(1)->get()->row_array();
+        $sms_log = $this->db->from('sms_log')->where(array('mobile' => $mobile, 'status' => 1, 'scene' => $type))->order_by('add_time', 'desc')->limit(1)->get()->row_array();
         if(!$sms_log){
             return $this->fun_fail('请先获取验证码');
         }
@@ -381,13 +381,13 @@ class MY_Model extends CI_Model{
     public function delOpenidById($id, $openid, $type){
         if($type == 'users'){
             //意味着是user登录
-            $this->db->where(array('user_id <>' => $id, 'openid' => $openid))->update('users', array('openid' => ''));
-            $this->db->where(array('openid' => $openid))->update('members', array('openid' => ''));
+            $this->db->where(array('user_id <>' => $id, 'mini_openid' => $openid))->update('users', array('mini_openid' => ''));
+            $this->db->where(array('mini_openid' => $openid))->update('admin', array('mini_openid' => ''));
         }
-        if($type == 'members'){
-            //意味着是memeber登录
-            $this->db->where(array('openid' => $openid))->update('users', array('openid' => ''));
-            $this->db->where(array('m_id <>' => $id, 'openid' => $openid))->update('members', array('openid' => ''));
+        if($type == 'admin'){
+            //意味着是admin登录
+            $this->db->where(array('mini_openid' => $openid))->update('users', array('mini_openid' => ''));
+            $this->db->where(array('admin_id <>' => $id, 'mini_openid' => $openid))->update('admin', array('mini_openid' => ''));
         }
     }
 
@@ -429,11 +429,6 @@ class MY_Model extends CI_Model{
         return -1;
     }
 
-    //通过invite_code查询管理员
-    public function getMemberByInvite($invite_code){
-        $res = $this->db->select()->from('members')->where(array('status' => 1, 'invite_code' => $invite_code))->get()->row_array();
-        return $res;
-    }
 
     //同盾获取征信信息
     public function get_tongdun_info($account_name = '', $id_number = '', $accout_mobile = ''){
