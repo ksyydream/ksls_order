@@ -59,6 +59,18 @@ class Mini_login extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
+    //公司人员登录
+    public function user_login(){
+        $rs = $this->mini_login_model->user_login();
+        if($rs['status'] == 1){
+            $user_id = $rs['result']['user_id'];
+            $token = $this->set_token_uid($user_id,'USER');
+            $this->mini_user_model->update_user_tt($user_id,$token);
+            $rs['result'] = array('token' => $token);
+        }
+        $this->ajaxReturn($rs);
+    }
+
     public function get_mini_openid(){
         $rs = $this->mini_login_model->get_mini_openid();
         $this->ajaxReturn($rs);

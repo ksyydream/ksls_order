@@ -74,15 +74,49 @@ class Mini_login_model extends MY_Model
             return $this->fun_fail('账号已存在,不可重复注册!');
         $this->db->insert('users', $user_data);
         $user_id = $this->db->insert_id();
-        $code = $this->input->post('code');
-        $re_openid = $this->get_mini_openid4log($code);
-        if($re_openid['status'] == 1){
-            $openid = $re_openid['result']['openid'];
-            $this->delOpenidById($user_id, $openid, 'users');
-            $this->db->where(array('user_id' => $user_id))->update('users', array('mini_openid' => $openid));
-        }
         $row = $this->db->select()->from('users')->where(array('user_id' => $user_id))->get()->row_array();
         if ($row) {
+            $code = $this->input->post('code');
+            $re_openid = $this->get_mini_openid4log($code);
+            if($re_openid['status'] == 1){
+                $openid = $re_openid['result']['openid'];
+                $this->delOpenidById($user_id, $openid, 'users');
+                $this->db->where(array('user_id' => $user_id))->update('users', array('mini_openid' => $openid));
+            }
+            return $this->fun_success('操作成功',$row);
+        } else {
+            return $this->fun_fail('登录失败');
+        }
+    }
+
+    //门店登录
+    public function user_login(){
+        $data = array(
+            'mobile' => trim($this->input->post('mobile')),
+            'sms_code' => trim($this->input->post('sms_code')),
+        );
+        if(!$data['mobile']){
+            return $this->fun_fail('手机号不能为空!');
+        }
+        if(!check_mobile($data['mobile'])){
+            return $this->fun_fail('手机号不规范!');
+        }
+        if(!$data['sms_code']){
+            return $this->fun_fail('短信验证码不能为空!');
+        }
+        $check_sms = $this->check_sms($data['mobile'], $data['sms_code'], 2);
+        if($check_sms['status'] != 1){
+            return $check_sms;
+        }
+        $row = $this->db->select()->from('user')->where(array('mobile' => $data['mobile'], 'status' => 1))->get()->row_array();
+        if ($row) {
+            $code = $this->input->post('code');
+            $re_openid = $this->get_mini_openid4log($code);
+            if($re_openid['status'] == 1){
+                $openid = $re_openid['result']['openid'];
+                $this->delOpenidById($row['user_id'], $openid, 'users');
+                $this->db->where(array('user_id' => $row['user_id']))->update('users', array('mini_openid' => $openid));
+            }
             return $this->fun_success('操作成功',$row);
         } else {
             return $this->fun_fail('登录失败');
