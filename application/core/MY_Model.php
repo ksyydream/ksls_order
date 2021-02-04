@@ -431,8 +431,7 @@ class MY_Model extends CI_Model{
 
 
     //同盾获取征信信息
-    public function get_tongdun_info($account_name = '', $id_number = '', $accout_mobile = ''){
-        $user_id = $this->session->userdata('wx_user_id');
+    public function get_tongdun_info($account_name = '', $id_number = '', $accout_mobile = '', $user_id){
         $this->db->set('use_td_times','use_td_times + 1',false);
         $this->db->where('user_id', $user_id);
         $this->db->update('users');

@@ -26,11 +26,11 @@ class Loan_model extends MY_Model
         if(!$borrowers || !is_array($borrowers))
             return $this->fun_fail('借款人不能为空!');
         foreach($borrowers as $k_ => $v_){
-            if(trim($v_['borrower_name']) == "")
+            if(!isset($v_['borrower_name']) || trim($v_['borrower_name']) == "")
                 return $this->fun_fail('存在借款人姓名为空!');
-            if(trim($v_['borrower_phone']) == "")
+            if(!isset($v_['borrower_phone']) || trim($v_['borrower_phone']) == "")
                 return $this->fun_fail('存在借款人电话为空!');
-            if(trim($v_['borrower_card']) == "")
+            if(!isset($v_['borrower_card']) || trim($v_['borrower_card']) == "")
                 return $this->fun_fail('存在借款人身份证为空!');
         }
         $data = array(
@@ -82,11 +82,11 @@ class Loan_model extends MY_Model
         foreach($borrowers as $k => $v){
             $b_insert_ = array(
                 'borrower_name' => $v['borrower_name'],
-                'borrower_phone' => $v['phone'],
+                'borrower_phone' => $v['borrower_phone'],
                 'borrower_card' => $v['borrower_card'],
                 'loan_id' => $loan_id
             );
-            $borrower_td_info_ = $this->get_tongdun_info($v['borrower_name'], $v['borrower_card'], $v['borrower_phone']);
+            $borrower_td_info_ = $this->get_tongdun_info($v['borrower_name'], $v['borrower_card'], $v['borrower_phone'], $user_id);
             if($borrower_td_info_ && $borrower_td_info_['status'] == 1){
                 $td_info = $borrower_td_info_['result'];
                 $b_insert_['td_id'] = $td_info['id'];
