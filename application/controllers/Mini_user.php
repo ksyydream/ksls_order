@@ -40,7 +40,10 @@ class Mini_user extends Mini_controller {
         $this->ajaxReturn($rs);
 	}
 
-
+    public function loan_list(){
+        $rs = $this->loan_model->loan_list4user($this->user_id);
+        $this->ajaxReturn($rs);
+    }
 
 
 

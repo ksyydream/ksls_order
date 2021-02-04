@@ -109,4 +109,66 @@ class Loan_model extends MY_Model
         $this->db->insert_batch('loan_borrowers', $borrowers_insert_);
         return $this->fun_success('操作成功');
 	}
+
+    public function loan_list4user($user_id){
+        $where_ = array('a.user_id' => $user_id);
+        $order_1 = 'a.create_time';
+        $order_2 = 'desc';
+        $res_ = $this->loan_list($where_,$order_1,$order_2);
+        return $this->fun_success('操作成功', array('list' => $res_));
+    }
+
+    //赎楼业务列表
+    private function loan_list($where, $order_1 = 'a.create_time', $order_2 = 'desc'){
+        $res = array();
+        $data['limit'] = $this->mini_limit;//每页显示多少调数据
+        $data['keyword'] = $this->input->post('keyword')?trim($this->input->post('keyword')):null;
+        $data['brand_id'] = $this->input->post('brand_id')?trim($this->input->post('brand_id')):null;
+        $data['flag'] = $this->input->post('flag')?trim($this->input->post('flag')):null;
+        $page = $this->input->post('page')?trim($this->input->post('page')):1;
+        $this->db->select('count(DISTINCT a.loan_id) num');
+        $this->db->from('loan_master a');
+        $this->db->join('loan_borrowers b', 'a.loan_id = b.loan_id', 'left');
+        $this->db->where($where);
+        if($data['keyword']){
+            $this->db->group_start();
+            $this->db->like('b.borrowe_name', $data['keyword']);
+            $this->db->group_end();
+        }
+        if($data['flag']){
+            $this->db->where('a.flag', $data['flag']);
+        }
+        if($data['brand_id']){
+            $this->db->where('a.brand_id', $data['brand_id']);
+        }
+        $num = $this->db->get()->row();
+        $res['total_rows'] = $num->num;
+        $res['total_page'] = ceil($res['total_rows'] / $data['limit']);
+        $this->db->select('a.loan_id,a.work_no,a.loan_money');
+        $this->db->from('loan_master a');
+        $this->db->join('loan_borrowers b', 'a.loan_id = b.loan_id', 'left');
+        $this->db->where($where);
+        if($data['keyword']){
+            $this->db->group_start();
+            $this->db->like('b.borrower_name', $data['keyword']);
+            $this->db->group_end();
+        }
+        if($data['flag']){
+            $this->db->where('a.flag', $data['flag']);
+        }
+        if($data['brand_id']){
+            $this->db->where('a.brand_id', $data['brand_id']);
+        }
+        $this->db->order_by($order_1, $order_2);
+        $this->db->group_by('a.loan_id');
+        $this->db->limit($data['limit'], $offset = ($page - 1) * $data['limit']);
+        $res['res_list'] = $this->db->get()->result_array();
+        foreach($res['res_list'] as $k => $v){
+            $this->db->select('borrower_name,borrower_phone');
+            $this->db->from('loan_borrowers');
+            $this->db->where('loan_id', $v['loan_id']);
+            $res['res_list'][$k]['borrowers_list'] = $this->db->get()->result_array();
+        }
+        return $res;
+    }
 }

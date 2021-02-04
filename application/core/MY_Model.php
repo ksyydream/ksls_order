@@ -13,6 +13,7 @@ class MY_Model extends CI_Model{
     public $model_success = array('status' => 1, 'msg' => '', 'result' => array());
     public $model_fail = array('status' => -1, 'msg' => '操作失败!', 'result' => array());
     public $limit = 15;
+    public $mini_limit = 6;
     protected $db_error = "数据操作发生错误，请稍后再试-_-!";
     /**
      * 构造函数
