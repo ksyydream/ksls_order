@@ -23,6 +23,7 @@ class Loan_model extends MY_Model
     public function save_loan($user_id){
 
         $borrowers = $this->input->post("borrowers");
+        die(var_dump($borrowers));
         $borrowers = urldecode($borrowers);
         $borrowers = json_decode($borrowers,true);
         if(!$borrowers || !is_array($borrowers))
