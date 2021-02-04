@@ -31,7 +31,7 @@ class Mini_login extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
-    //门店手机短信请求
+    //门店手机短信请求 type 是1的时候代表注册，2的时候代表登录
     public function get_sms(){
         $type = $this->input->post('type');
         $mobile = $this->input->post('mobile');
@@ -70,6 +70,11 @@ class Mini_login extends Mini_controller {
         }
         $this->ajaxReturn($rs);
     }
+
+    public function get_brand_list(){
+        $rs = $this->mini_login_model->get_brand_list();
+        $this->ajaxReturn($rs);
+	}
 
     public function get_mini_openid(){
         $rs = $this->mini_login_model->get_mini_openid();

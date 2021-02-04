@@ -108,7 +108,7 @@ class Mini_login_model extends MY_Model
         if($check_sms['status'] != 1){
             return $check_sms;
         }
-        $row = $this->db->select()->from('user')->where(array('mobile' => $data['mobile'], 'status' => 1))->get()->row_array();
+        $row = $this->db->select()->from('users')->where(array('mobile' => $data['mobile'], 'status' => 1))->get()->row_array();
         if ($row) {
             $code = $this->input->post('code');
             $re_openid = $this->get_mini_openid4log($code);
@@ -123,6 +123,7 @@ class Mini_login_model extends MY_Model
         }
     }
 
+    //通过code获取openid 内部使用方法
     private function get_mini_openid4log($code_){
         if(!$code_){
             return $this->fun_fail('不可缺少code');
@@ -135,6 +136,12 @@ class Mini_login_model extends MY_Model
         }
         return $this->fun_success('操作成功', array('openid' => $miniapp['openid']));
     }
+
+    //获取大客户列表
+    public function get_brand_list(){
+      $re = $this->db->select("brand_name,id")->from('brand')->where(array('status' => 1))->get()->result_array();
+      return $this->fun_success('获取成功', $re);
+	}
 
     public function get_mini_openid(){
         $code_ = $this->input->post('code');

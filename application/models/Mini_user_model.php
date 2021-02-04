@@ -28,6 +28,9 @@ class Mini_user_model extends MY_Model
         if($user_id != $user_info_['user_id']){
             return array('status' => -101, 'msg' => '异常!', "result" => '');
         }
+        if($user_info_['status'] != 1){
+            return array('status' => -101, 'msg' => '账号异常!', "result" => '');
+        }
         return $this->fun_success('登录成功',$user_info_['user_id']);
     }
 
@@ -43,5 +46,6 @@ class Mini_user_model extends MY_Model
         }
         $this->db->where('user_id', $user_id)->update('users', $update_data);
     }
+
 
 }

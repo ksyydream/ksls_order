@@ -518,6 +518,16 @@ class MY_Model extends CI_Model{
         return $username;
     }
 
+    //获取随机登陆账号
+    public function get_workno(){
+        $title_ = 'SL' . date('Ymd', time());
+        $work_no = $title_ . sprintf('%04s', $this->get_sys_num_auto($title_));
+        $check = $this->db->select('loan_id')->from('loan_master')->where('work_no',$work_no)->order_by('loan_id','desc')->get()->row_array();
+        if($check)
+            $work_no = $this->get_workno();
+        return $work_no;
+    }
+
     //微信图片上传
     public function getmedia($media_id, $finance_num, $file){
         $app = $this->config->item('appid');

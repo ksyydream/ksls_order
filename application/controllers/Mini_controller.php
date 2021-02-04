@@ -11,8 +11,6 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 class Mini_controller extends MY_Controller
 {
     protected $wxconfig = array();
-    public $user = array();
-    public $user_id = 0;    //6
     public $token = '';
     public function __construct()
     {
