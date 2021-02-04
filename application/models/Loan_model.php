@@ -22,11 +22,11 @@ class Loan_model extends MY_Model
     //新建赎楼业务
     public function save_loan($user_id){
 
-        $borrowers = $this->input->post("borrowers");
-        die(var_dump($borrowers));
-        $borrowers = urldecode($borrowers);
-        $borrowers = json_decode($borrowers,true);
-        if(!$borrowers || !is_array($borrowers))
+        $borrowers = $this->input->post("borrowers");;
+        if(!is_array($borrowers)){
+            $borrowers = json_decode($borrowers,true);
+        }
+        if(!$borrowers)
             return $this->fun_fail('借款人不能为空!');
         foreach($borrowers as $k_ => $v_){
             if(!isset($v_['borrower_name']) || trim($v_['borrower_name']) == "")
