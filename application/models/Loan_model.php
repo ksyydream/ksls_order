@@ -110,6 +110,7 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功');
 	}
 
+    //门店管理员
     public function loan_list4user($user_id){
         $where_ = array('a.user_id' => $user_id);
         $order_1 = 'a.create_time';
@@ -118,7 +119,7 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功', array('list' => $res_));
     }
 
-    //赎楼业务列表
+    //赎楼业务列表 私有公共方法
     private function loan_list($where, $order_1 = 'a.create_time', $order_2 = 'desc'){
         $res = array();
         $data['limit'] = $this->mini_limit;//每页显示多少调数据
