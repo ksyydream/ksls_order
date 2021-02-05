@@ -31,11 +31,11 @@ class Mini_user_model extends MY_Model
         if($user_info_['status'] != 1){
             return array('status' => -101, 'msg' => '账号异常!', "result" => '');
         }
-        //这里多效验一步 大客户品牌状态
+        //这里多效验一步 大客户品牌状态 先不做判断
         if($user_info_['brand_id']){
             $brand_info = $this->readByID("brand", 'id', $user_info_['brand_id']);
             if($brand_info && $brand_info['status'] != 1){
-                     return array('status' => -102, 'msg' => '大客户状态异常!', "result" => '');
+                     //return array('status' => -102, 'msg' => '大客户状态异常!', "result" => '');
 			}
         }
        

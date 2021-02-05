@@ -48,6 +48,8 @@ class Mini_login_model extends MY_Model
         );
         $row = $this->db->select()->from('admin')->where($data)->get()->row_array();
         if ($row) {
+            if($row['status'] != 1)
+                return $this->fun_fail('账号禁用');
             $code = $this->input->post('code');
             $re_openid = $this->get_mini_openid4log($code);
             if($re_openid['status'] == 1){
@@ -61,7 +63,7 @@ class Mini_login_model extends MY_Model
         }
     }
 
-    //管理员登录
+    //大客户登录
     public function brand_login(){
 
         $data = array(
@@ -70,6 +72,8 @@ class Mini_login_model extends MY_Model
         );
         $row = $this->db->select()->from('brand')->where($data)->get()->row_array();
         if ($row) {
+            if($row['status'] != 1)
+                return $this->fun_fail('账号禁用');
             $code = $this->input->post('code');
             $re_openid = $this->get_mini_openid4log($code);
             if($re_openid['status'] == 1){
@@ -151,8 +155,10 @@ class Mini_login_model extends MY_Model
         if($check_sms['status'] != 1){
             return $check_sms;
         }
-        $row = $this->db->select()->from('users')->where(array('mobile' => $data['mobile'], 'status' => 1))->get()->row_array();
+        $row = $this->db->select()->from('users')->where(array('mobile' => $data['mobile']))->get()->row_array();
         if ($row) {
+            if($row['status'] != 1)
+                return $this->fun_fail('账号禁用');
             $code = $this->input->post('code');
             $re_openid = $this->get_mini_openid4log($code);
             if($re_openid['status'] == 1){
