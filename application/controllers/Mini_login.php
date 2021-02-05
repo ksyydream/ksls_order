@@ -16,6 +16,7 @@ class Mini_login extends Mini_controller {
         parent::__construct();
         $this->load->model('mini_login_model');
         $this->load->model('mini_admin_model');
+        $this->load->model('mini_brand_model');
         $this->load->model('mini_user_model');
     }
 
@@ -26,6 +27,18 @@ class Mini_login extends Mini_controller {
             $admin_id = $rs['result']['admin_id'];
             $token = $this->set_token_uid($admin_id,'ADMIN');
             $this->mini_admin_model->update_admin_tt($admin_id,$token);
+            $rs['result'] = array('token' => $token);
+        }
+        $this->ajaxReturn($rs);
+    }
+
+    //公司人员登录
+    public function brand_login(){
+        $rs = $this->mini_login_model->brand_login();
+        if($rs['status'] == 1){
+            $brand_id = $rs['result']['id'];
+            $token = $this->set_token_uid($brand_id,'BRAND');
+            $this->mini_brand_model->update_brand_tt($brand_id,$token);
             $rs['result'] = array('token' => $token);
         }
         $this->ajaxReturn($rs);
@@ -48,6 +61,7 @@ class Mini_login extends Mini_controller {
         $this->ajaxReturn($res);
     }
 
+    //门店公司账号 注册
     public function user_logon(){
         $rs = $this->mini_login_model->user_logon();
         if($rs['status'] == 1){
@@ -76,10 +90,41 @@ class Mini_login extends Mini_controller {
         $this->ajaxReturn($rs);
 	}
 
+    //账号退出 三种账号均可以使用
     public function logout(){
         $rs = $this->mini_login_model->logout();
         $this->ajaxReturn($rs);
 	}
+
+    //效验人员信息 通过code
+    public function check_mini(){
+        $check_mini_ = $this->mini_login_model->check_mini();
+        if($check_mini_['status'] == 1){
+            $result_ = array();
+            $id_ = $check_mini_['result']['id'];
+            switch($check_mini_['result']['type']){
+                case 'user':
+                    $token = $this->set_token_uid($id_,'USER');
+                    $this->mini_user_model->update_user_tt($id_,$token);
+                    $result_ = array('token' => $token, 'type' => $check_mini_['result']['type']);
+                    break;
+                case 'brand':
+                    $token = $this->set_token_uid($id_,'BRAND');
+                    $this->mini_brand_model->update_brand_tt($id_,$token);
+                    $result_ = array('token' => $token, 'type' => $check_mini_['result']['type']);
+                    break;
+                case 'admin':
+                    $token = $this->set_token_uid($id_,'ADMIN');
+                    $this->mini_admin_model->update_admin_tt($id_,$token);
+                    $result_ = array('token' => $token, 'type' => $check_mini_['result']['type']);
+                    break;
+                default:
+                    $this->ajaxReturn($this->mini_login_model->fun_fail("未寻找到账号信息"));
+            }
+            $this->ajaxReturn($this->mini_login_model->fun_success("获取成功", $result_));
+        }
+        $this->ajaxReturn($check_mini_);
+    }
 
     public function get_mini_openid(){
         $rs = $this->mini_login_model->get_mini_openid();
