@@ -16,6 +16,7 @@ class Mini_brand extends Mini_controller {
     {
         parent::__construct();
         $this->load->model('mini_brand_model');
+        $this->load->model('mini_user_model');
         $this->load->model('loan_model');
         $token = $this->input->get('token');
         if(!$token){
@@ -55,6 +56,11 @@ class Mini_brand extends Mini_controller {
         //返回信息
         $this->ajaxReturn($this->loan_model->fun_success("获取成功！", $loan_info));
 	}
+
+    public function user_list(){
+        $where = array('a.brand_id' => $this->brand_id);
+        $rs = $this->mini_user_model->user_list($where);
+    }
 
 
 

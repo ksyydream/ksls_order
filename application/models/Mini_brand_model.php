@@ -37,6 +37,12 @@ class Mini_brand_model extends MY_Model
 
     public function get_brand_info($brand_id){
         $row = $this->db->select("brand_name,m_brand_name")->from('brand')->where(array('id' => $brand_id))->get()->row_array();
+        $this->db->select('count(a.user_id) num');
+        $this->db->from('users');
+        $this->db->where('brand_id', $brand_id);
+        $this->db->where('status', 1);
+        $num = $this->db->get()->row();
+        $row['total_users'] = $num->num;
         return $this->fun_success('获取成功',$row);
     }
 

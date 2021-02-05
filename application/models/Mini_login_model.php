@@ -27,12 +27,14 @@ class Mini_login_model extends MY_Model
             //清除所有该openid关联的账号绑定记录，包括token
              $this->db->where(array('mini_openid' => $openid))->update('admin', array('mini_openid' => '', 'token' => ''));
              $this->db->where(array('mini_openid' => $openid))->update('users', array('mini_openid' => '', 'token' => ''));
+            $this->db->where(array('mini_openid' => $openid))->update('brand', array('mini_openid' => '', 'token' => ''));
 
         }
         //再处理下token 
         if($token != ""){
              $this->db->where(array('token' => $token))->update('admin', array('mini_openid' => '', 'token' => ''));
              $this->db->where(array('token' => $token))->update('users', array('mini_openid' => '', 'token' => ''));
+            $this->db->where(array('token' => $token))->update('brand', array('mini_openid' => '', 'token' => ''));
 		}
         return $this->fun_success('操作成功');
     }

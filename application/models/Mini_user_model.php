@@ -55,5 +55,57 @@ class Mini_user_model extends MY_Model
         $this->db->where('user_id', $user_id)->update('users', $update_data);
     }
 
+    //门店账号列表 因为大客户账号 和 管理员账号均可能需要调用,所以写成公用的
+    public function user_list($where){
+        $res = array();
+        $data['limit'] = $this->mini_limit;//每页显示多少调数据
+        $data['keyword'] = $this->input->post('keyword')?trim($this->input->post('keyword')):null;
+        $data['brand_id'] = $this->input->post('brand_id')?trim($this->input->post('brand_id')):null;
+        $data['status'] = $this->input->post('status')?trim($this->input->post('status')):null;
+        $page = $this->input->post('page')?trim($this->input->post('page')):1;
+        $this->db->select('count(a.user_id) num');
+        $this->db->from('users a');
+        $this->db->join('brand b', 'a.brand_id = b.id', 'left');
+        $this->db->where($where);
+        if($data['keyword']){
+            $this->db->group_start();
+            $this->db->like('a.rel_name', $data['keyword']);
+            $this->db->or_like('a.mobile', $data['keyword']);
+            $this->db->or_like('a.shop_name', $data['keyword']);
+            $this->db->group_end();
+        }
+        if($data['status']){
+            $this->db->where('a.status', $data['status']);
+        }
+        if($data['brand_id']){
+            $this->db->where('a.brand_id', $data['brand_id']);
+        }
+        $num = $this->db->get()->row();
+        $res['total_rows'] = $num->num;
+        $res['total_page'] = ceil($res['total_rows'] / $data['limit']);
+
+        $this->db->select('a.rel_name,a.mobile,a.shop_name,b.brand_name,a.status user_status,b.status brand_status');
+        $this->db->from('users a');
+        $this->db->join('brand b', 'a.brand_id = b.id', 'left');
+        $this->db->where($where);
+        if($data['keyword']){
+            $this->db->group_start();
+            $this->db->like('a.rel_name', $data['keyword']);
+            $this->db->or_like('a.mobile', $data['keyword']);
+            $this->db->or_like('a.shop_name', $data['keyword']);
+            $this->db->group_end();
+        }
+        if($data['status']){
+            $this->db->where('a.status', $data['status']);
+        }
+        if($data['brand_id']){
+            $this->db->where('a.brand_id', $data['brand_id']);
+        }
+        $this->db->order_by('a.reg_time', 'desc');
+        $this->db->limit($data['limit'], $offset = ($page - 1) * $data['limit']);
+        $res['res_list'] = $this->db->get()->result_array();
+        return $this->fun_success('获取成功', $res);
+    }
+
 
 }
