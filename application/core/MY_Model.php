@@ -384,11 +384,19 @@ class MY_Model extends CI_Model{
             //意味着是user登录
             $this->db->where(array('user_id <>' => $id, 'mini_openid' => $openid))->update('users', array('mini_openid' => ''));
             $this->db->where(array('mini_openid' => $openid))->update('admin', array('mini_openid' => ''));
+            $this->db->where(array('mini_openid' => $openid))->update('brand', array('mini_openid' => ''));
         }
         if($type == 'admin'){
             //意味着是admin登录
             $this->db->where(array('mini_openid' => $openid))->update('users', array('mini_openid' => ''));
             $this->db->where(array('admin_id <>' => $id, 'mini_openid' => $openid))->update('admin', array('mini_openid' => ''));
+            $this->db->where(array('mini_openid' => $openid))->update('brand', array('mini_openid' => ''));
+        }
+        if($type == 'brand'){
+            //意味着是brand登录
+            $this->db->where(array('mini_openid' => $openid))->update('users', array('mini_openid' => ''));
+            $this->db->where(array('mini_openid' => $openid))->update('admin', array('mini_openid' => ''));
+            $this->db->where(array('id <>' => $id, 'mini_openid' => $openid))->update('brand', array('mini_openid' => ''));
         }
     }
 

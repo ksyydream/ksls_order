@@ -125,12 +125,22 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功', array('list' => $res_));
     }
 
+    //门店列表
+    public function loan_list4brand($brand_id){
+        $where_ = array('a.brand_id' => $brand_id);
+        $order_1 = 'a.create_time';
+        $order_2 = 'desc';
+        $res_ = $this->loan_list($where_,$order_1,$order_2);
+        return $this->fun_success('操作成功', array('list' => $res_));
+    }
+
     //赎楼业务列表 私有 共用方法
     private function loan_list($where, $order_1 = 'a.create_time', $order_2 = 'desc'){
         $res = array();
         $data['limit'] = $this->mini_limit;//每页显示多少调数据
         $data['keyword'] = $this->input->post('keyword')?trim($this->input->post('keyword')):null;
         $data['brand_id'] = $this->input->post('brand_id')?trim($this->input->post('brand_id')):null;
+        $data['user_id'] = $this->input->post('user_id')?trim($this->input->post('user_id')):null;
         $data['flag'] = $this->input->post('flag')?trim($this->input->post('flag')):null;
         $page = $this->input->post('page')?trim($this->input->post('page')):1;
         $this->db->select('count(DISTINCT a.loan_id) num');
@@ -145,14 +155,20 @@ class Loan_model extends MY_Model
         if($data['flag']){
             $this->db->where('a.flag', $data['flag']);
         }
+        if($data['user_id']){
+            $this->db->where('a.user_id', $data['user_id']);
+        }
         if($data['brand_id']){
             $this->db->where('a.brand_id', $data['brand_id']);
         }
         $num = $this->db->get()->row();
         $res['total_rows'] = $num->num;
         $res['total_page'] = ceil($res['total_rows'] / $data['limit']);
-        $this->db->select('a.loan_id,a.work_no,a.loan_money');
+        $this->db->select('a.loan_id,a.work_no,a.loan_money,u.rel_name handle_user, u1.rel_name create_user, bd.brand_name');
         $this->db->from('loan_master a');
+        $this->db->join('users u','a.user_id = u.user_id','left');
+        $this->db->join('users u1','a.create_user_id = u1.user_id','left');
+        $this->db->join('brand bd','a.brand_id = bd.id','left');
         $this->db->join('loan_borrowers b', 'a.loan_id = b.loan_id', 'left');
         $this->db->where($where);
         if($data['keyword']){
@@ -165,6 +181,9 @@ class Loan_model extends MY_Model
         }
         if($data['brand_id']){
             $this->db->where('a.brand_id', $data['brand_id']);
+        }
+        if($data['user_id']){
+            $this->db->where('a.user_id', $data['user_id']);
         }
         $this->db->order_by($order_1, $order_2);
         $this->db->group_by('a.loan_id');
@@ -180,9 +199,13 @@ class Loan_model extends MY_Model
     }
 
     //赎楼业务详情
-    public function loan_info($loan_id){
-        $this->db->select()->from('loan_master');
-        $loan_info = $this->db->where('loan_id', $loan_id)->get()->row_array();
+    public function loan_info($loan_id, $select = "*"){
+        $select = "a.*,u.rel_name handle_user, u1.rel_name create_user, bd.brand_name";
+        $this->db->select($select)->from('loan_master a');
+        $this->db->join('users u','a.user_id = u.user_id','left');
+        $this->db->join('users u1','a.create_user_id = u1.user_id','left');
+        $this->db->join('brand bd','a.brand_id = bd.id','left');
+        $loan_info = $this->db->where('a.loan_id', $loan_id)->get()->row_array();
         if(!$loan_info)
             return $this->fun_fail('未找到相关订单!');
         $this->db->select('*');

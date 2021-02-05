@@ -486,12 +486,14 @@ class Manager_model extends MY_Model
         $data =array(
             'brand_name'=>trim($this->input->post('brand_name')),
             'm_brand_name'=>trim($this->input->post('m_brand_name')),
+            'create_time' => time(),
             'status' => trim($this->input->post('status')) ? trim($this->input->post('status')) : -1
         );
         if(!$data['brand_name'])
             return $this->fun_fail('大客户名称不能为空！');
         $id = $this->input->post('id');
         if($id){
+            unset($data['create_time']);
             $this->db->where('id', $id)->update('brand', $data);
         }else{
             $data['username'] = $this->get_username();

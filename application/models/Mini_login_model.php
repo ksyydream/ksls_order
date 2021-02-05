@@ -37,6 +37,7 @@ class Mini_login_model extends MY_Model
         return $this->fun_success('操作成功');
     }
 
+    //管理员登录
     public function admin_login(){
 
         $data = array(
@@ -51,6 +52,28 @@ class Mini_login_model extends MY_Model
                 $openid = $re_openid['result']['openid'];
                 $this->delOpenidById($row['admin_id'], $openid, 'admin');
                 $this->db->where(array('admin_id' => $row['admin_id']))->update('admin', array('mini_openid' => $openid));
+            }
+            return $this->fun_success('操作成功',$row);
+        } else {
+            return $this->fun_fail('登录失败');
+        }
+    }
+
+    //管理员登录
+    public function brand_login(){
+
+        $data = array(
+            'username' => trim($this->input->post('user')),
+            'password' => sha1(trim($this->input->post('password'))),
+        );
+        $row = $this->db->select()->from('brand')->where($data)->get()->row_array();
+        if ($row) {
+            $code = $this->input->post('code');
+            $re_openid = $this->get_mini_openid4log($code);
+            if($re_openid['status'] == 1){
+                $openid = $re_openid['result']['openid'];
+                $this->delOpenidById($row['id'], $openid, 'brand');
+                $this->db->where(array('id' => $row['id']))->update('brand', array('mini_openid' => $openid));
             }
             return $this->fun_success('操作成功',$row);
         } else {
@@ -157,8 +180,12 @@ class Mini_login_model extends MY_Model
 
     //获取大客户列表
     public function get_brand_list(){
-      $re = $this->db->select("brand_name,id")->from('brand')->where(array('status' => 1))->get()->result_array();
-      return $this->fun_success('获取成功', $re);
+        $this->db->select("brand_name,id");
+        $this->db->from('brand');
+        if($status = $this->input->post('status'))
+            $this->db->where(array('status' => $status));
+        $re = $this->db->get()->result_array();
+        return $this->fun_success('获取成功', $re);
 	}
 
     public function get_mini_openid(){
