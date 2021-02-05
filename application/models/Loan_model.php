@@ -36,9 +36,15 @@ class Loan_model extends MY_Model
             if(!isset($v_['borrower_card']) || trim($v_['borrower_card']) == "")
                 return $this->fun_fail('存在借款人身份证为空!');
         }
+        //获取门店 大客户品牌
+        $user_info = $this->readByID("uses", 'user_id', $user_id);
+        if(!$user_info)
+            return $this->fun_fail('异常!');
+        $brand_id = $user_info['brand_id'] ? $user_info['brand_id'] : -1;
         $data = array(
             'user_id' => $user_id,
             'create_user_id' => $user_id,
+            'brand_id' => $brand_id,
             'create_time' => time(),
             'loan_money' => trim($this->input->post('loan_money')),
             'appointment_date' => trim($this->input->post('appointment_date')),
@@ -110,7 +116,7 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功');
 	}
 
-    //门店管理员
+    //门店列表
     public function loan_list4user($user_id){
         $where_ = array('a.user_id' => $user_id);
         $order_1 = 'a.create_time';
@@ -119,7 +125,7 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功', array('list' => $res_));
     }
 
-    //赎楼业务列表 私有公共方法
+    //赎楼业务列表 私有 共用方法
     private function loan_list($where, $order_1 = 'a.create_time', $order_2 = 'desc'){
         $res = array();
         $data['limit'] = $this->mini_limit;//每页显示多少调数据
@@ -172,4 +178,17 @@ class Loan_model extends MY_Model
         }
         return $res;
     }
+
+    //赎楼业务详情
+    public function loan_info($loan_id){
+        $this->db->select()->from('loan_master');
+        $loan_info = $this->db->where('loan_id', $loan_id)->get()->row_array();
+        if(!$loan_info)
+            return $this->fun_fail('未找到相关订单!');
+        $this->db->select('*');
+        $this->db->from('loan_borrowers');
+        $this->db->where('loan_id', $loan_id);
+        $loan_info['borrowers_list'] = $this->db->get()->result_array();
+        return $this->fun_success('获取成功!', $loan_info);
+	}
 }

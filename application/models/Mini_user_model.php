@@ -31,11 +31,19 @@ class Mini_user_model extends MY_Model
         if($user_info_['status'] != 1){
             return array('status' => -101, 'msg' => '账号异常!', "result" => '');
         }
-        return $this->fun_success('登录成功',$user_info_['user_id']);
+        //这里多效验一步 大客户品牌状态
+        if($user_info_['brand_id']){
+            $brand_info = $this->readByID("brand", 'id', $user_info_['brand_id']);
+            if($brand_info && $brand_info['status'] != 1){
+                     return array('status' => -102, 'msg' => '大客户状态异常!', "result" => '');
+			}
+        }
+       
+        return $this->fun_success('登录成功',$user_info_);
     }
 
     public function get_user_info($user_id){
-        $row = $this->db->select("rel_name")->from('users')->where(array('user_id' => $user_id))->get()->row_array();
+        $row = $this->db->select("rel_name,brand_id")->from('users')->where(array('user_id' => $user_id))->get()->row_array();
         return $this->fun_success('获取成功',$row);
     }
 

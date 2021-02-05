@@ -18,12 +18,23 @@ class Mini_login_model extends MY_Model
     }
 
     public function logout(){
-        $this->db->where('user_id',$this->session->userdata('wx_user_id'))->update('users',array('openid'=>''));
-        $this->db->where('m_id',$this->session->userdata('wx_m_id'))->update('members',array('openid'=>''));
-        $this->session->unset_userdata('wx_user_id');
-        $this->session->unset_userdata('wx_m_id');
-        $this->session->unset_userdata('wx_class');
-        $this->session->sess_destroy();
+        $code = $this->input->post('code');
+        $token = trim($this->input->get('token')) ? trim($this->input->get('token')): '';
+        $re_openid = $this->get_mini_openid4log($code);
+        //先解绑openid
+        if($re_openid['status'] == 1){
+             $openid = $re_openid['result']['openid'];
+            //清除所有该openid关联的账号绑定记录，包括token
+             $this->db->where(array('mini_openid' => $openid))->update('admin', array('mini_openid' => '', 'token' => ''));
+             $this->db->where(array('mini_openid' => $openid))->update('users', array('mini_openid' => '', 'token' => ''));
+
+        }
+        //再处理下token 
+        if($token != ""){
+             $this->db->where(array('token' => $token))->update('admin', array('mini_openid' => '', 'token' => ''));
+             $this->db->where(array('token' => $token))->update('users', array('mini_openid' => '', 'token' => ''));
+		}
+        return $this->fun_success('操作成功');
     }
 
     public function admin_login(){
@@ -34,6 +45,13 @@ class Mini_login_model extends MY_Model
         );
         $row = $this->db->select()->from('admin')->where($data)->get()->row_array();
         if ($row) {
+            $code = $this->input->post('code');
+            $re_openid = $this->get_mini_openid4log($code);
+            if($re_openid['status'] == 1){
+                $openid = $re_openid['result']['openid'];
+                $this->delOpenidById($row['admin_id'], $openid, 'admin');
+                $this->db->where(array('admin_id' => $row['admin_id']))->update('admin', array('mini_openid' => $openid));
+            }
             return $this->fun_success('操作成功',$row);
         } else {
             return $this->fun_fail('登录失败');

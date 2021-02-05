@@ -11,6 +11,7 @@
 require_once "Mini_controller.php";
 class Mini_user extends Mini_controller {
     private $user_id;
+    private $brand_id;
     private $user_info = [];
     public function __construct()
     {
@@ -26,7 +27,8 @@ class Mini_user extends Mini_controller {
         if($check_re['status'] < 0){
             $this->ajaxReturn($check_re);
         }
-        $this->user_id = $check_re['result'];
+        $this->user_id = $check_re['result']['user_id'];
+        $this->brand_id = $check_re['result']['brand_id'];
         $this->mini_user_model->update_user_tt($this->user_id); //操作就更新登录时间
     }
 
@@ -44,6 +46,22 @@ class Mini_user extends Mini_controller {
         $rs = $this->loan_model->loan_list4user($this->user_id);
         $this->ajaxReturn($rs);
     }
+
+    public function loan_info(){
+        $loan_id = $this->input->post('loan_id');
+        $rs = $this->loan_model->loan_info($loan_id);
+        if ($rs['status'] != 1) {
+	         $this->ajaxReturn($rs);
+        }
+        //验证权限
+        $loan_info = $rs['result'];
+        if($loan_info['user_id'] != $this->user_id){
+             $this->ajaxReturn($this->loan_model->fun_fail("您无权限操作此单！"));
+		}
+
+        //返回信息
+        $this->ajaxReturn($this->loan_model->fun_success("获取成功！", $loan_info));
+	}
 
 
 
