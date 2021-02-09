@@ -22,7 +22,7 @@ class Mini_user_model extends MY_Model
         if(!$user_info_){
             return array('status' => -100, 'msg' => '未找到登录信息!', "result" => '');
         }
-        if(time() - $user_info_['mini_last_login'] > 60 * 30){
+        if(time() - $user_info_['mini_last_login'] > 60 * 60 * 24 * 30){
             return array('status' => -101, 'msg' => '请登录!', "result" => '');
         }
         if($user_id != $user_info_['user_id']){
