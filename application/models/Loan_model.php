@@ -37,7 +37,7 @@ class Loan_model extends MY_Model
                 return $this->fun_fail('存在借款人身份证为空!');
         }
         //获取门店 大客户品牌
-        $user_info = $this->readByID("uses", 'user_id', $user_id);
+        $user_info = $this->readByID("users", 'user_id', $user_id);
         if(!$user_info)
             return $this->fun_fail('异常!');
         $brand_id = $user_info['brand_id'] ? $user_info['brand_id'] : -1;
