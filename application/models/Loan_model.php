@@ -122,7 +122,7 @@ class Loan_model extends MY_Model
         $order_1 = 'a.create_time';
         $order_2 = 'desc';
         $res_ = $this->loan_list($where_,$order_1,$order_2);
-        return $this->fun_success('操作成功', array('list' => $res_));
+        return $this->fun_success('操作成功', $res_);
     }
 
     //门店列表
@@ -131,7 +131,7 @@ class Loan_model extends MY_Model
         $order_1 = 'a.create_time';
         $order_2 = 'desc';
         $res_ = $this->loan_list($where_,$order_1,$order_2);
-        return $this->fun_success('操作成功', array('list' => $res_));
+        return $this->fun_success('操作成功', $res_);
     }
 
     //赎楼业务列表 私有 共用方法
