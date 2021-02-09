@@ -67,12 +67,36 @@ class Mini_controller extends MY_Controller
     }
 
     public function get_header_token(){
-        foreach (getallheaders() as $name => $value) {
-            if($name == 'Token'){
-                return $value;
+        if (function_exists('getallheaders')){
+            foreach (getallheaders() as $name => $value) {
+                if($name == 'Token'){
+                    return $value;
+                }
+            }
+            return -1;
+        }else{
+            $hears_ = $this->getallheaders4nginx();
+            foreach ($hears_ as $name => $value) {
+                if($name == 'Token'){
+                    return $value;
+                }
+            }
+            return -1;
+        }
+
+    }
+
+    public function getallheaders4nginx()
+    {
+        $headers = array ();
+        foreach ($_SERVER as $name => $value)
+        {
+            if (substr($name, 0, 5) == 'HTTP_')
+            {
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
             }
         }
-        return -1;
+        return $headers;
     }
 
     public function set_token_uid($uid,$role_name){
