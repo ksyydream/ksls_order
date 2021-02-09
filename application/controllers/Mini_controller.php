@@ -66,6 +66,15 @@ class Mini_controller extends MY_Controller
         return (int)$token[1];
     }
 
+    public function get_header_token(){
+        foreach (getallheaders() as $name => $value) {
+            if($name == 'Token'){
+                return $value;
+            }
+        }
+        return -1;
+    }
+
     public function set_token_uid($uid,$role_name){
         require_once(APPPATH ."libraries/Base64.php");
         $uid = $role_name . '_' .$uid.'_'.time();

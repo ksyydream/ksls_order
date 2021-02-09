@@ -16,7 +16,7 @@ class Mini_admin extends Mini_controller {
     {
         parent::__construct();
         $this->load->model('mini_admin_model');
-        $token = $this->input->get('token');
+        $token = $this->get_header_token();
         if(!$token){
             $this->ajaxReturn(array('status' => -100, 'msg' => 'token缺失!', "result" => ''));
         }

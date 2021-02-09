@@ -18,7 +18,7 @@ class Mini_brand extends Mini_controller {
         $this->load->model('mini_brand_model');
         $this->load->model('mini_user_model');
         $this->load->model('loan_model');
-        $token = $this->input->get('token');
+        $token = $this->get_header_token();
         if(!$token){
             $this->ajaxReturn(array('status' => -100, 'msg' => 'token缺失!', "result" => ''));
         }
