@@ -252,6 +252,7 @@ class Manager_model extends MY_Model
      */
     public function admin_save() {
         $data = array(
+            'role_id' => trim($this->input->post('role_id')) ? trim($this->input->post('role_id')) : -1,
             'user' => trim($this->input->post('user')) ? trim($this->input->post('user')) : null,
             'sex' => $this->input->post('sex') ? $this->input->post('sex') : 0,
             'head' => $this->input->post('head') ? $this->input->post('head') : null,
@@ -302,15 +303,15 @@ class Manager_model extends MY_Model
         $this->db->where('admin_id', $admin_id)->delete('auth_group_access');
         $this->db->insert('auth_group_access', array('admin_id' => $admin_id, 'group_id' => $group_id));
 
-        $work_role_ids = $this->input->post('work_role_ids');
-        $this->db->where('admin_id', $admin_id)->delete('admin_work_role');
-        if ($work_role_ids) {
-            if (is_array($work_role_ids)) {
-                foreach ($work_role_ids as $item) {
-                    $this->db->insert('admin_work_role', array('admin_id' => $admin_id, 'r_id' => $item));
-                }
-            }
-        }
+        //$work_role_ids = $this->input->post('work_role_ids');
+        //$this->db->where('admin_id', $admin_id)->delete('admin_work_role');
+        //if ($work_role_ids) {
+            //if (is_array($work_role_ids)) {
+                //foreach ($work_role_ids as $item) {
+                    //$this->db->insert('admin_work_role', array('admin_id' => $admin_id, 'r_id' => $item));
+                //}
+            //}
+        //}
         return $this->fun_success('保存成功');
     }
 

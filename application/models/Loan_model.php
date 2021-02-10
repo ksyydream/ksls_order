@@ -107,7 +107,7 @@ class Loan_model extends MY_Model
             }
             if(!isset($b_insert_['td_decision']) || !in_array($b_insert_['td_decision'], array('REVIEW', 'PASS'))){
                 //只要存在一个借款人 不满足同盾条件,订单就改成 同盾拒单
-                $this->db->where('loan_id', $loan_id)->update('loan_master', array('flag' => -2));
+                $this->db->where('loan_id', $loan_id)->update('loan_master', array('is_td_ng' => 1));
             }
 
             $borrowers_insert_[] = $b_insert_;
