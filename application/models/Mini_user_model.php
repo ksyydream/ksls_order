@@ -43,7 +43,11 @@ class Mini_user_model extends MY_Model
     }
 
     public function get_user_info($user_id){
-        $row = $this->db->select("rel_name,brand_id")->from('users')->where(array('user_id' => $user_id))->get()->row_array();
+        $row = $this->db->select(" us.rel_name, us.brand_id, us.role_id, wr.name role_name, b.brand_name")
+            ->from('users us')
+            ->join('brand b','us.brand_id = b.id','left')
+            ->join('work_role wr','wr.id = us.role_id','left')
+            ->where(array('user_id' => $user_id))->get()->row_array();
         return $this->fun_success('获取成功',$row);
     }
 

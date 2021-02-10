@@ -107,17 +107,17 @@ class Mini_login extends Mini_controller {
                 case 'user':
                     $token = $this->set_token_uid($id_,'USER');
                     $this->mini_user_model->update_user_tt($id_,$token);
-                    $result_ = array('token' => $token, 'type' => $check_mini_['result']['type']);
+                    $result_ = array('token' => $token, 'type' => $check_mini_['result']['type'], 'role_id' => -1);
                     break;
                 case 'brand':
                     $token = $this->set_token_uid($id_,'BRAND');
                     $this->mini_brand_model->update_brand_tt($id_,$token);
-                    $result_ = array('token' => $token, 'type' => $check_mini_['result']['type']);
+                    $result_ = array('token' => $token, 'type' => $check_mini_['result']['type'], 'role_id' => -1);
                     break;
                 case 'admin':
                     $token = $this->set_token_uid($id_,'ADMIN');
                     $this->mini_admin_model->update_admin_tt($id_,$token);
-                    $result_ = array('token' => $token, 'type' => $check_mini_['result']['type']);
+                    $result_ = array('token' => $token, 'type' => $check_mini_['result']['type'], 'role_id' => $check_mini_['result']['role_id']);
                     break;
                 default:
                     $this->ajaxReturn($this->mini_login_model->fun_fail("未寻找到账号信息"));

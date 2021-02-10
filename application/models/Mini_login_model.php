@@ -213,7 +213,7 @@ class Mini_login_model extends MY_Model
                 if($brand_info && $brand_info['status'] != 1){
 
                 }else{
-                    $result_ = array('type' => 'user', 'id' => $check_user_['user_id'], 'role' => array());
+                    $result_ = array('type' => 'user', 'id' => $check_user_['user_id'], 'role_id' => -1);
                     return $this->fun_success('成功获取账号', $result_);
                 }
             }
@@ -221,14 +221,14 @@ class Mini_login_model extends MY_Model
             $check_brand_ = $this->db->select()->from('brand')->where(array('mini_openid' => $openid, 'status' => 1))->get()->row_array();
             if($check_brand_){
                 $this->delOpenidById($check_brand_['id'], $openid, 'brand');
-                $result_ = array('type' => 'brand', 'id' => $check_brand_['id'], 'role' => array());
+                $result_ = array('type' => 'brand', 'id' => $check_brand_['id'], 'role_id' => -1);
                 return $this->fun_success('成功获取账号', $result_);
             }
 
             $check_admin_ = $this->db->select()->from('admin')->where(array('mini_openid' => $openid, 'status' => 1))->get()->row_array();
             if($check_admin_){
                 $this->delOpenidById($check_admin_['admin_id'], $openid, 'admin');
-                $result_ = array('type' => 'admin', 'id' => $check_admin_['admin_id'], 'role' => array());
+                $result_ = array('type' => 'admin', 'id' => $check_admin_['admin_id'], 'role_id' => $check_admin_['role_id']);
                 return $this->fun_success('成功获取账号', $result_);
             }
             return $this->fun_fail('为找到账号信息!');
