@@ -348,7 +348,7 @@ class Manager extends MY_Controller {
 
     /**
      *********************************************************************************************
-     * 大客户模块
+     * 门店模块
      *********************************************************************************************
      */
 
@@ -384,6 +384,50 @@ class Manager extends MY_Controller {
         $res = $this->manager_model->brand_save($this->admin_id);
         if($res['status'] == 1){
             $this->show_message($res['msg'], site_url('/manager/brand_list'));
+        }else{
+            $this->show_message($res['msg']);
+        }
+    }
+
+    /**
+     * 会员列表
+     * @author yangyang <yang.yang@thmarket.cn>
+     * @date 2018-04-01
+     */
+    public function users_list($page = 1){
+        $data = $this->manager_model->users_list($page);
+        $base_url = "/manager/users_list/";
+        $pager = $this->pagination->getPageLink4manager($base_url, $data['total_rows'], $data['limit']);
+        $this->assign('pager', $pager);
+        $this->assign('page', $page);
+        $this->assign('data', $data);
+        $this->display('manager/users/index.html');
+    }
+
+
+    /**
+     * 会员详情
+     * @author yangyang <yang.yang@thmarket.cn>
+     * @date 2018-07-22
+     */
+    public function users_edit($user_id){
+        $data = $this->manager_model->users_edit($user_id);
+        if(!$data){
+            $this->show_message('未找到会员信息!');
+        }
+        $this->assign('data', $data);
+        $this->display('manager/users/form.html');
+    }
+
+    /**
+     * 保存会员
+     * @author yangyang <yang.yang@thmarket.cn>
+     * @date 2019-07-22
+     */
+    public function users_save(){
+        $res = $this->manager_model->users_save();
+        if($res['status'] == 1){
+            $this->show_message('保存成功!', site_url('/manager/users_list'));
         }else{
             $this->show_message($res['msg']);
         }

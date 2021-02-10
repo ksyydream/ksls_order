@@ -503,5 +503,132 @@ class Manager_model extends MY_Model
         return $this->fun_success('保存成功!');
     }
 
+    /**
+     * 会员列表
+     * @author yangyang <yang.yang@thmarket.cn>
+     * @date 2018-04-01
+     */
+    public function users_list($page = 1) {
+        $data['limit'] = $this->limit;//每页显示多少调数据
+        $data['keyword'] = trim($this->input->get('keyword')) ? trim($this->input->get('keyword')) : null;
+        $data['type_id'] = trim($this->input->get('type_id')) ? trim($this->input->get('type_id')) : null;
+        $data['status'] = trim($this->input->get('status')) ? trim($this->input->get('status')) : null;
+        $data['s_date'] = trim($this->input->get('s_date')) ? trim($this->input->get('s_date')) : '';
+        $data['e_date'] = trim($this->input->get('e_date')) ? trim($this->input->get('e_date')) : '';
+
+        $this->db->select('count(1) num');
+        $this->db->from('users us');
+        $this->db->join('brand b','us.brand_id = b.id','left');
+        if ($data['keyword']) {
+            $this->db->group_start();
+            $this->db->like('us.rel_name', $data['keyword']);
+            $this->db->or_like('us.mobile', $data['keyword']);
+            $this->db->group_end();
+        }
+        if ($data['s_date']) {
+            $this->db->where('us.reg_time >=', strtotime($data['s_date'] . " 00:00:00"));
+        }
+        if ($data['e_date']) {
+            $this->db->where('us.reg_time <=', strtotime($data['e_date'] . " 23:59:59"));
+        }
+        if ($data['type_id']) {
+            $this->db->where('us.type_id', $data['type_id']);
+        }
+        if ($data['status']) {
+            $this->db->where('us.status', $data['status']);
+        }
+
+        $rs_total = $this->db->get()->row();
+        //总记录数
+        $total_rows = $rs_total->num;
+        $data['total_rows'] = $total_rows;
+        //list
+        $this->db->select('us.*,b.brand_name,r1.name r1_name,r2.name r2_name,r3.name r3_name,r4.name r4_name, m.rel_name m_rel_name_,m.mobile m_mobile_');
+        $this->db->from('users us');
+        $this->db->join('brand b','us.brand_id = b.id','left');
+        $this->db->join('region r1', 'us.province = r1.id', 'left');
+        $this->db->join('region r2', 'us.city = r2.id', 'left');
+        $this->db->join('region r3', 'us.district = r3.id', 'left');
+        $this->db->join('region r4', 'us.twon = r4.id', 'left');
+        $this->db->join('members m', 'm.m_id = us.invite', 'left');
+        if ($data['keyword']) {
+            $this->db->group_start();
+            $this->db->like('us.rel_name', $data['keyword']);
+            $this->db->or_like('us.mobile', $data['keyword']);
+            $this->db->group_end();
+        }
+        if ($data['s_date']) {
+            $this->db->where('us.reg_time >=', strtotime($data['s_date'] . " 00:00:00"));
+        }
+        if ($data['e_date']) {
+            $this->db->where('us.reg_time <=', strtotime($data['e_date'] . " 23:59:59"));
+        }
+        if ($data['type_id']) {
+            $this->db->where('us.type_id', $data['type_id']);
+        }
+        if ($data['status']) {
+            $this->db->where('us.status', $data['status']);
+        }
+
+        $this->db->limit($data['limit'], $offset = ($page - 1) * $data['limit']);
+        $this->db->order_by('us.reg_time', 'desc');
+        $data['res_list'] = $this->db->get()->result_array();
+
+        return $data;
+    }
+
+    /**
+     * 会员详情
+     * @author yangyang <yang.yang@thmarket.cn>
+     * @date 2018-07-22
+     */
+    public function users_edit($user_id){
+        $this->db->select('us.*,b.brand_name,r1.name r1_name,r2.name r2_name,r3.name r3_name,r4.name r4_name, m.rel_name m_rel_name_,m.mobile m_mobile_');
+        $this->db->from('users us');
+        $this->db->join('brand b','us.brand_id = b.id','left');
+        $this->db->join('region r1', 'us.province = r1.id', 'left');
+        $this->db->join('region r2', 'us.city = r2.id', 'left');
+        $this->db->join('region r3', 'us.district = r3.id', 'left');
+        $this->db->join('region r4', 'us.twon = r4.id', 'left');
+        $this->db->join('members m', 'm.m_id = us.invite', 'left');
+        $user_info = $this->db->where('user_id', $user_id)->get()->row_array();
+        if(!$user_info)
+            return $user_info;
+        $this->db->select()->from('members');
+        $this->db->group_start();
+        $this->db->where_in('level', array(2,3));
+        $this->db->where('status', 1);
+        $this->db->group_end();
+        $this->db->or_group_start();
+        $this->db->where('m_id', $user_info['invite']);
+        $this->db->group_end();
+        $user_info['sel_member_list'] = $this->db->get()->result_array();
+        return $user_info;
+    }
+
+    /**
+     * 保存会员
+     * @author yangyang <yang.yang@thmarket.cn>
+     * @date 2019-07-22
+     */
+    public function users_save(){
+        $user_id = $this->input->post('user_id');
+        $update = array(
+            'status' => $this->input->post('status') ? $this->input->post('status') : -1,
+            'remark' => $this->input->post('remark')
+        );
+        if($update['status'] != 1)
+            $update['openid'] = '';
+        if(!$user_id){
+            return $this->fun_fail('操作失败');
+        }
+        if(!in_array($update['status'], array(1, -1))){
+            return $this->fun_fail('请选择状态');
+        }
+
+        $this->db->where('user_id', $user_id)->update('users', $update);
+        return $this->fun_success('操作成功');
+    }
+
 
 }
