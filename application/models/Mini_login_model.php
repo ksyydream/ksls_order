@@ -17,9 +17,9 @@ class Mini_login_model extends MY_Model
         parent::__destruct();
     }
 
-    public function logout(){
+    public function logout($token = ''){
         $code = $this->input->post('code');
-        $token = trim($this->input->get('token')) ? trim($this->input->get('token')): '';
+   
         $re_openid = $this->get_mini_openid4log($code);
         //先解绑openid
         if($re_openid['status'] == 1){

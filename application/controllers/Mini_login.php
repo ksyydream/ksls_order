@@ -92,7 +92,8 @@ class Mini_login extends Mini_controller {
 
     //账号退出 三种账号均可以使用
     public function logout(){
-        $rs = $this->mini_login_model->logout();
+        $token = $this->get_header_token();
+        $rs = $this->mini_login_model->logout($token);
         $this->ajaxReturn($rs);
 	}
 
