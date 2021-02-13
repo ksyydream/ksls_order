@@ -63,6 +63,24 @@ class Mini_user extends Mini_controller {
         $this->ajaxReturn($this->loan_model->fun_success("获取成功！", $loan_info));
 	}
 
+    //获取借款人信息
+    public function loan_borrower_info(){
+        //获取借款人信息,只是查看 所以不做太多验证
+        $b_id = $this->input->post('b_id');
+        if(!$b_id){
+            $this->ajaxReturn($this->loan_model->fun_fail("缺少参数！"));
+        }
+        $rs = $this->loan_model->loan_borrower_info($b_id);
+        if ($rs['status'] != 1) {
+            $this->ajaxReturn($rs);
+        }
+        $borrower_info = $rs['result'];
+        if($borrower_info['user_id'] != $this->user_id){
+            $this->ajaxReturn($this->loan_model->fun_fail("您无权限操作此单！"));
+        }
+        $this->ajaxReturn($rs);
+    }
+
 
 
 }

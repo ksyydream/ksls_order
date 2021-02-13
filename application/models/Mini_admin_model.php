@@ -28,11 +28,15 @@ class Mini_admin_model extends MY_Model
         if($admin_id != $admin_info_['admin_id']){
             return array('status' => -101, 'msg' => '异常!', "result" => '');
         }
-        return $this->fun_success('登录成功',$admin_info_['admin_id']);
+        $result_ = array('admin_id' => $admin_info_['admin_id'], 'role_id' => $admin_info_['role_id']);
+        return $this->fun_success('登录成功', $result_);
     }
 
     public function get_admin_info($admin_id){
-        $row = $this->db->select("user,phone")->from('admin')->where(array('admin_id' => $admin_id))->get()->row_array();
+        $row = $this->db->select("a.user,a.phone,a.role_id,w.name role_name")
+            ->from('admin a')
+            ->join('work_role w','a.role_id = w.id','left')
+            ->where(array('a.admin_id' => $admin_id))->get()->row_array();
         return $this->fun_success('获取成功',$row);
     }
 

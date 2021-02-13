@@ -440,10 +440,12 @@ class MY_Model extends CI_Model{
 
 
     //同盾获取征信信息
-    public function get_tongdun_info($account_name = '', $id_number = '', $accout_mobile = '', $user_id){
-        $this->db->set('use_td_times','use_td_times + 1',false);
-        $this->db->where('user_id', $user_id);
-        $this->db->update('users');
+    public function get_tongdun_info($account_name = '', $id_number = '', $accout_mobile = '', $user_id = -1){
+        if($user_id != -1){
+            $this->db->set('use_td_times','use_td_times + 1',false);
+            $this->db->where('user_id', $user_id);
+            $this->db->update('users');
+        }
         $log_ = array(
             'account_name' => $account_name,
             'id_number' => $id_number,
@@ -534,6 +536,34 @@ class MY_Model extends CI_Model{
         if($check)
             $work_no = $this->get_workno();
         return $work_no;
+    }
+
+    //获取面签经理id
+    public function get_role_admin_id($role_id){
+        $admin_id = -1;
+        //先查找所属 role_id 最近一次使用的admin_id
+        $role_info_ = $this->db->select()->where('id', $role_id)->get()->row_array();
+        if(!$role_info_)
+            return $admin_id;
+        $last_use_admin_id = $role_info_['used_admin_id'];
+        $new_admin_info = $this->db->select()->where(array(
+            'admin_id >' => $last_use_admin_id,
+            'status' => 1,
+            'role_id' => $role_id
+        ))->from('admin')->order_by('admin_id','asc')->get()->row_array();
+        if($new_admin_info){
+            return $new_admin_info['admin_id'];
+        }else{
+            //如果没有找到,就使用最早的一位
+            $new_admin_info = $this->db->select()->where(array(
+                'status' => 1,
+                'role_id' => $role_id
+            ))->from('admin')->order_by('admin_id','asc')->get()->row_array();
+            if($new_admin_info){
+                return $new_admin_info['admin_id'];
+            }
+        }
+        return $admin_id;
     }
 
     //微信图片上传
