@@ -48,9 +48,23 @@ class Mini_admin extends Mini_controller {
             $this->ajaxReturn($rs);
         }
         $borrower_info = $rs['result'];
-        if($borrower_info['mx_admin_id'] != $this->admin_id){
+        //验证面签经理权限
+        if($this->role_id == 1 && $borrower_info['mx_admin_id'] != $this->admin_id){
             $this->ajaxReturn($this->loan_model->fun_fail("您无权限操作此单！"));
         }
+        //验证风控经理权限
+        if($this->role_id == 2 && $borrower_info['fk_admin_id'] != $this->admin_id){
+            $this->ajaxReturn($this->loan_model->fun_fail("您无权限操作此单！"));
+        }
+        //验证权证权限
+        if($this->role_id == 3 && $borrower_info['qz_admin_id'] != $this->admin_id){
+            $this->ajaxReturn($this->loan_model->fun_fail("您无权限操作此单！"));
+        }
+        $this->ajaxReturn($rs);
+    }
+
+    public function edit_borrower_info4admin(){
+        $rs = $this->mini_admin_model->edit_borrower_info4admin($this->admin_id);
         $this->ajaxReturn($rs);
     }
     /**
@@ -59,9 +73,36 @@ class Mini_admin extends Mini_controller {
      *********************************************************************************************
      */
     //面签经理 赎楼列表
-    public function loan_list4mq(){
-        $rs = $this->loan_model->loan_list4mq($this->admin_id);
-        $this->ajaxReturn($rs);
+    public function loan_list(){
+        switch($this->role_id){
+            case 1:
+                $rs = $this->loan_model->loan_list4mx($this->admin_id);
+                $this->ajaxReturn($rs);
+                break;
+            case 2:
+                $rs = $this->loan_model->loan_list4fk($this->admin_id);
+                $this->ajaxReturn($rs);
+                break;
+            case 3:
+                //权证
+                $rs = $this->loan_model->loan_list4qz($this->admin_id);
+                $this->ajaxReturn($rs);
+                break;
+            case 4:
+                //财务
+                $rs = $this->loan_model->loan_list4cw($this->admin_id);
+                $this->ajaxReturn($rs);
+                break;
+            case 5:
+                //风控终审
+                $rs = $this->loan_model->loan_list4zs($this->admin_id);
+                $this->ajaxReturn($rs);
+                break;
+            default:
+                $this->ajaxReturn($this->loan_model->fun_fail("未找到可用数据！"));
+
+        }
+
     }
 
 

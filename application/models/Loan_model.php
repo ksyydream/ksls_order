@@ -158,12 +158,13 @@ class Loan_model extends MY_Model
         $num = $this->db->get()->row();
         $res['total_rows'] = $num->num;
         $res['total_page'] = ceil($res['total_rows'] / $data['limit']);
-        $this->db->select('a.loan_id,a.work_no,a.loan_money,u.rel_name handle_user, u1.rel_name create_user, bd.brand_name,FROM_UNIXTIME(a.create_time) loan_cdate');
+        $this->db->select('a.loan_id,a.work_no,a.loan_money,u.rel_name handle_user, u1.rel_name create_user, bd.brand_name,FROM_UNIXTIME(a.create_time) loan_cdate, mx.admin_name mx_name');
         $this->db->from('loan_master a');
         $this->db->join('users u','a.user_id = u.user_id','left');
         $this->db->join('users u1','a.create_user_id = u1.user_id','left');
         $this->db->join('brand bd','a.brand_id = bd.id','left');
         $this->db->join('loan_borrowers b', 'a.loan_id = b.loan_id', 'left');
+        $this->db->join('admin mx', 'a.mx_admin_id = mx.admin_id', 'left');
         $this->db->where($where);
         if($data['keyword']){
             $this->db->group_start();
@@ -211,7 +212,7 @@ class Loan_model extends MY_Model
 
     //单独获取借款人信息
     public function loan_borrower_info($b_id){
-        $this->db->select('a.brand_id, a.status, a.flag, a.user_id, b.*')->from('loan_master a');
+        $this->db->select('a.brand_id, a.status, a.flag, a.user_id, a.mx_admin_id, a.fk_admin_id, a.qz_admin_id,b.*')->from('loan_master a');
         $this->db->join('loan_borrowers b','a.loan_id = b.loan_id','left');
         $this->db->where('b.id', $b_id);
         $info_ = $this->db->get()->row_array();
@@ -316,6 +317,24 @@ class Loan_model extends MY_Model
     public function loan_list4mx($admin_id){
         $where_ = array('a.mx_admin_id' => $admin_id);
         $order_1 = 'a.create_time';
+        $order_2 = 'desc';
+        $res_ = $this->loan_list($where_,$order_1,$order_2);
+        return $this->fun_success('操作成功', $res_);
+    }
+
+    //赎楼申请单列表 管理员端, 风控经理
+    public function loan_list4fk($admin_id){
+        $where_ = array('a.fk_admin_id' => $admin_id);
+        $order_1 = 'a.mx_time';
+        $order_2 = 'desc';
+        $res_ = $this->loan_list($where_,$order_1,$order_2);
+        return $this->fun_success('操作成功', $res_);
+    }
+
+    //赎楼申请单列表 管理员端, 风控经理
+    public function loan_list4qz($admin_id){
+        $where_ = array('a.qz_admin_id' => $admin_id);
+        $order_1 = 'a.zs_time';
         $order_2 = 'desc';
         $res_ = $this->loan_list($where_,$order_1,$order_2);
         return $this->fun_success('操作成功', $res_);

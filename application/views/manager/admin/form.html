@@ -32,7 +32,15 @@
                                     <span class="help-inline col-xs-12 col-sm-7"></span>
                                 </div>
                             </div>
+                            <div class="space-4"></div>
 
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label no-padding-right" for="admin_name"> 姓名 </label>
+                                <div class="col-sm-9">
+                                    <input type="text" id="admin_name" name="admin_name" class="rcol-xs-10 col-sm-5" value="{{$data.admin_name|default:''}}">
+                                    <span class="help-inline col-xs-12 col-sm-7"></span>
+                                </div>
+                            </div>
                             <div class="space-4"></div>
 
                             <div class="form-group">
@@ -257,6 +265,11 @@
                 layer.msg('请输入用户名', {icon: 2});
                 return false;
             }
+            var admin_name = $.trim($("#admin_name").val());
+            if(admin_name == "" ) {
+                layer.msg('请输入姓名', {icon: 2});
+                return false;
+            }
             var group_id = $.trim($("#group_id").val());
             if(group_id == "" ) {
                 layer.msg('请选择用户组', {icon: 2});
@@ -275,8 +288,8 @@
             }
             var birthday = $.trim($("#birthday").val());
             if(birthday == "" ) {
-                layer.msg('请输入生日', {icon: 2});
-                return false;
+                //layer.msg('请输入生日', {icon: 2});
+                //return false;
             }
             var phone = $.trim($("#phone").val());
             if(phone == "" ) {
@@ -285,13 +298,13 @@
             }
             var qq = $.trim($("#qq").val());
             if(qq == "" ) {
-                layer.msg('请输入qq', {icon: 2});
-                return false;
+                //layer.msg('请输入qq', {icon: 2});
+                //return false;
             }
             var email = $.trim($("#email").val());
             if(email == "" ) {
-                layer.msg('请输入邮箱地址', {icon: 2});
-                return false;
+                //layer.msg('请输入邮箱地址', {icon: 2});
+                //return false;
             }
             $("#save_form").submit();
         })

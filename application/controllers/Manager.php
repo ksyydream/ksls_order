@@ -21,6 +21,9 @@ class Manager extends MY_Controller {
         if(!$admin){
            $this->logout();
         }
+        if($admin['status'] != 1){
+            $this->logout();
+        }
         $this->manager_model->save_admin_log($admin_info['admin_id']);
         $this->admin_id = $admin_info['admin_id'];
         if ($admin['group_id'] != 1 && !$this->manager_model->check($this->uri->segment(1) . '/' . $this->uri->segment(2), $admin_info['admin_id'])){

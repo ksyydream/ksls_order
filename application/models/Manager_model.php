@@ -256,13 +256,14 @@ class Manager_model extends MY_Model
             'user' => trim($this->input->post('user')) ? trim($this->input->post('user')) : null,
             'sex' => $this->input->post('sex') ? $this->input->post('sex') : 0,
             'head' => $this->input->post('head') ? $this->input->post('head') : null,
+            'admin_name' => $this->input->post('admin_name') ? $this->input->post('admin_name') : null,
             'phone' => trim($this->input->post('phone')) ? trim($this->input->post('phone')) : null,
             'qq' => trim($this->input->post('qq')) ? trim($this->input->post('qq')) : null,
             'email' => trim($this->input->post('email')) ? trim($this->input->post('email')) : null,
             'birthday' => trim($this->input->post('birthday')) ? trim($this->input->post('birthday')) : null,
             't' => time()
         );
-        if (!$data['user'] || !$data['head'] || !$data['phone'] || !$data['qq'] || !$data['email'] || !$data['birthday'])
+        if (!$data['user'] || !$data['head'] || !$data['phone'] || !$data['admin_name'])
             return $this->fun_fail('信息不全!');
         if (!file_exists(dirname(SELF) . '/upload_files/head/' . $data['head'])) {
             return $this->fun_fail('信息不全,头像异常!');
@@ -427,11 +428,12 @@ class Manager_model extends MY_Model
             'sex' => $this->input->post('sex') ? $this->input->post('sex') : 0,
             'head' => $this->input->post('head') ? $this->input->post('head') : null,
             'phone' => trim($this->input->post('phone')) ? trim($this->input->post('phone')) : null,
+            'admin_name' => trim($this->input->post('admin_name')) ? trim($this->input->post('admin_name')) : null,
             'qq' => trim($this->input->post('qq')) ? trim($this->input->post('qq')) : null,
             'email' => trim($this->input->post('email')) ? trim($this->input->post('email')) : null,
             'birthday' => trim($this->input->post('birthday')) ? trim($this->input->post('birthday')) : null,
         );
-        if (!$data['user'] || !$data['head'] || !$data['phone'] || !$data['qq'] || !$data['email'] || !$data['birthday'])
+        if (!$data['user'] || !$data['head'] || !$data['phone'] || !$data['admin_name'])
             return $this->fun_fail('信息不全!');
         if (!file_exists(dirname(SELF) . '/upload_files/head/' . $data['head'])) {
             return $this->fun_fail('信息不全!');
