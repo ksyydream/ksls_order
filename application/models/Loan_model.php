@@ -85,7 +85,7 @@ class Loan_model extends MY_Model
             return $this->fun_fail('面签预约时间 不能为空!');
         }
         $data['work_no'] = $this->get_workno();
-        $data['mx_admin_id'] = $this->get_mx_admin_id();
+        $data['mx_admin_id'] = $this->get_role_admin_id(1);
         $this->db->insert('loan_master', $data);
         $loan_id = $this->db->insert_id();
         $borrowers_insert_ = array();

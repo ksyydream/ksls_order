@@ -542,7 +542,7 @@ class MY_Model extends CI_Model{
     public function get_role_admin_id($role_id){
         $admin_id = -1;
         //先查找所属 role_id 最近一次使用的admin_id
-        $role_info_ = $this->db->select()->where('id', $role_id)->get()->row_array();
+        $role_info_ = $this->db->select()->from('work_role')->where('id', $role_id)->get()->row_array();
         if(!$role_info_)
             return $admin_id;
         $last_use_admin_id = $role_info_['used_admin_id'];
