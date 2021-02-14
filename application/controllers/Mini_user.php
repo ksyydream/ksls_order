@@ -18,6 +18,8 @@ class Mini_user extends Mini_controller {
         parent::__construct();
         $this->load->model('mini_user_model');
         $this->load->model('loan_model');
+        //var_dump("asd");
+        //die();
         $token = $this->get_header_token();
         if(!$token){
             $this->ajaxReturn(array('status' => -100, 'msg' => 'token缺失!', "result" => ''));
