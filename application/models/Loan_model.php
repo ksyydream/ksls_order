@@ -147,7 +147,7 @@ class Loan_model extends MY_Model
         $this->db->where($where);
         if($data['keyword']){
             $this->db->group_start();
-            $this->db->like('b.borrowe_name', $data['keyword']);
+            $this->db->like('b.borrower_name', $data['keyword']);
             $this->db->group_end();
         }
         if($data['flag']){
