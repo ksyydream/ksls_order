@@ -199,7 +199,7 @@ class Loan_model extends MY_Model
 
     //赎楼业务详情
     public function loan_info($loan_id, $select = "*"){
-        $select = "a.*,u.rel_name handle_user, u1.rel_name create_user, bd.brand_name, mx.admin_name mx_name, fk.admin_name fk_name";
+        $select = "a.*,FROM_UNIXTIME(a.create_time) loan_cdate,u.rel_name handle_user, u1.rel_name create_user, bd.brand_name, mx.admin_name mx_name, fk.admin_name fk_name";
         $this->db->select($select)->from('loan_master a');
         $this->db->join('users u','a.user_id = u.user_id','left');
         $this->db->join('users u1','a.create_user_id = u1.user_id','left');
