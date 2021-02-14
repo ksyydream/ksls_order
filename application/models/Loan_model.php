@@ -443,6 +443,32 @@ class Loan_model extends MY_Model
 
     }
 
+    public function edit_appointment_date4admin($admin_id){
+        $loan_id = $this->input->post('loan_id');
+        if(!$loan_id){
+            return $this->fun_fail('缺少参数!');
+        }
+        $loan_info_ = $this->readByID('loan_master', 'loan_id', $loan_id);
+        if(!$loan_info_){
+            return $this->fun_fail('信息不存在!');
+        }
+        if($loan_info_['status'] != 1 || $loan_info_['flag'] != 1){
+            return $this->fun_fail('申请单状态 不允许变更信息!');
+        }
+        if($loan_info_['mx_admin_id'] != $admin_id){
+            return $this->fun_fail('您无权限操作面签时间!');
+        }
+
+        $appointment_date_ = $this->input->post('appointment_date');
+        if(!$appointment_date_){
+            return $this->fun_fail('面签时间不可为空!');
+        }
+
+        $this->db->update('loan_master', array('appointment_date' => $appointment_date_));
+        return $this->fun_success('操作成功!');
+
+    }
+
     //赎楼申请单列表 管理员端, 面签经理
     public function loan_list4mx($admin_id){
         $where_ = array('a.mx_admin_id' => $admin_id);
