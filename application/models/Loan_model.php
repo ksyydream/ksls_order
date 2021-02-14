@@ -284,6 +284,11 @@ class Loan_model extends MY_Model
         if(!isset($update_['borrower_card']) || trim($update_['borrower_card']) == "")
             return $this->fun_fail('借款人身份证不能为空!');
 
+        //验证下身份证号码是否已存在
+        $check_has_ = $this->db->select()->from('loan_borrowers')->where(array('loan_id' => $borrower_info_['loan_id'], 'id <>' => $b_id, 'borrower_card' => $update_['borrower_card']))->get()->row_array();
+        if($check_has_)
+            return $this->fun_fail('此借款人身份证号已存在!');
+
         //重新验证同盾
         $borrower_td_info_ = $this->get_tongdun_info($update_['borrower_name'], $update_['borrower_card'], $update_['borrower_phone'], -1);
         if($borrower_td_info_ && $borrower_td_info_['status'] == 1){
@@ -325,10 +330,116 @@ class Loan_model extends MY_Model
     }
 
     public function del_borrower_info4admin($admin_id){
+        $b_id = $this->input->post('b_id');
+        if(!$b_id){
+            return $this->fun_fail('缺少参数!');
+        }
+        $rs_ = $this->loan_borrower_info($b_id);
+        if($rs_['status'] != 1){
+            return $this->fun_fail('信息不存在!');
+        }
 
+        $borrower_info_ = $rs_['result'];
+        if($borrower_info_['status'] != 1 || $borrower_info_['flag'] != 1){
+            return $this->fun_fail('申请单状态 不允许变更信息!');
+        }
+
+        if($borrower_info_['mx_admin_id'] != $admin_id){
+            return $this->fun_fail('您无权限操作此单!');
+        }
+
+        //检查是否是最后一个 借款人
+        $check_has_ = $this->db->select()->from('loan_borrowers')->where(array('loan_id' => $borrower_info_['loan_id'], 'id <>' => $b_id))->get()->row_array();
+        if(!$check_has_)
+            return $this->fun_fail('不可删除最后一个借款人!');
+
+        $this->db->trans_start();//--------开始事务
+        $this->db->where('id', $b_id)->delete('loan_borrowers');
+        $check_td_ = $this->db->select()->from('loan_borrowers')->where(array('loan_id' => $borrower_info_['loan_id'], 'td_status <' => 1))->get()->row_array();
+        if($check_td_){
+            $this->db->where('loan_id', $borrower_info_['loan_id'])->update('loan_master', array('is_td_ng' => 1));
+        }else{
+            $this->db->where('loan_id', $borrower_info_['loan_id'])->update('loan_master', array('is_td_ng' => -1));
+        }
+
+        $this->db->trans_complete();//------结束事务
+        if ($this->db->trans_status() === FALSE) {
+            return $this->fun_fail('删除失败!');
+        } else {
+            return $this->fun_success('删除成功!');
+        }
     }
 
-    public function save_borrower_info4admin($admin_id){
+    public function add_borrower_info4admin($admin_id){
+        $loan_id = $this->input->post('loan_id');
+        if(!$loan_id){
+            return $this->fun_fail('缺少参数!');
+        }
+        $loan_info_ = $this->readByID('loan_master', 'loan_id', $loan_id);
+        if(!$loan_info_){
+            return $this->fun_fail('信息不存在!');
+        }
+        if($loan_info_['status'] != 1 || $loan_info_['flag'] != 1){
+            return $this->fun_fail('申请单状态 不允许变更信息!');
+        }
+        if($loan_info_['mx_admin_id'] != $admin_id){
+            return $this->fun_fail('您无权限操作此单!');
+        }
+
+        //开始修改信息操作
+        $insert_ = array(
+            'loan_id' => $loan_id,
+            'borrower_name' => trim($this->input->post('borrower_name')) ? trim($this->input->post('borrower_name')) : '',
+            'borrower_phone' => trim($this->input->post('borrower_phone')) ? trim($this->input->post('borrower_phone')) : '',
+            'borrower_card' => trim($this->input->post('borrower_card')) ? trim($this->input->post('borrower_card')) : '',
+            'td_status' => 1
+        );
+        if(!isset($insert_['borrower_name']) || trim($insert_['borrower_name']) == "")
+            return $this->fun_fail('借款人姓名不能为空!');
+        if(!isset($insert_['borrower_phone']) || trim($insert_['borrower_phone']) == "")
+            return $this->fun_fail('借款人电话不能为空!');
+        if(!isset($insert_['borrower_card']) || trim($insert_['borrower_card']) == "")
+            return $this->fun_fail('借款人身份证不能为空!');
+
+        //验证下身份证号码是否已存在
+        $check_has_ = $this->db->select()->from('loan_borrowers')->where(array('loan_id' => $loan_id, 'borrower_card' => $insert_['borrower_card']))->get()->row_array();
+        if($check_has_)
+            return $this->fun_fail('此借款人身份证号已存在!');
+
+        //重新验证同盾
+        $borrower_td_info_ = $this->get_tongdun_info($insert_['borrower_name'], $insert_['borrower_card'], $insert_['borrower_phone'], -1);
+        if($borrower_td_info_ && $borrower_td_info_['status'] == 1){
+            $td_info = $borrower_td_info_['result'];
+            $insert_['td_id'] = $td_info['id'];
+            $json_data = json_decode($td_info['json_data']);
+            if($json_data->success == true){
+                $insert_['td_score'] = $json_data->result_desc->ANTIFRAUD->final_score;
+                $insert_['td_decision'] = $json_data->result_desc->ANTIFRAUD->final_decision;
+            }
+        }
+        if(isset($b_insert_['td_decision'])){
+            if(!in_array($insert_['td_decision'], array('REVIEW', 'PASS'))){
+                //只要存在一个借款人 不满足同盾条件,订单就改成 同盾拒单
+                $insert_['td_status'] = -1;
+            }else{
+                $insert_['td_status'] = 2;
+            }
+        }
+
+        $this->db->trans_start();//--------开始事务
+        $this->db->insert('loan_borrowers', $insert_);
+        $check_td_ = $this->db->select()->from('loan_borrowers')->where(array('loan_id' => $loan_info_['loan_id'], 'td_status <' => 1))->get()->row_array();
+        if($check_td_){
+            $this->db->where('loan_id', $loan_info_['loan_id'])->update('loan_master', array('is_td_ng' => 1));
+        }else{
+            $this->db->where('loan_id', $loan_info_['loan_id'])->update('loan_master', array('is_td_ng' => -1));
+        }
+        $this->db->trans_complete();//------结束事务
+        if ($this->db->trans_status() === FALSE) {
+            return $this->fun_fail('保存失败!');
+        } else {
+            return $this->fun_success('保存成功!');
+        }
 
     }
 

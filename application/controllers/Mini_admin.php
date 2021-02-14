@@ -70,6 +70,19 @@ class Mini_admin extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
+    //删除借款人信息,账号和申请单状态 验证 在模块内处理
+    public function del_borrower_info(){
+        $rs = $this->loan_model->del_borrower_info4admin($this->admin_id);
+        $this->ajaxReturn($rs);
+    }
+
+    //增加借款人信息,账号和申请单状态 验证 在模块内处理
+    public function add_borrower_info(){
+        $rs = $this->loan_model->add_borrower_info4admin($this->admin_id);
+        $this->ajaxReturn($rs);
+    }
+
+
     //赎楼列表
     public function loan_list(){
         switch($this->role_id){
