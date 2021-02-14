@@ -17,6 +17,7 @@ class Mini_admin extends Mini_controller {
     {
         parent::__construct();
         $this->load->model('mini_admin_model');
+        $this->load->model('loan_model');
         $token = $this->get_header_token();
         if(!$token){
             $this->ajaxReturn(array('status' => -100, 'msg' => 'token缺失!', "result" => ''));
@@ -63,16 +64,13 @@ class Mini_admin extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
-    public function edit_borrower_info4admin(){
-        $rs = $this->mini_admin_model->edit_borrower_info4admin($this->admin_id);
+    //修改借款人信息,账号和申请单状态 验证 在模块内处理
+    public function edit_borrower_info(){
+        $rs = $this->loan_model->edit_borrower_info4admin($this->admin_id);
         $this->ajaxReturn($rs);
     }
-    /**
-     *********************************************************************************************
-     * 以下代码为面签 专用
-     *********************************************************************************************
-     */
-    //面签经理 赎楼列表
+
+    //赎楼列表
     public function loan_list(){
         switch($this->role_id){
             case 1:
@@ -104,6 +102,38 @@ class Mini_admin extends Mini_controller {
         }
 
     }
+
+    public function loan_info(){
+        $loan_id = $this->input->post('loan_id');
+        $rs = $this->loan_model->loan_info($loan_id);
+        if ($rs['status'] != 1) {
+            $this->ajaxReturn($rs);
+        }
+        //验证权限
+        $loan_info = $rs['result'];
+        //验证面签经理权限
+        if($this->role_id == 1 && $loan_info['mx_admin_id'] != $this->admin_id){
+            $this->ajaxReturn($this->loan_model->fun_fail("您无权限操作此单！"));
+        }
+        //验证风控经理权限
+        if($this->role_id == 2 && $loan_info['fk_admin_id'] != $this->admin_id){
+            $this->ajaxReturn($this->loan_model->fun_fail("您无权限操作此单！"));
+        }
+        //验证权证权限
+        if($this->role_id == 3 && $loan_info['qz_admin_id'] != $this->admin_id){
+            $this->ajaxReturn($this->loan_model->fun_fail("您无权限操作此单！"));
+        }
+
+        //返回信息
+        $this->ajaxReturn($this->loan_model->fun_success("获取成功！", $loan_info));
+    }
+
+    /**
+     *********************************************************************************************
+     * 以下代码为面签 专用
+     *********************************************************************************************
+     */
+    //面签经理
 
 
 }

@@ -110,7 +110,11 @@ class Loan_model extends MY_Model
             if(!isset($b_insert_['td_decision']) || !in_array($b_insert_['td_decision'], array('REVIEW', 'PASS'))){
                 //只要存在一个借款人 不满足同盾条件,订单就改成 同盾拒单
                 $this->db->where('loan_id', $loan_id)->update('loan_master', array('is_td_ng' => 1));
-                $b_insert_['td_status'] = -1;
+                if(isset($b_insert_['td_decision'])){
+                    $b_insert_['td_status'] = -1;
+                }
+            }else{
+                $b_insert_['td_status'] = 2;
             }
 
             $borrowers_insert_[] = $b_insert_;
@@ -195,11 +199,13 @@ class Loan_model extends MY_Model
 
     //赎楼业务详情
     public function loan_info($loan_id, $select = "*"){
-        $select = "a.*,u.rel_name handle_user, u1.rel_name create_user, bd.brand_name";
+        $select = "a.*,u.rel_name handle_user, u1.rel_name create_user, bd.brand_name, mx.admin_name mx_name, fk.admin_name fk_name";
         $this->db->select($select)->from('loan_master a');
         $this->db->join('users u','a.user_id = u.user_id','left');
         $this->db->join('users u1','a.create_user_id = u1.user_id','left');
         $this->db->join('brand bd','a.brand_id = bd.id','left');
+        $this->db->join('admin mx', 'a.mx_admin_id = mx.admin_id', 'left');
+        $this->db->join('admin fk', 'a.fk_admin_id = fk.admin_id', 'left');
         $loan_info = $this->db->where('a.loan_id', $loan_id)->get()->row_array();
         if(!$loan_info)
             return $this->fun_fail('未找到相关订单!');
@@ -251,7 +257,7 @@ class Loan_model extends MY_Model
             return $this->fun_fail('缺少参数!');
         }
         $rs_ = $this->loan_borrower_info($b_id);
-        if($rs_['status'] != -1){
+        if($rs_['status'] != 1){
             return $this->fun_fail('信息不存在!');
         }
 
@@ -279,7 +285,7 @@ class Loan_model extends MY_Model
             return $this->fun_fail('借款人身份证不能为空!');
 
         //重新验证同盾
-        $borrower_td_info_ = $this->get_tongdun_info($update_['borrower_name'], $update_['borrower_card'], $update_['borrower_phone'], $user_id);
+        $borrower_td_info_ = $this->get_tongdun_info($update_['borrower_name'], $update_['borrower_card'], $update_['borrower_phone'], -1);
         if($borrower_td_info_ && $borrower_td_info_['status'] == 1){
             $td_info = $borrower_td_info_['result'];
             $update_['td_id'] = $td_info['id'];
@@ -289,15 +295,20 @@ class Loan_model extends MY_Model
                 $update_['td_decision'] = $json_data->result_desc->ANTIFRAUD->final_decision;
             }
         }
-        if(!isset($update_['td_decision']) || !in_array($update_['td_decision'], array('REVIEW', 'PASS'))){
-            //只要存在一个借款人 不满足同盾条件,订单就改成 同盾拒单
-            $update_['td_status'] = -1;
+        if(isset($b_insert_['td_decision'])){
+            if(!in_array($update_['td_decision'], array('REVIEW', 'PASS'))){
+                //只要存在一个借款人 不满足同盾条件,订单就改成 同盾拒单
+                $update_['td_status'] = -1;
+            }else{
+                $update_['td_status'] = 2;
+            }
         }
+
         $this->db->trans_start();//--------开始事务
         $this->db->where('id', $b_id)->update('loan_borrowers', $update_);
         $check_td_ = $this->db->select()->from('loan_borrowers')->where(array(
             'loan_id' => $borrower_info_['loan_id'],
-            'td_status' => -1
+            'td_status <' => 1
         ))->get()->row_array();
         if($check_td_){
             $this->db->where('loan_id', $borrower_info_['loan_id'])->update('loan_master', array('is_td_ng' => 1));
@@ -311,6 +322,14 @@ class Loan_model extends MY_Model
         } else {
             return $this->fun_success('保存成功!');
         }
+    }
+
+    public function del_borrower_info4admin($admin_id){
+
+    }
+
+    public function save_borrower_info4admin($admin_id){
+
     }
 
     //赎楼申请单列表 管理员端, 面签经理
