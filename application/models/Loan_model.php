@@ -45,6 +45,7 @@ class Loan_model extends MY_Model
             'user_id' => $user_id,
             'create_user_id' => $user_id,
             'brand_id' => $brand_id,
+            'modify_time' => time(),
             'create_time' => time(),
             'loan_money' => trim($this->input->post('loan_money')),
             'appointment_date' => trim($this->input->post('appointment_date')),
@@ -374,19 +375,9 @@ class Loan_model extends MY_Model
 
     public function add_borrower_info4admin($admin_id){
         $loan_id = $this->input->post('loan_id');
-        if(!$loan_id){
-            return $this->fun_fail('缺少参数!');
-        }
-        $loan_info_ = $this->readByID('loan_master', 'loan_id', $loan_id);
-        if(!$loan_info_){
-            return $this->fun_fail('信息不存在!');
-        }
-        if($loan_info_['status'] != 1 || $loan_info_['flag'] != 1){
-            return $this->fun_fail('申请单状态 不允许变更信息!');
-        }
-        if($loan_info_['mx_admin_id'] != $admin_id){
-            return $this->fun_fail('您无权限操作此单!');
-        }
+        $check_mx_ = $this->check_mx($admin_id, $loan_id);
+        if($check_mx_['status'] != 1)
+            return $check_mx_;
 
         //开始修改信息操作
         $insert_ = array(
@@ -430,11 +421,11 @@ class Loan_model extends MY_Model
 
         $this->db->trans_start();//--------开始事务
         $this->db->insert('loan_borrowers', $insert_);
-        $check_td_ = $this->db->select()->from('loan_borrowers')->where(array('loan_id' => $loan_info_['loan_id'], 'td_status <' => 1))->get()->row_array();
+        $check_td_ = $this->db->select()->from('loan_borrowers')->where(array('loan_id' => $loan_id, 'td_status <' => 1))->get()->row_array();
         if($check_td_){
-            $this->db->where('loan_id', $loan_info_['loan_id'])->update('loan_master', array('is_td_ng' => 1));
+            $this->db->where('loan_id', $loan_id)->update('loan_master', array('is_td_ng' => 1));
         }else{
-            $this->db->where('loan_id', $loan_info_['loan_id'])->update('loan_master', array('is_td_ng' => -1));
+            $this->db->where('loan_id', $loan_id)->update('loan_master', array('is_td_ng' => -1));
         }
         $this->db->trans_complete();//------结束事务
         if ($this->db->trans_status() === FALSE) {
@@ -447,6 +438,90 @@ class Loan_model extends MY_Model
 
     public function edit_appointment_date4admin($admin_id){
         $loan_id = $this->input->post('loan_id');
+        $check_mx_ = $this->check_mx($admin_id, $loan_id);
+        if($check_mx_['status'] != 1)
+            return $check_mx_;
+
+        $appointment_date_ = $this->input->post('appointment_date');
+        if(!$appointment_date_){
+            return $this->fun_fail('面签时间不可为空!');
+        }
+
+        $this->db->update('loan_master', array('modify_time' => time(), 'appointment_date' => $appointment_date_));
+        return $this->fun_success('操作成功!');
+
+    }
+
+    //面签 修改赎楼基本信息
+    public function edit_loan_info4admin($admin_id){
+        $loan_id = $this->input->post('loan_id');
+        $check_mx_ = $this->check_mx($admin_id, $loan_id);
+        if($check_mx_['status'] != 1)
+            return $check_mx_;
+        $update_ = array(
+            'modify_time' => time(),
+            'loan_money' => trim($this->input->post('loan_money')),
+            'old_loan_money' => trim($this->input->post('old_loan_money')) ? trim($this->input->post('old_loan_money')) : null,
+            'old_mortgage_money_one' => trim($this->input->post('old_mortgage_money_one')) ? trim($this->input->post('old_mortgage_money_one')) : null,
+            'old_mortgage_money_two' => trim($this->input->post('old_mortgage_money_two')) ? trim($this->input->post('old_mortgage_money_two')) : null,
+            'old_mortgage_bank_one' => trim($this->input->post('old_mortgage_bank_one')) ? trim($this->input->post('old_mortgage_bank_one')) : null,
+            'old_mortgage_bank_two' => trim($this->input->post('old_mortgage_bank_two')) ? trim($this->input->post('old_mortgage_bank_two')) : null,
+            'houses_price' => trim($this->input->post('houses_price')) ? trim($this->input->post('houses_price')) : null,
+            'buyer_loan' => trim($this->input->post('buyer_loan')) ? trim($this->input->post('buyer_loan')) : null
+        );
+
+        //先验证关键数据是否有效
+        if(!$update_['loan_money'] || $update_['loan_money'] <= 0)
+            return $this->fun_fail('借款金额不能为空!');
+        if(!$update_['old_loan_money'])
+            return $this->fun_fail('老贷金额不能为空!');
+        if(!$update_['old_mortgage_bank_one'])
+            return $this->fun_fail('老贷一抵机构名称 不能为空!');
+        if(!$update_['old_mortgage_money_one'])
+            return $this->fun_fail('老贷一抵金额 不能为空!');
+        if(!$update_['houses_price'] || $update_['loan_money'] <= 0)
+            return $this->fun_fail('房屋总价 不能为空!');
+        if(!$update_['buyer_loan']  || $update_['loan_money'] <= 0)
+            return $this->fun_fail('买方贷款金额 不能为空!');
+
+        $this->db->where(array(
+            'loan_id' => $loan_id,
+            'status' => 1,
+            'flag' => 1,
+            'mx_admin_id' => $admin_id
+        ))->update('loan_master', $update_);
+        return $this->fun_success('操作成功');
+    }
+
+    public function handle_loan_mx($admin_id){
+        $loan_id = $this->input->post('loan_id');
+        $check_mx_ = $this->check_mx($admin_id, $loan_id);
+        if($check_mx_['status'] != 1)
+            return $check_mx_;
+        $action_type_= $this->input->post('action_type');
+        switch($action_type_){
+            case 'pass':
+                $pass_data_ = array(
+                    'ht_id' => $this->input->post('ht_id'),
+                    'jj_price' => $this->input->post('jj_price'),
+                    'mx_time' => time()
+                );
+                break;
+            case 'ww':
+
+                break;
+            case 'cancel':
+
+                break;
+            default:
+                return $this->fun_fail('请求错误!');
+        }
+
+        return $this->fun_success('操作成功!');
+    }
+
+    //面签操作验证
+    private function check_mx($admin_id, $loan_id = ''){
         if(!$loan_id){
             return $this->fun_fail('缺少参数!');
         }
@@ -458,17 +533,9 @@ class Loan_model extends MY_Model
             return $this->fun_fail('申请单状态 不允许变更信息!');
         }
         if($loan_info_['mx_admin_id'] != $admin_id){
-            return $this->fun_fail('您无权限操作面签时间!');
+            return $this->fun_fail('您无权限操作此单!');
         }
-
-        $appointment_date_ = $this->input->post('appointment_date');
-        if(!$appointment_date_){
-            return $this->fun_fail('面签时间不可为空!');
-        }
-
-        $this->db->update('loan_master', array('appointment_date' => $appointment_date_));
-        return $this->fun_success('操作成功!');
-
+        return $this->fun_success('可操作!');
     }
 
     //赎楼申请单列表 管理员端, 面签经理

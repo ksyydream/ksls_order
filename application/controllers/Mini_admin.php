@@ -133,6 +133,12 @@ class Mini_admin extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
+    //修改赎楼基本信息
+    public function edit_loan_info(){
+        $rs = $this->loan_model->edit_loan_info4admin($this->admin_id);
+        $this->ajaxReturn($rs);
+    }
+
     //修改借款人信息,账号和申请单状态 验证 在模块内处理
     public function edit_borrower_info(){
         $rs = $this->loan_model->edit_borrower_info4admin($this->admin_id);
@@ -148,6 +154,11 @@ class Mini_admin extends Mini_controller {
     //增加借款人信息,账号和申请单状态 验证 在模块内处理
     public function add_borrower_info(){
         $rs = $this->loan_model->add_borrower_info4admin($this->admin_id);
+        $this->ajaxReturn($rs);
+    }
+
+    public function handle_loan_mx(){
+        $rs = $this->loan_model->handle_loan_mx($this->admin_id);
         $this->ajaxReturn($rs);
     }
 
