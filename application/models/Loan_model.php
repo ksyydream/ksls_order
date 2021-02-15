@@ -140,7 +140,9 @@ class Loan_model extends MY_Model
         $data['keyword'] = $this->input->post('keyword')?trim($this->input->post('keyword')):null;
         $data['brand_id'] = $this->input->post('brand_id')?trim($this->input->post('brand_id')):null;
         $data['user_id'] = $this->input->post('user_id')?trim($this->input->post('user_id')):null;
-        $data['flag'] = $this->input->post('flag')?trim($this->input->post('flag')):null;
+        $data['flag'] = $this->input->post('flag') ? trim($this->input->post('flag')) : 1; //默认查进行中
+        $data['status'] = $this->input->post('status') ? trim($this->input->post('status')) : null;
+
         $page = $this->input->post('page')?trim($this->input->post('page')):1;
         $this->db->select('count(DISTINCT a.loan_id) num');
         $this->db->from('loan_master a');
@@ -153,6 +155,9 @@ class Loan_model extends MY_Model
         }
         if($data['flag']){
             $this->db->where('a.flag', $data['flag']);
+        }
+        if($data['status']){
+            $this->db->where('a.status', $data['status']);
         }
         if($data['user_id']){
             $this->db->where('a.user_id', $data['user_id']);
@@ -179,6 +184,9 @@ class Loan_model extends MY_Model
         }
         if($data['flag']){
             $this->db->where('a.flag', $data['flag']);
+        }
+        if($data['status']){
+            $this->db->where('a.status', $data['status']);
         }
         if($data['brand_id']){
             $this->db->where('a.brand_id', $data['brand_id']);
@@ -253,6 +261,7 @@ class Loan_model extends MY_Model
      * 以下代码为管理员端 专用
      *********************************************************************************************
      */
+
     //修改借款人信息,因为验证的东西比较多,所以单独做模块操作
     public function edit_borrower_info4admin($admin_id){
         $b_id = $this->input->post('b_id');
@@ -263,15 +272,10 @@ class Loan_model extends MY_Model
         if($rs_['status'] != 1){
             return $this->fun_fail('信息不存在!');
         }
-
         $borrower_info_ = $rs_['result'];
-        if($borrower_info_['status'] != 1 || $borrower_info_['flag'] != 1){
-            return $this->fun_fail('申请单状态 不允许变更信息!');
-        }
-
-        if($borrower_info_['mx_admin_id'] != $admin_id){
-            return $this->fun_fail('您无权限操作此单!');
-        }
+        $check_role4admin_ = $this->check_role4admin($admin_id, $borrower_info_['loan_id']);
+        if($check_role4admin_['status'] != 1)
+            return $check_role4admin_;
 
         //开始修改信息操作
         $update_ = array(
@@ -343,13 +347,9 @@ class Loan_model extends MY_Model
         }
 
         $borrower_info_ = $rs_['result'];
-        if($borrower_info_['status'] != 1 || $borrower_info_['flag'] != 1){
-            return $this->fun_fail('申请单状态 不允许变更信息!');
-        }
-
-        if($borrower_info_['mx_admin_id'] != $admin_id){
-            return $this->fun_fail('您无权限操作此单!');
-        }
+        $check_role4admin_ = $this->check_role4admin($admin_id, $borrower_info_['loan_id']);
+        if($check_role4admin_['status'] != 1)
+            return $check_role4admin_;
 
         //检查是否是最后一个 借款人
         $check_has_ = $this->db->select()->from('loan_borrowers')->where(array('loan_id' => $borrower_info_['loan_id'], 'id <>' => $b_id))->get()->row_array();
@@ -375,9 +375,9 @@ class Loan_model extends MY_Model
 
     public function add_borrower_info4admin($admin_id){
         $loan_id = $this->input->post('loan_id');
-        $check_mx_ = $this->check_mx($admin_id, $loan_id);
-        if($check_mx_['status'] != 1)
-            return $check_mx_;
+        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id);
+        if($check_role4admin_['status'] != 1)
+            return $check_role4admin_;
 
         //开始修改信息操作
         $insert_ = array(
@@ -438,9 +438,9 @@ class Loan_model extends MY_Model
 
     public function edit_appointment_date4admin($admin_id){
         $loan_id = $this->input->post('loan_id');
-        $check_mx_ = $this->check_mx($admin_id, $loan_id);
-        if($check_mx_['status'] != 1)
-            return $check_mx_;
+        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id);
+        if($check_role4admin_['status'] != 1)
+            return $check_role4admin_;
 
         $appointment_date_ = $this->input->post('appointment_date');
         if(!$appointment_date_){
@@ -455,9 +455,9 @@ class Loan_model extends MY_Model
     //面签 修改赎楼基本信息
     public function edit_loan_info4admin($admin_id){
         $loan_id = $this->input->post('loan_id');
-        $check_mx_ = $this->check_mx($admin_id, $loan_id);
-        if($check_mx_['status'] != 1)
-            return $check_mx_;
+        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id);
+        if($check_role4admin_['status'] != 1)
+            return $check_role4admin_;
         $update_ = array(
             'modify_time' => time(),
             'loan_money' => trim($this->input->post('loan_money')),
@@ -495,9 +495,9 @@ class Loan_model extends MY_Model
 
     public function handle_loan_mx($admin_id){
         $loan_id = $this->input->post('loan_id');
-        $check_mx_ = $this->check_mx($admin_id, $loan_id);
-        if($check_mx_['status'] != 1)
-            return $check_mx_;
+        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, 1);
+        if($check_role4admin_['status'] != 1)
+            return $check_role4admin_;
         $action_type_= $this->input->post('action_type');
         switch($action_type_){
             case 'pass':
@@ -513,7 +513,7 @@ class Loan_model extends MY_Model
                 if($pass_data_['jj_price'] < 0)
                     return $this->fun_fail('请输入居间服务费!');
                 if(!$pass_data_['mx_remark'])
-                    return $this->fun_fail('请填写面签理由!');
+                    return $this->fun_fail('请填写面签意见!');
                 $ht_info_ = $this->readByID('contract', 'ht_id', $pass_data_['ht_id']);
                 if(!$ht_info_ || $ht_info_['status'] != 1)
                     return $this->fun_fail('请选择有效合同版本!');
@@ -532,7 +532,7 @@ class Loan_model extends MY_Model
                     'mx_remark' => $this->input->post('mx_remark')
                 );
                 if(!$ww_data_['mx_remark'])
-                    return $this->fun_fail('请填写面签理由!');
+                    return $this->fun_fail('请填写面签意见!');
                 $this->db->where('loan_id', $loan_id)->update('loan_master', $ww_data_);
                 break;
             case 'cancel':
@@ -542,7 +542,7 @@ class Loan_model extends MY_Model
                     'mx_remark' => $this->input->post('mx_remark')
                 );
                 if(!$cancel_data_['mx_remark'])
-                    return $this->fun_fail('请填写面签理由!');
+                    return $this->fun_fail('请填写面签意见!');
                 $this->db->where('loan_id', $loan_id)->update('loan_master', $cancel_data_);
                 break;
             default:
@@ -552,8 +552,101 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功!');
     }
 
-    //面签操作验证
-    private function check_mx($admin_id, $loan_id = ''){
+    public function handle_loan_fk($admin_id){
+        $loan_id = $this->input->post('loan_id');
+        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, 2);
+        if($check_role4admin_['status'] != 1)
+            return $check_role4admin_;
+        $action_type_= $this->input->post('action_type');
+        switch($action_type_){
+            case 'pass':
+                $pass_data_ = array(
+                    'fk_time' => time(),
+                    'fk_remark' => $this->input->post('fk_remark'),
+                    'status' => 3
+                );
+                if(!$pass_data_['fk_remark'])
+                    return $this->fun_fail('请填写风控意见!');
+                $this->db->where('loan_id', $loan_id)->update('loan_master', $pass_data_);
+                break;
+            case 'ww':
+                $ww_data_ = array(
+                    'order_type' => -1,
+                    'flag' => -1,
+                    'ww_time' => time(),
+                    'fk_time' => time(),
+                    'fk_remark' => $this->input->post('fk_remark')
+                );
+                if(!$ww_data_['fk_remark'])
+                    return $this->fun_fail('请填写风控意见!');
+                $this->db->where('loan_id', $loan_id)->update('loan_master', $ww_data_);
+                break;
+            case 'cancel':
+                $cancel_data_ = array(
+                    'flag' => -1,
+                    'fk_time' => time(),
+                    'fk_remark' => $this->input->post('fk_remark')
+                );
+                if(!$cancel_data_['fk_remark'])
+                    return $this->fun_fail('请填写风控意见!');
+                $this->db->where('loan_id', $loan_id)->update('loan_master', $cancel_data_);
+                break;
+            default:
+                return $this->fun_fail('请求错误!');
+        }
+        return $this->fun_success('操作成功!');
+    }
+
+    public function handle_loan_zs($admin_id){
+        $loan_id = $this->input->post('loan_id');
+        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, 3);
+        if($check_role4admin_['status'] != 1)
+            return $check_role4admin_;
+        $action_type_= $this->input->post('action_type');
+        switch($action_type_){
+            case 'pass':
+                $pass_data_ = array(
+                    'zs_time' => time(),
+                    'zs_remark' => $this->input->post('zs_remark'),
+                    'status' => 4
+                );
+                if(!$pass_data_['zs_remark'])
+                    return $this->fun_fail('请填写终审意见!');
+                $pass_data_['qz_admin_id'] = $this->get_role_admin_id(3);
+                if($pass_data_['qz_admin_id'] == -1)
+                    return $this->fun_fail('缺少有效的权证人员,请联系技术部!');
+                $this->db->where('loan_id', $loan_id)->update('loan_master', $pass_data_);
+                break;
+            case 'ww':
+                $ww_data_ = array(
+                    'order_type' => -1,
+                    'flag' => -1,
+                    'ww_time' => time(),
+                    'zs_time' => time(),
+                    'zs_remark' => $this->input->post('zs_remark')
+                );
+                if(!$ww_data_['zs_remark'])
+                    return $this->fun_fail('请填写终审意见!');
+                $this->db->where('loan_id', $loan_id)->update('loan_master', $ww_data_);
+                break;
+            case 'cancel':
+                $cancel_data_ = array(
+                    'flag' => -1,
+                    'zs_time' => time(),
+                    'zs_remark' => $this->input->post('zs_remark')
+                );
+                if(!$cancel_data_['zs_remark'])
+                    return $this->fun_fail('请填写终审意见!');
+                $this->db->where('loan_id', $loan_id)->update('loan_master', $cancel_data_);
+                break;
+            default:
+                return $this->fun_fail('请求错误!');
+        }
+        return $this->fun_success('操作成功!');
+    }
+
+    //赎楼操作权限验证
+    private function check_role4admin($admin_id, $loan_id = '', $check_status = 0){
         if(!$loan_id){
             return $this->fun_fail('缺少参数!');
         }
@@ -561,12 +654,32 @@ class Loan_model extends MY_Model
         if(!$loan_info_){
             return $this->fun_fail('信息不存在!');
         }
-        if($loan_info_['status'] != 1 || $loan_info_['flag'] != 1){
-            return $this->fun_fail('申请单状态 不允许变更信息!');
+        if($loan_info_['flag'] != 1)
+            return $this->fun_fail('单据不在进行中!');
+        //$check_status 判断赎楼是否在指定状态
+        if($check_status != 0 && $check_status != $loan_info_['status'])
+            return $this->fun_fail('单据状态不可操作!');
+        $admin_info_ = $this->readByID('admin', 'admin_id', $admin_id);
+        switch($loan_info_['status']) {
+            case 1:
+                //面签权限
+                if ($loan_info_['mx_admin_id'] != $admin_id && $admin_info_['role_id'] != 1)
+                    return $this->fun_fail('您无权限操作此单!');
+                break;
+            case 2:
+                //风控初审权限
+                if ($loan_info_['fk_admin_id'] != $admin_id && $admin_info_['role_id'] != 2)
+                    return $this->fun_fail('您无权限操作此单!');
+                break;
+            case 3:
+                //风控终审权限
+                if($admin_info_['role_id'] != 5)
+                    return $this->fun_fail('您无权限操作此单!');
+                break;
+            default:
+                return $this->fun_fail('单据状态不可操作!');
         }
-        if($loan_info_['mx_admin_id'] != $admin_id){
-            return $this->fun_fail('您无权限操作此单!');
-        }
+
         return $this->fun_success('可操作!');
     }
 

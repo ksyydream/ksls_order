@@ -552,6 +552,7 @@ class MY_Model extends CI_Model{
             'role_id' => $role_id
         ))->from('admin')->order_by('admin_id','asc')->get()->row_array();
         if($new_admin_info){
+            $this->db->where('id', $role_id)->update('work_role',array('used_admin_id' => $new_admin_info['admin_id']));
             return $new_admin_info['admin_id'];
         }else{
             //如果没有找到,就使用最早的一位
@@ -560,6 +561,7 @@ class MY_Model extends CI_Model{
                 'role_id' => $role_id
             ))->from('admin')->order_by('admin_id','asc')->get()->row_array();
             if($new_admin_info){
+                $this->db->where('id', $role_id)->update('work_role',array('used_admin_id' => $new_admin_info['admin_id']));
                 return $new_admin_info['admin_id'];
             }
         }

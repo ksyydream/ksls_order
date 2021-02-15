@@ -162,8 +162,21 @@ class Mini_admin extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
+    //面签审核
     public function handle_loan_mx(){
         $rs = $this->loan_model->handle_loan_mx($this->admin_id);
+        $this->ajaxReturn($rs);
+    }
+
+    //风控审核
+    public function handle_loan_fk(){
+        $rs = $this->loan_model->handle_loan_fk($this->admin_id);
+        $this->ajaxReturn($rs);
+    }
+
+    //终审审核
+    public function handle_loan_zs(){
+        $rs = $this->loan_model->handle_loan_zs($this->admin_id);
         $this->ajaxReturn($rs);
     }
 
