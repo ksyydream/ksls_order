@@ -199,10 +199,11 @@ class Manager_model extends MY_Model
         $total_rows = $rs_total->num;
         $data['total_rows'] = $total_rows;
         //list
-        $this->db->select('a.*,b.group_id,c.title');
+        $this->db->select('a.*,b.group_id,c.title,wr.name role_name');
         $this->db->from('admin a');
         $this->db->join('auth_group_access b', 'a.admin_id = b.admin_id', 'left');
         $this->db->join('auth_group c', 'c.id = b.group_id', 'left');
+        $this->db->join('work_role wr', 'wr.id = a.role_id', 'left');
         if ($data['keyword']) {
             switch ($data['field']) {
                 case '1':

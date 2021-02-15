@@ -53,10 +53,10 @@
                                     <tr>
                                         <th>用户名</th>
                                         <th>用户组</th>
+                                        <th>小程序权限</th>
                                         <th class="center">性别</th>
                                         <th class="center">生日</th>
                                         <th>电话</th>
-                                        <th>Q&nbsp;Q</th>
                                         <th>邮箱</th>
                                         <th class="center">操作</th>
                                     </tr>
@@ -68,10 +68,10 @@
                                         <td class="grouptd">
                                            {{$v.title}}
                                         </td>
+                                        <td>{{$v.role_name}}</td>
                                         <td class="center">{{if $v.sex == 1}}男{{elseif $v.sex == 2}}女{{else}}保密{{/if}}</td>
                                         <td class="center">{{$v.birthday|date_format:"%Y-%m-%d"}}</td>
                                         <td>{{$v.phone}}</td>
-                                        <td>{{$v.qq}}</td>
                                         <td>{{$v.email}}</td>
                                         <td class="center"><a href="/manager/admin_edit/{{$v.admin_id}}"><i class="ace-icon fa fa-book bigger-100 blue"></i>修改</a>&nbsp;
                                             {{if $v.group_id !=1}}<a href="javascript:;" val="{{$v.admin_id}}" class="del"><i class="ace-icon fa fa-trash-o bigger-100 red"></i>删除</a>{{/if}}

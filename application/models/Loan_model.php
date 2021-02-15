@@ -701,7 +701,7 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功', $res_);
     }
 
-    //赎楼申请单列表 管理员端, 风控经理
+    //赎楼申请单列表 管理员端, 终审
     public function loan_list4qz($admin_id){
         $where_ = array('a.qz_admin_id' => $admin_id);
         $order_1 = 'a.zs_time';
