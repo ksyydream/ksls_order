@@ -51,4 +51,11 @@ class Mini_admin_model extends MY_Model
         $this->db->where('admin_id', $admin_id)->update('admin', $update_data);
     }
 
+    public function ht_list(){
+        $this->db->select()->from("contract");
+        $this->db->where('status', 1);
+        $list_ = $this->db->get()->result_array();
+        return $this->fun_success('获取成功',$list_);
+    }
+
 }

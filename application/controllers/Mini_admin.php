@@ -122,6 +122,11 @@ class Mini_admin extends Mini_controller {
         $this->ajaxReturn($this->loan_model->fun_success("获取成功！", $loan_info));
     }
 
+    public function ht_list(){
+        $rs = $this->mini_admin_model->ht_list();
+        $this->ajaxReturn($rs);
+    }
+
     /**
      *********************************************************************************************
      * 以下代码为面签 专用

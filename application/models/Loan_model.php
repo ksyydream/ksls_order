@@ -503,15 +503,47 @@ class Loan_model extends MY_Model
             case 'pass':
                 $pass_data_ = array(
                     'ht_id' => $this->input->post('ht_id'),
-                    'jj_price' => $this->input->post('jj_price'),
-                    'mx_time' => time()
+                    'jj_price' => $this->input->post('jj_price') ? $this->input->post('jj_price') : 0,
+                    'mx_time' => time(),
+                    'mx_remark' => $this->input->post('mx_remark'),
+                    'status' => 2
                 );
+                if(!$pass_data_['ht_id'])
+                    return $this->fun_fail('请选择合同版本!');
+                if($pass_data_['jj_price'] < 0)
+                    return $this->fun_fail('请输入居间服务费!');
+                if(!$pass_data_['mx_remark'])
+                    return $this->fun_fail('请填写面签理由!');
+                $ht_info_ = $this->readByID('contract', 'ht_id', $pass_data_['ht_id']);
+                if(!$ht_info_ || $ht_info_['status'] != 1)
+                    return $this->fun_fail('请选择有效合同版本!');
+                $pass_data_['ht_name'] = $ht_info_['ht_name'];
+                $pass_data_['fk_admin_id'] = $this->get_role_admin_id(2);
+                if($pass_data_['fk_admin_id'] == -1)
+                    return $this->fun_fail('缺少有效的风控人员,请联系技术部!');
+                $this->db->where('loan_id', $loan_id)->update('loan_master', $pass_data_);
                 break;
             case 'ww':
-
+                $ww_data_ = array(
+                    'order_type' => -1,
+                    'flag' => -1,
+                    'ww_time' => time(),
+                    'mx_time' => time(),
+                    'mx_remark' => $this->input->post('mx_remark')
+                );
+                if(!$ww_data_['mx_remark'])
+                    return $this->fun_fail('请填写面签理由!');
+                $this->db->where('loan_id', $loan_id)->update('loan_master', $ww_data_);
                 break;
             case 'cancel':
-
+                $cancel_data_ = array(
+                    'flag' => -1,
+                    'mx_time' => time(),
+                    'mx_remark' => $this->input->post('mx_remark')
+                );
+                if(!$cancel_data_['mx_remark'])
+                    return $this->fun_fail('请填写面签理由!');
+                $this->db->where('loan_id', $loan_id)->update('loan_master', $cancel_data_);
                 break;
             default:
                 return $this->fun_fail('请求错误!');
