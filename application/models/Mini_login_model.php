@@ -59,7 +59,7 @@ class Mini_login_model extends MY_Model
             }
             return $this->fun_success('操作成功',$row);
         } else {
-            return $this->fun_fail('登录失败');
+            return $this->fun_fail('账号未注册或密码错误');
         }
     }
 
@@ -83,7 +83,7 @@ class Mini_login_model extends MY_Model
             }
             return $this->fun_success('操作成功',$row);
         } else {
-            return $this->fun_fail('登录失败');
+            return $this->fun_fail('账号未注册或密码错误!');
         }
     }
 
@@ -168,7 +168,7 @@ class Mini_login_model extends MY_Model
             }
             return $this->fun_success('操作成功',$row);
         } else {
-            return $this->fun_fail('登录失败');
+            return $this->fun_fail('账号未注册或密码错误');
         }
     }
 

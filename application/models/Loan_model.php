@@ -197,6 +197,7 @@ class Loan_model extends MY_Model
             $this->db->where('a.user_id', $data['user_id']);
         }
         $this->db->order_by($order_1, $order_2);
+        $this->db->order_by('a.loan_id', 'desc'); //给个默认排序
         $this->db->group_by('a.loan_id');
         $this->db->limit($data['limit'], $offset = ($page - 1) * $data['limit']);
         $res['res_list'] = $this->db->get()->result_array();
@@ -277,7 +278,7 @@ class Loan_model extends MY_Model
             return $this->fun_fail('信息不存在!');
         }
         $borrower_info_ = $rs_['result'];
-        $check_role4admin_ = $this->check_role4admin($admin_id, $borrower_info_['loan_id']);
+        $check_role4admin_ = $this->check_role4admin($admin_id, $borrower_info_['loan_id'], array(1,2,3));
         if($check_role4admin_['status'] != 1)
             return $check_role4admin_;
 
@@ -351,7 +352,7 @@ class Loan_model extends MY_Model
         }
 
         $borrower_info_ = $rs_['result'];
-        $check_role4admin_ = $this->check_role4admin($admin_id, $borrower_info_['loan_id']);
+        $check_role4admin_ = $this->check_role4admin($admin_id, $borrower_info_['loan_id'], array(1,2,3));
         if($check_role4admin_['status'] != 1)
             return $check_role4admin_;
 
@@ -379,7 +380,7 @@ class Loan_model extends MY_Model
 
     public function add_borrower_info4admin($admin_id){
         $loan_id = $this->input->post('loan_id');
-        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id);
+        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, array(1,2,3));
         if($check_role4admin_['status'] != 1)
             return $check_role4admin_;
 
@@ -442,7 +443,7 @@ class Loan_model extends MY_Model
 
     public function edit_appointment_date4admin($admin_id){
         $loan_id = $this->input->post('loan_id');
-        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id);
+        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, array(1));
         if($check_role4admin_['status'] != 1)
             return $check_role4admin_;
 
@@ -456,10 +457,10 @@ class Loan_model extends MY_Model
 
     }
 
-    //面签 修改赎楼基本信息
+    //面签,风控,终审 修改赎楼基本信息
     public function edit_loan_info4admin($admin_id){
         $loan_id = $this->input->post('loan_id');
-        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id);
+        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, array(1,2,3));
         if($check_role4admin_['status'] != 1)
             return $check_role4admin_;
         $update_ = array(
@@ -497,9 +498,10 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功');
     }
 
+    //面签审核
     public function handle_loan_mx($admin_id){
         $loan_id = $this->input->post('loan_id');
-        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, 1);
+        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, array(1));
         if($check_role4admin_['status'] != 1)
             return $check_role4admin_;
         $action_type_= $this->input->post('action_type');
@@ -543,7 +545,9 @@ class Loan_model extends MY_Model
                 $cancel_data_ = array(
                     'flag' => -1,
                     'mx_time' => time(),
-                    'mx_remark' => $this->input->post('mx_remark')
+                    'mx_remark' => $this->input->post('mx_remark'),
+                    'err_admin_id' => $admin_id,
+                    'err_time' => time()
                 );
                 if(!$cancel_data_['mx_remark'])
                     return $this->fun_fail('请填写面签意见!');
@@ -556,9 +560,10 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功!');
     }
 
+    //风控审核
     public function handle_loan_fk($admin_id){
         $loan_id = $this->input->post('loan_id');
-        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, 2);
+        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, array(2));
         if($check_role4admin_['status'] != 1)
             return $check_role4admin_;
         $action_type_= $this->input->post('action_type');
@@ -589,7 +594,9 @@ class Loan_model extends MY_Model
                 $cancel_data_ = array(
                     'flag' => -1,
                     'fk_time' => time(),
-                    'fk_remark' => $this->input->post('fk_remark')
+                    'fk_remark' => $this->input->post('fk_remark'),
+                    'err_admin_id' => $admin_id,
+                    'err_time' => time()
                 );
                 if(!$cancel_data_['fk_remark'])
                     return $this->fun_fail('请填写风控意见!');
@@ -601,9 +608,10 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功!');
     }
 
+    //终审审核
     public function handle_loan_zs($admin_id){
         $loan_id = $this->input->post('loan_id');
-        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, 3);
+        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, array(3));
         if($check_role4admin_['status'] != 1)
             return $check_role4admin_;
         $action_type_= $this->input->post('action_type');
@@ -637,7 +645,9 @@ class Loan_model extends MY_Model
                 $cancel_data_ = array(
                     'flag' => -1,
                     'zs_time' => time(),
-                    'zs_remark' => $this->input->post('zs_remark')
+                    'zs_remark' => $this->input->post('zs_remark'),
+                    'err_admin_id' => $admin_id,
+                    'err_time' => time()
                 );
                 if(!$cancel_data_['zs_remark'])
                     return $this->fun_fail('请填写终审意见!');
@@ -649,8 +659,140 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功!');
     }
 
+    //权证审核
+    public function handle_loan_qz($admin_id){
+        $loan_id = $this->input->post('loan_id');
+        $action_type_= $this->input->post('action_type');
+        $check_status = array(-99);
+        switch($action_type_){
+            case 'wq':
+                $check_status = array(4);
+                break;
+            case 'tg':
+                $check_status = array(5);
+                break;
+            case 'nj':
+                $check_status = array(6);
+                break;
+            case 'gh':
+                $check_status = array(8);
+                break;
+            case 'err':
+                $check_status = array(4,5,6,8);
+                break;
+            default:
+                return $this->fun_fail('请求错误!');
+        }
+        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, $check_status);
+        if($check_role4admin_['status'] != 1)
+            return $check_role4admin_;
+        $update_data_ = array();
+        switch($action_type_){
+            case 'wq':
+                $update_data_ = array(
+                    'wq_time' => time(),
+                    'has_wq' => 1,
+                    'status' => 5
+                );
+                break;
+            case 'tg':
+                $update_data_ = array(
+                    'tg_time' => time(),
+                    'has_tg' => 1,
+                    'status' => 6
+                );
+                break;
+            case 'nj':
+                $update_data_ = array(
+                    'nj_time' => time(),
+                    'has_nj' => 1,
+                    'status' => 7
+                );
+                break;
+            case 'gh':
+                $update_data_ = array(
+                    'gh_time' => time(),
+                    'has_gh' => 1,
+                    'status' => 9
+                );
+                break;
+            case 'err':
+                $update_data_ = array(
+                    'err_remark' => $this->input->post('err_remark'),
+                    'has_err' => 1,
+                    'flag' => -1,
+                    'err_admin_id' => $admin_id,
+                    'err_time' => time()
+                );
+                if(!$update_data_['err_remark'])
+                    return $this->fun_fail('请填写异常原因!');
+                break;
+            default:
+                return $this->fun_fail('请求错误!');
+        }
+        $this->db->where('loan_id', $loan_id)->update('loan_master', $update_data_);
+        return $this->fun_success('操作成功!');
+    }
+
+    //财务审核
+    public function handle_loan_cw($admin_id){
+        $loan_id = $this->input->post('loan_id');
+        $action_type_= $this->input->post('action_type');
+        $check_status = array(-99);
+        switch($action_type_){
+            case 'make':
+                $check_status = array(7);
+                break;
+            case 'returned':
+                $check_status = array(9);
+                break;
+            case 'err':
+                $check_status = array(7,9);
+                break;
+            default:
+                return $this->fun_fail('请求错误!');
+        }
+        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, $check_status);
+        if($check_role4admin_['status'] != 1)
+            return $check_role4admin_;
+        $update_data_ = array();
+        switch($action_type_){
+            case 'make':
+                $update_data_ = array(
+                    'make_loan_time' => time(),
+                    'has_make_loan' => 1,
+                    'status' => 8
+                );
+                break;
+            case 'returned':
+                $update_data_ = array(
+                    'returned_money_time' => time(),
+                    'has_returned_money' => 1,
+                    'status' => 10,
+                    'flag' => 2
+                );
+                break;
+            case 'err':
+                $update_data_ = array(
+                    'err_remark' => $this->input->post('err_remark'),
+                    'has_err' => 1,
+                    'flag' => -1,
+                    'err_admin_id' => $admin_id,
+                    'err_time' => time()
+                );
+                if(!$update_data_['err_remark'])
+                    return $this->fun_fail('请填写异常原因!');
+                break;
+            default:
+                return $this->fun_fail('请求错误!');
+        }
+        $this->db->where('loan_id', $loan_id)->update('loan_master', $update_data_);
+        return $this->fun_success('操作成功!');
+    }
+
+    /** 管理员权限 验证 重要*/
     //赎楼操作权限验证
-    private function check_role4admin($admin_id, $loan_id = '', $check_status = 0){
+    private function check_role4admin($admin_id, $loan_id = '', $check_status = array()){
         if(!$loan_id){
             return $this->fun_fail('缺少参数!');
         }
@@ -661,7 +803,9 @@ class Loan_model extends MY_Model
         if($loan_info_['flag'] != 1)
             return $this->fun_fail('单据不在进行中!');
         //$check_status 判断赎楼是否在指定状态
-        if($check_status != 0 && $check_status != $loan_info_['status'])
+        if(!is_array($check_status))
+            return $this->fun_fail('权限验证异常!');
+        if($check_status && !in_array($loan_info_['status'], $check_status))
             return $this->fun_fail('单据状态不可操作!');
         $admin_info_ = $this->readByID('admin', 'admin_id', $admin_id);
         switch($loan_info_['status']) {
@@ -671,13 +815,27 @@ class Loan_model extends MY_Model
                     return $this->fun_fail('您无权限操作此单!');
                 break;
             case 2:
-                //风控初审权限
+                //风控权限
                 if ($loan_info_['fk_admin_id'] != $admin_id && $admin_info_['role_id'] != 2)
                     return $this->fun_fail('您无权限操作此单!');
                 break;
             case 3:
-                //风控终审权限
+                //终审权限
                 if($admin_info_['role_id'] != 5)
+                    return $this->fun_fail('您无权限操作此单!');
+                break;
+            case 4:
+            case 5:
+            case 6:
+            case 8:
+                //权证权限
+                if($admin_info_['role_id'] != 3)
+                    return $this->fun_fail('您无权限操作此单!');
+                break;
+            case 7:
+            case 9:
+                //财务权限
+                if($admin_info_['role_id'] != 4)
                     return $this->fun_fail('您无权限操作此单!');
                 break;
             default:
@@ -705,10 +863,18 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功', $res_);
     }
 
-    //赎楼申请单列表 管理员端, 终审
+    //赎楼申请单列表 管理员端, 权证
     public function loan_list4qz($admin_id){
         $where_ = array('a.qz_admin_id' => $admin_id);
         $order_1 = 'a.zs_time';
+        $order_2 = 'desc';
+        $res_ = $this->loan_list($where_,$order_1,$order_2);
+        return $this->fun_success('操作成功', $res_);
+    }
+
+    public function loan_list4zs($admin_id){
+        $where_ = array('a.loan_id >' => 0);
+        $order_1 = 'a.fk_time';
         $order_2 = 'desc';
         $res_ = $this->loan_list($where_,$order_1,$order_2);
         return $this->fun_success('操作成功', $res_);

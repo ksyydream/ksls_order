@@ -617,6 +617,13 @@ class MY_Model extends CI_Model{
             'get_json' => json_encode($this->input->get()),
             'cdate' => date('Y-m-d H:i:s',time())
         );
+        if(!$data['action_url']){
+            //Nginx 下 可能获取不到值
+            $url_ = $_SERVER['REQUEST_URI'];
+            $url_arr_ = explode('?',$url_);
+            $data['action_url'] = $url_arr_[0];
+
+        }
         $this->db->insert('admin_log',$data);
 
     }

@@ -30,6 +30,7 @@ class Mini_admin extends Mini_controller {
         $this->admin_id = $check_re['result']['admin_id'];
         $this->role_id = $check_re['result']['role_id'];
         $this->mini_admin_model->update_admin_tt($this->admin_id); //操作就更新登录时间
+        $this->mini_admin_model->save_admin_log($this->admin_id); //保存操作记录
     }
 
     public function get_admin_info(){
@@ -86,7 +87,7 @@ class Mini_admin extends Mini_controller {
                 $this->ajaxReturn($rs);
                 break;
             case 5:
-                //风控终审
+                //终审
                 $rs = $this->loan_model->loan_list4zs($this->admin_id);
                 $this->ajaxReturn($rs);
                 break;
@@ -177,6 +178,18 @@ class Mini_admin extends Mini_controller {
     //终审审核
     public function handle_loan_zs(){
         $rs = $this->loan_model->handle_loan_zs($this->admin_id);
+        $this->ajaxReturn($rs);
+    }
+
+    //权证审核
+    public function handle_loan_qz(){
+        $rs = $this->loan_model->handle_loan_qz($this->admin_id);
+        $this->ajaxReturn($rs);
+    }
+
+    //权证审核
+    public function handle_loan_cw(){
+        $rs = $this->loan_model->handle_loan_cw($this->admin_id);
         $this->ajaxReturn($rs);
     }
 
