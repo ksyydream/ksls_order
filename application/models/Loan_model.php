@@ -168,7 +168,9 @@ class Loan_model extends MY_Model
         $num = $this->db->get()->row();
         $res['total_rows'] = $num->num;
         $res['total_page'] = ceil($res['total_rows'] / $data['limit']);
-        $this->db->select('a.loan_id,a.work_no,a.loan_money,u.rel_name handle_user, u1.rel_name create_user,
+        $this->db->select('a.loan_id,a.work_no,a.loan_money,
+        u.rel_name handle_name,u.mobile handle_mobile,
+        u1.rel_name create_name,u1.mobile create_mobile,
          bd.brand_name,FROM_UNIXTIME(a.create_time) loan_cdate, mx.admin_name mx_name,mx.phone mx_phone,a.appointment_date');
         $this->db->from('loan_master a');
         $this->db->join('users u','a.user_id = u.user_id','left');
@@ -209,8 +211,10 @@ class Loan_model extends MY_Model
 
     //赎楼业务详情
     public function loan_info($loan_id, $select = "*"){
-        $select = "a.*,FROM_UNIXTIME(a.create_time) loan_cdate,u.rel_name handle_user,
-        u1.rel_name create_user, bd.brand_name, mx.admin_name mx_name, fk.admin_name fk_name,mx.phone mx_phone";
+        $select = "a.*,FROM_UNIXTIME(a.create_time) loan_cdate,
+        u.rel_name handle_name,u.mobile handle_mobile,
+        u1.rel_name create_name,u1.mobile create_mobile,
+        bd.brand_name, mx.admin_name mx_name, fk.admin_name fk_name,mx.phone mx_phone";
         $this->db->select($select)->from('loan_master a');
         $this->db->join('users u','a.user_id = u.user_id','left');
         $this->db->join('users u1','a.create_user_id = u1.user_id','left');
