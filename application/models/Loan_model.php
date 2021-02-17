@@ -511,6 +511,7 @@ class Loan_model extends MY_Model
         $action_type_= $this->input->post('action_type');
         switch($action_type_){
             case 'pass':
+            case 'pass_need':
                 $pass_data_ = array(
                     'ht_id' => $this->input->post('ht_id'),
                     'jj_price' => $this->input->post('jj_price') ? $this->input->post('jj_price') : 0,
@@ -518,6 +519,8 @@ class Loan_model extends MY_Model
                     'mx_remark' => $this->input->post('mx_remark'),
                     'status' => 2
                 );
+                if($action_type_ == 'pass_need')
+                    $pass_data_['need_mx'] = 1;
                 if(!$pass_data_['ht_id'])
                     return $this->fun_fail('请选择合同版本!');
                 if($pass_data_['jj_price'] < 0)
