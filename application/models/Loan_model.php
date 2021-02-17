@@ -168,10 +168,12 @@ class Loan_model extends MY_Model
         $num = $this->db->get()->row();
         $res['total_rows'] = $num->num;
         $res['total_page'] = ceil($res['total_rows'] / $data['limit']);
-        $this->db->select('a.loan_id,a.work_no,a.loan_money,
+        $this->db->select("a.loan_id,a.work_no,a.loan_money,a.is_td_ng,a.order_type,a.is_err,
         u.rel_name handle_name,u.mobile handle_mobile,
         u1.rel_name create_name,u1.mobile create_mobile,
-         bd.brand_name,FROM_UNIXTIME(a.create_time) loan_cdate, mx.admin_name mx_name,mx.phone mx_phone,a.appointment_date');
+        DATE_FORMAT(a.appointment_date,'%Y-%m-%d') appointment_date_handle_,
+        DATE_FORMAT(a.redeem_date,'%Y-%m-%d') redeem_date_handle_,
+         bd.brand_name,FROM_UNIXTIME(a.create_time) loan_cdate, mx.admin_name mx_name,mx.phone mx_phone,a.appointment_date");
         $this->db->from('loan_master a');
         $this->db->join('users u','a.user_id = u.user_id','left');
         $this->db->join('users u1','a.create_user_id = u1.user_id','left');
@@ -213,6 +215,8 @@ class Loan_model extends MY_Model
     //赎楼业务详情
     public function loan_info($loan_id, $select = "*"){
         $select = "a.*,FROM_UNIXTIME(a.create_time) loan_cdate,
+        DATE_FORMAT(a.appointment_date,'%Y-%m-%d') appointment_date_handle_,
+        DATE_FORMAT(a.redeem_date,'%Y-%m-%d') redeem_date_handle_,
         u.rel_name handle_name,u.mobile handle_mobile,
         u1.rel_name create_name,u1.mobile create_mobile,
         bd.brand_name, mx.admin_name mx_name, fk.admin_name fk_name,mx.phone mx_phone";
@@ -696,18 +700,36 @@ class Loan_model extends MY_Model
                 );
                 break;
             case 'tg':
+                //需要写入 托管的 借款 回款 银行卡号
                 $update_data_ = array(
                     'tg_time' => time(),
+                    'make_loan_bank' => trim($this->input->post('make_loan_bank')) ? trim($this->input->post('make_loan_bank')): '',
+                    'make_loan_card' => trim($this->input->post('make_loan_card')) ? trim($this->input->post('make_loan_card')): '',
+                    'returned_money_bank' => trim($this->input->post('returned_money_bank')) ? trim($this->input->post('returned_money_bank')): '',
+                    'returned_money_card' => trim($this->input->post('returned_money_card')) ? trim($this->input->post('returned_money_card')): '',
                     'has_tg' => 1,
                     'status' => 6
                 );
+                if(!$update_data_['make_loan_bank'])
+                    return $this->fun_fail('请填写借款银行!');
+                if(!$update_data_['make_loan_card'])
+                    return $this->fun_fail('请填写借款银行卡!');
+                if(!$update_data_['returned_money_bank'])
+                    return $this->fun_fail('请填写回款银行!');
+                if(!$update_data_['returned_money_card'])
+                    return $this->fun_fail('请填写回款银行卡!');
+
                 break;
             case 'nj':
+                //需要写入 预约放款时间
                 $update_data_ = array(
                     'nj_time' => time(),
+                    'redeem_date' => trim($this->input->post('redeem_date')) ? trim($this->input->post('redeem_date')): '',
                     'has_nj' => 1,
                     'status' => 7
                 );
+                if(!$update_data_['redeem_date'])
+                    return $this->fun_fail('请填写预约赎楼时间!');
                 break;
             case 'gh':
                 $update_data_ = array(
@@ -719,7 +741,7 @@ class Loan_model extends MY_Model
             case 'err':
                 $update_data_ = array(
                     'err_remark' => $this->input->post('err_remark'),
-                    'has_err' => 1,
+                    'is_err' => 1,
                     'flag' => -1,
                     'err_admin_id' => $admin_id,
                     'err_time' => time()
@@ -775,7 +797,7 @@ class Loan_model extends MY_Model
             case 'err':
                 $update_data_ = array(
                     'err_remark' => $this->input->post('err_remark'),
-                    'has_err' => 1,
+                    'is_err' => 1,
                     'flag' => -1,
                     'err_admin_id' => $admin_id,
                     'err_time' => time()
