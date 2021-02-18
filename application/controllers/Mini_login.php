@@ -25,9 +25,10 @@ class Mini_login extends Mini_controller {
         $rs = $this->mini_login_model->admin_login();
         if($rs['status'] == 1){
             $admin_id = $rs['result']['admin_id'];
+            $role_id = $rs['result']['role_id'];
             $token = $this->set_token_uid($admin_id,'ADMIN');
             $this->mini_admin_model->update_admin_tt($admin_id,$token);
-            $rs['result'] = array('token' => $token);
+            $rs['result'] = array('token' => $token, 'role_id' => $role_id);
         }
         $this->ajaxReturn($rs);
     }

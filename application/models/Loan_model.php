@@ -121,7 +121,7 @@ class Loan_model extends MY_Model
             $borrowers_insert_[] = $b_insert_;
         }
         $this->db->insert_batch('loan_borrowers', $borrowers_insert_);
-        return $this->fun_success('操作成功');
+        return $this->fun_success('操作成功',array('loan_id' => $loan_id));
 	}
 
     //赎楼申请单列表 大客户端
