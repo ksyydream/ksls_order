@@ -634,5 +634,140 @@ class Manager_model extends MY_Model
         return $this->fun_success('操作成功');
     }
 
+      /**
+     *********************************************************************************************
+     * 赎楼业务相关
+     *********************************************************************************************
+     */
+      /**
+     * 合同列表
+     * @author yangyang
+     * @date 2021-01-12
+     */
 
+    public function contract_list($page = 1){
+        $data['limit'] = $this->limit;
+
+        //获取总记录数
+        $this->db->select('count(1) num')->from('contract a');
+
+        $num = $this->db->get()->row();
+        $data['total_rows'] = $num->num;
+
+        //获取详细列
+        $this->db->select('a.*')->from('contract a');
+
+        $this->db->limit($this->limit, $offset = ($page - 1) * $this->limit);
+        $this->db->order_by('a.ht_id','desc');
+        $data['res_list'] = $this->db->get()->result_array();
+        return $data;
+    }
+
+    public function contract_edit($id){
+        $detail =  $this->readByID('contract', 'ht_id', $id);
+        return $detail;
+    }
+
+    public function contract_save(){
+        $data =array(
+            'ht_name'=>trim($this->input->post('ht_name')),
+            'ht_text'=>trim($this->input->post('ht_text')),
+            'status' => trim($this->input->post('status')) ? trim($this->input->post('status')) : -1
+        );
+        if(!$data['ht_name'])
+            return $this->fun_fail('合同名称不能为空！');
+        $id = $this->input->post('ht_id');
+        if($id){
+            //unset($data['create_time']);
+            $this->db->where('ht_id', $id)->update('contract', $data);
+        }else{
+         
+            $this->db->insert('contract', $data);
+        }
+        return $this->fun_success('保存成功!');
+     }
+
+       /**
+     * 赎楼列表
+     * @author yangyang
+     * @date 2021-02-18
+     */
+
+    public function loan_list($page = 1){
+        $data['limit'] = $this->limit;
+        $data['keyword'] = trim($this->input->get('keyword')) ? trim($this->input->get('keyword')) : null;
+        $data['order_type'] = trim($this->input->get('type_id')) ? trim($this->input->get('type_id')) : null;
+        $data['status'] = trim($this->input->get('status')) ? trim($this->input->get('status')) : null;
+        $data['flag'] = trim($this->input->get('flag')) ? trim($this->input->get('flag')) : null;
+         $data['brand_id'] = trim($this->input->get('brand_id')) ? trim($this->input->get('brand_id')) : null;
+        $data['s_date'] = trim($this->input->get('s_date')) ? trim($this->input->get('s_date')) : '';
+        $data['e_date'] = trim($this->input->get('e_date')) ? trim($this->input->get('e_date')) : '';
+        //获取总记录数
+       
+        $this->db->select('count(DISTINCT a.loan_id) num');
+        $this->db->from('loan_master a');
+        $this->db->join('loan_borrowers b', 'a.loan_id = b.loan_id', 'left');
+        //$this->db->where($where);
+        if($data['keyword']){
+            $this->db->group_start();
+            $this->db->like('b.borrower_name', $data['keyword']);
+            $this->db->group_end();
+        }
+        if($data['flag']){
+            $this->db->where('a.flag', $data['flag']);
+        }
+        if($data['status']){
+            $this->db->where('a.status', $data['status']);
+        }
+        if ($data['s_date']) {
+            $this->db->where('FROM_UNIXTIME(a.create_time) >=', strtotime($data['s_date'] . " 00:00:00"));
+        }
+        if ($data['e_date']) {
+            $this->db->where('FROM_UNIXTIME(a.create_time) <=', strtotime($data['e_date'] . " 23:59:59"));
+        }
+        if($data['brand_id']){
+            $this->db->where('a.brand_id', $data['brand_id']);
+        }
+        $num = $this->db->get()->row();
+        $data['total_rows'] = $num->num;
+
+        //获取详细列
+       $this->db->select("a.loan_id,a.work_no,a.loan_money,a.is_td_ng,a.order_type,a.is_err,a.need_mx,
+        u.rel_name handle_name,u.mobile handle_mobile,
+        u1.rel_name create_name,u1.mobile create_mobile,
+         bd.brand_name,FROM_UNIXTIME(a.create_time) loan_cdate, mx.admin_name mx_name,mx.phone mx_phone,a.appointment_date");
+        $this->db->from('loan_master a');
+        $this->db->join('users u','a.user_id = u.user_id','left');
+        $this->db->join('users u1','a.create_user_id = u1.user_id','left');
+        $this->db->join('brand bd','a.brand_id = bd.id','left');
+        $this->db->join('loan_borrowers b', 'a.loan_id = b.loan_id', 'left');
+        $this->db->join('admin mx', 'a.mx_admin_id = mx.admin_id', 'left');
+        //$this->db->where($where);
+        if($data['keyword']){
+            $this->db->group_start();
+            $this->db->like('b.borrower_name', $data['keyword']);
+            $this->db->group_end();
+        }
+        if($data['flag']){
+            $this->db->where('a.flag', $data['flag']);
+        }
+        if($data['status']){
+            $this->db->where('a.status', $data['status']);
+        }
+        if ($data['s_date']) {
+            $this->db->where('FROM_UNIXTIME(a.create_time) >=', strtotime($data['s_date'] . " 00:00:00"));
+        }
+        if ($data['e_date']) {
+            $this->db->where('FROM_UNIXTIME(a.create_time) <=', strtotime($data['e_date'] . " 23:59:59"));
+        }
+        if($data['brand_id']){
+            $this->db->where('a.brand_id', $data['brand_id']);
+        }
+      
+        $this->db->order_by('a.loan_id', 'desc'); //给个默认排序
+        $this->db->group_by('a.loan_id');
+        $this->db->limit($data['limit'], $offset = ($page - 1) * $data['limit']);
+        $data['res_list'] = $this->db->get()->result_array();
+        return $data;
+    }
 }

@@ -436,5 +436,62 @@ class Manager extends MY_Controller {
         }
     }
 
+     /**
+     *********************************************************************************************
+     * 赎楼业务相关
+     *********************************************************************************************
+     */
+      /**
+     * 合同列表
+     * @author yangyang
+     * @date 2021-01-12
+     */
+    public function contract_list($page = 1){
+        $data = $this->manager_model->contract_list($page);
+        $base_url = "/manager/contract_list/";
+        $pager = $this->pagination->getPageLink4manager($base_url, $data['total_rows'], $data['limit']);
+        $this->assign('pager', $pager);
+        $this->assign('page', $page);
+        $this->assign('data', $data);
+        $this->display('manager/loan/contract_list.html');
+    }
+
+    public function contract_add(){
+        $this->display('manager/loan/contract_detail.html');
+    }
+
+    public function contract_edit($id){
+        $data = $this->manager_model->contract_edit($id);
+        if(!$data){
+            $this->show_message('未找到信息!');
+        }
+        $this->assign('data', $data);
+        $this->display('manager/loan/contract_detail.html');
+    }
+
+    public function contract_save(){
+        $res = $this->manager_model->contract_save($this->admin_id);
+        if($res['status'] == 1){
+            $this->show_message($res['msg'], site_url('/manager/contract_list'));
+        }else{
+            $this->show_message($res['msg']);
+        }
+    }
+
+
+     /**
+     * 赎楼申请单列表
+     * @author yangyang <yang.yang@thmarket.cn>
+     * @date 2018-04-01
+     */
+    public function loan_list($page = 1){
+        $data = $this->manager_model->loan_list($page);
+        $base_url = "/manager/loan_list/";
+        $pager = $this->pagination->getPageLink4manager($base_url, $data['total_rows'], $data['limit']);
+        $this->assign('pager', $pager);
+        $this->assign('page', $page);
+        $this->assign('data', $data);
+        $this->display('manager/loan/loan_list.html');
+    }
 
 }
