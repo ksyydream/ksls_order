@@ -193,5 +193,11 @@ class Mini_admin extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
+    //获取业务总数
+    public function loan_count(){
+        $rs = $this->loan_model->loan_count4admin($this->admin_id, $this->role_id);
+        $this->ajaxReturn($rs);
+    }
+
 
 }
