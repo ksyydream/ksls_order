@@ -124,14 +124,7 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功',array('loan_id' => $loan_id));
 	}
 
-    //赎楼申请单列表 大客户端
-    public function loan_list4brand($brand_id){
-        $where_ = array('a.brand_id' => $brand_id);
-        $order_1 = 'a.create_time';
-        $order_2 = 'desc';
-        $res_ = $this->loan_list($where_,$order_1,$order_2);
-        return $this->fun_success('操作成功', $res_);
-    }
+
 
     //赎楼业务列表 私有 共用方法
     private function loan_list($where, $order_1 = 'a.create_time', $order_2 = 'desc'){
@@ -281,7 +274,52 @@ class Loan_model extends MY_Model
 
     }
 
+    private function loan_count($where){
+        $mx_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 1))->where($where)->get()->row();
+        $fk_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 2))->where($where)->get()->row();
+        $zs_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 3))->where($where)->get()->row();
+        $wq_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 4))->where($where)->get()->row();
+        $tg_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 5))->where($where)->get()->row();
+        $nj_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 6))->where($where)->get()->row();
+        $make_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 7))->where($where)->get()->row();
+        $gh_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 8))->where($where)->get()->row();
+        $returned_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 9))->where($where)->get()->row();
+        //$err_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => -1))->where($where)->get()->row();
+        //$success_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 2))->where($where)->get()->row();
+        $result = array(
+            'mx_num' => $mx_num->num,
+            'fk_num' => $fk_num->num,
+            'zs_num' => $zs_num->num,
+            'wq_num' => $wq_num->num,
+            'tg_num' => $tg_num->num,
+            'nj_num' => $nj_num->num,
+            'make_num' => $make_num->num,
+            'gh_num' => $gh_num->num,
+            'returned_num' => $returned_num->num,
+            //'err_num' => $err_num->num,
+            //'success_num' => $success_num->num,
+        );
+        return $this->fun_success('获取成功!', $result);
+    }
+    /**
+     *********************************************************************************************
+     * 以下代码为大客户端 专用
+     *********************************************************************************************
+     */
+//赎楼申请单列表 大客户端
+    public function loan_list4brand($brand_id){
+        $where_ = array('a.brand_id' => $brand_id);
+        $order_1 = 'a.create_time';
+        $order_2 = 'desc';
+        $res_ = $this->loan_list($where_,$order_1,$order_2);
+        return $this->fun_success('操作成功', $res_);
+    }
 
+    public function loan_count4brand($brand_id){
+        $where = array('brand_id' => $brand_id);
+        $rs = $this->loan_count($where);
+        return $rs;
+    }
 
     /**
      *********************************************************************************************
@@ -296,6 +334,12 @@ class Loan_model extends MY_Model
         $order_2 = 'desc';
         $res_ = $this->loan_list($where_,$order_1,$order_2);
         return $this->fun_success('操作成功', $res_);
+    }
+
+    public function loan_count4user($user_id){
+        $where = array('user_id' => $user_id);
+        $rs = $this->loan_count($where);
+        return $rs;
     }
 
     /**
@@ -987,30 +1031,7 @@ class Loan_model extends MY_Model
                 return $this->fun_fail("未找到可用数据！");
 
         }
-        $mx_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 1))->where($where)->get()->row();
-        $fk_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 2))->where($where)->get()->row();
-        $zs_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 3))->where($where)->get()->row();
-        $wq_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 4))->where($where)->get()->row();
-        $tg_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 5))->where($where)->get()->row();
-        $nj_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 6))->where($where)->get()->row();
-        $make_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 7))->where($where)->get()->row();
-        $gh_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 8))->where($where)->get()->row();
-        $returned_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 1, 'status' => 9))->where($where)->get()->row();
-        //$err_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => -1))->where($where)->get()->row();
-        //$success_num = $this->db->select('count(1) num')->from('loan_master')->where(array('flag' => 2))->where($where)->get()->row();
-        $result = array(
-            'mx_num' => $mx_num->num,
-            'fk_num' => $fk_num->num,
-            'zs_num' => $zs_num->num,
-            'wq_num' => $wq_num->num,
-            'tg_num' => $tg_num->num,
-            'nj_num' => $nj_num->num,
-            'make_num' => $make_num->num,
-            'gh_num' => $gh_num->num,
-            'returned_num' => $returned_num->num,
-            //'err_num' => $err_num->num,
-            //'success_num' => $success_num->num,
-        );
-        return $this->fun_success('获取成功!', $result);
+        $rs = $this->loan_count($where);
+        return $rs;
     }
 }

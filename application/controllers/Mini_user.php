@@ -83,6 +83,11 @@ class Mini_user extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
+    //获取业务总数
+    public function loan_count(){
+        $rs = $this->loan_model->loan_count4user($this->user_id);
+        $this->ajaxReturn($rs);
+    }
 
 
 }

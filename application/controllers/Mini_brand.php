@@ -62,6 +62,10 @@ class Mini_brand extends Mini_controller {
         $rs = $this->mini_user_model->user_list($where);
     }
 
-
+    //获取业务总数
+    public function loan_count(){
+        $rs = $this->loan_model->loan_count4brand($this->brand_id);
+        $this->ajaxReturn($rs);
+    }
 
 }
