@@ -478,6 +478,21 @@ class Manager extends MY_Controller {
         }
     }
 
+    /**
+     * 监管项目
+     * @author yangyang
+     * @date 2021-02-19
+     */
+
+    public function supervise_list($page = 1){
+        $data = $this->manager_model->supervise_list($page);
+        $base_url = "/manager/supervise_list/";
+        $pager = $this->pagination->getPageLink4manager($base_url, $data['total_rows'], $data['limit']);
+        $this->assign('pager', $pager);
+        $this->assign('page', $page);
+        $this->assign('data', $data);
+        $this->display('manager/loan/supervise_list.html');
+    }
 
      /**
      * 赎楼申请单列表

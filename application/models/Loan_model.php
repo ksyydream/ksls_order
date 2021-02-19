@@ -562,8 +562,8 @@ class Loan_model extends MY_Model
                         return $this->fun_fail('请选择有效合同版本!');
                     $pass_data_['ht_name'] = $ht_info_['ht_name'];
                 }
-                if(!$pass_data_['mx_remark'])
-                    return $this->fun_fail('请填写面签意见!');
+                //if(!$pass_data_['mx_remark'])
+                    //return $this->fun_fail('请填写面签意见!');
                 $pass_data_['fk_admin_id'] = $this->get_role_admin_id(2);
                 if($pass_data_['fk_admin_id'] == -1)
                     return $this->fun_fail('缺少有效的风控人员,请联系技术部!');
@@ -575,22 +575,23 @@ class Loan_model extends MY_Model
                     'flag' => -1,
                     'ww_time' => time(),
                     'mx_time' => time(),
-                    'mx_remark' => $this->input->post('mx_remark')
+                    'ww_admin_id' => $admin_id,
+                    'ww_remark' => $this->input->post('mx_remark')
                 );
-                if(!$ww_data_['mx_remark'])
-                    return $this->fun_fail('请填写面签意见!');
+                //if(!$ww_data_['ww_remark'])
+                    //return $this->fun_fail('请填写委外意见!');
                 $this->db->where('loan_id', $loan_id)->update('loan_master', $ww_data_);
                 break;
             case 'cancel':
                 $cancel_data_ = array(
                     'flag' => -1,
                     'mx_time' => time(),
-                    'mx_remark' => $this->input->post('mx_remark'),
+                    'err_remark' => $this->input->post('mx_remark'),
                     'err_admin_id' => $admin_id,
                     'err_time' => time()
                 );
-                if(!$cancel_data_['mx_remark'])
-                    return $this->fun_fail('请填写面签意见!');
+                //if(!$cancel_data_['mx_remark'])
+                    //return $this->fun_fail('请填写面签意见!');
                 $this->db->where('loan_id', $loan_id)->update('loan_master', $cancel_data_);
                 break;
             default:
@@ -614,8 +615,8 @@ class Loan_model extends MY_Model
                     'fk_remark' => $this->input->post('fk_remark'),
                     'status' => 3
                 );
-                if(!$pass_data_['fk_remark'])
-                    return $this->fun_fail('请填写风控意见!');
+                //if(!$pass_data_['fk_remark'])
+                    //return $this->fun_fail('请填写风控意见!');
                 $check_need_ = $this->db->select('need_mx')->from('loan_master')->where('loan_id', $loan_id)->get()->row_array();
                 if($check_need_ && $check_need_['need_mx'] == 1){
                     $pass_data_['ht_id'] = $this->input->post('ht_id');
@@ -637,22 +638,23 @@ class Loan_model extends MY_Model
                     'flag' => -1,
                     'ww_time' => time(),
                     'fk_time' => time(),
-                    'fk_remark' => $this->input->post('fk_remark')
+                    'ww_admin_id' => $admin_id,
+                    'ww_remark' => $this->input->post('mx_remark')
                 );
-                if(!$ww_data_['fk_remark'])
-                    return $this->fun_fail('请填写风控意见!');
+                //if(!$ww_data_['ww_remark'])
+                    //return $this->fun_fail('请填写风控意见!');
                 $this->db->where('loan_id', $loan_id)->update('loan_master', $ww_data_);
                 break;
             case 'cancel':
                 $cancel_data_ = array(
                     'flag' => -1,
                     'fk_time' => time(),
-                    'fk_remark' => $this->input->post('fk_remark'),
+                    'err_remark' => $this->input->post('fk_remark'),
                     'err_admin_id' => $admin_id,
                     'err_time' => time()
                 );
-                if(!$cancel_data_['fk_remark'])
-                    return $this->fun_fail('请填写风控意见!');
+                //if(!$cancel_data_['err_remark'])
+                    //return $this->fun_fail('请填写风控意见!');
                 $this->db->where('loan_id', $loan_id)->update('loan_master', $cancel_data_);
                 break;
             default:
@@ -675,8 +677,8 @@ class Loan_model extends MY_Model
                     'zs_remark' => $this->input->post('zs_remark'),
                     'status' => 4
                 );
-                if(!$pass_data_['zs_remark'])
-                    return $this->fun_fail('请填写终审意见!');
+                //if(!$pass_data_['zs_remark'])
+                    //return $this->fun_fail('请填写终审意见!');
                 $pass_data_['qz_admin_id'] = $this->get_role_admin_id(3);
                 if($pass_data_['qz_admin_id'] == -1)
                     return $this->fun_fail('缺少有效的权证人员,请联系技术部!');
@@ -688,22 +690,23 @@ class Loan_model extends MY_Model
                     'flag' => -1,
                     'ww_time' => time(),
                     'zs_time' => time(),
-                    'zs_remark' => $this->input->post('zs_remark')
+                    'ww_admin_id' => $admin_id,
+                    'ww_remark' => $this->input->post('zs_remark')
                 );
-                if(!$ww_data_['zs_remark'])
-                    return $this->fun_fail('请填写终审意见!');
+                //if(!$ww_data_['ww_remark'])
+                    //return $this->fun_fail('请填写终审意见!');
                 $this->db->where('loan_id', $loan_id)->update('loan_master', $ww_data_);
                 break;
             case 'cancel':
                 $cancel_data_ = array(
                     'flag' => -1,
                     'zs_time' => time(),
-                    'zs_remark' => $this->input->post('zs_remark'),
+                    'err_remark' => $this->input->post('zs_remark'),
                     'err_admin_id' => $admin_id,
                     'err_time' => time()
                 );
-                if(!$cancel_data_['zs_remark'])
-                    return $this->fun_fail('请填写终审意见!');
+                //if(!$cancel_data_['err_remark'])
+                    //return $this->fun_fail('请填写终审意见!');
                 $this->db->where('loan_id', $loan_id)->update('loan_master', $cancel_data_);
                 break;
             default:

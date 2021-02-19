@@ -499,7 +499,13 @@
 
                                                     <div class="space-4"></div>
                                                     <div class="profile-user-info profile-user-info-striped">
+                                                        <div class="profile-info-row">
+                                                            <div class="profile-info-name"> 委外设置人 </div>
 
+                                                            <div class="profile-info-value">
+                                                                <span> {{$data.ww_name|default:''}}</span>
+                                                            </div>
+                                                        </div>
                                                         <div class="profile-info-row">
                                                             <div class="profile-info-name"> 委外审核时间 </div>
 
@@ -512,7 +518,7 @@
 
                                                             <div class="profile-info-value">
                                                                 <span>
-                                                                    <textarea rows="5" style="width:700px">{{$data.mx_remark|default:''}}</textarea>
+                                                                    <textarea rows="5" style="width:700px">{{$data.ww_remark|default:''}}</textarea>
                                                                 </span>
                                                             </div>
                                                         </div>

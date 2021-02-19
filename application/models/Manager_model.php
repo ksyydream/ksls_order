@@ -696,6 +696,30 @@ class Manager_model extends MY_Model
         return $this->fun_success('保存成功!');
      }
 
+    /**
+     * 监管项目
+     * @author yangyang
+     * @date 2021-02-19
+     */
+
+    public function supervise_list($page = 1){
+        $data['limit'] = $this->limit;
+
+        //获取总记录数
+        $this->db->select('count(1) num')->from('supervise a');
+
+        $num = $this->db->get()->row();
+        $data['total_rows'] = $num->num;
+
+        //获取详细列
+        $this->db->select('a.*')->from('supervise a');
+
+        $this->db->limit($this->limit, $offset = ($page - 1) * $this->limit);
+        $this->db->order_by('a.id','desc');
+        $data['res_list'] = $this->db->get()->result_array();
+        return $data;
+    }
+
        /**
      * 赎楼列表
      * @author yangyang
@@ -730,10 +754,10 @@ class Manager_model extends MY_Model
             $this->db->where('a.status', $data['status']);
         }
         if ($data['s_date']) {
-            $this->db->where('FROM_UNIXTIME(a.create_time) >=', strtotime($data['s_date'] . " 00:00:00"));
+            $this->db->where('a.create_time >=', strtotime($data['s_date'] . " 00:00:00"));
         }
         if ($data['e_date']) {
-            $this->db->where('FROM_UNIXTIME(a.create_time) <=', strtotime($data['e_date'] . " 23:59:59"));
+            $this->db->where('a.create_time <=', strtotime($data['e_date'] . " 23:59:59"));
         }
         if($data['brand_id']){
             $this->db->where('a.brand_id', $data['brand_id']);
@@ -769,10 +793,10 @@ class Manager_model extends MY_Model
             $this->db->where('a.status', $data['status']);
         }
         if ($data['s_date']) {
-            $this->db->where('FROM_UNIXTIME(a.create_time) >=', strtotime($data['s_date'] . " 00:00:00"));
+            $this->db->where('a.create_time >=', strtotime($data['s_date'] . " 00:00:00"));
         }
         if ($data['e_date']) {
-            $this->db->where('FROM_UNIXTIME(a.create_time) <=', strtotime($data['e_date'] . " 23:59:59"));
+            $this->db->where('a.create_time <=', strtotime($data['e_date'] . " 23:59:59"));
         }
         if($data['brand_id']){
             $this->db->where('a.brand_id', $data['brand_id']);
@@ -782,6 +806,7 @@ class Manager_model extends MY_Model
         $this->db->group_by('a.loan_id');
         $this->db->limit($data['limit'], $offset = ($page - 1) * $data['limit']);
         $data['res_list'] = $this->db->get()->result_array();
+        //die(var_dump($this->db->last_query()));
         return $data;
     }
 
@@ -804,7 +829,7 @@ class Manager_model extends MY_Model
         DATE_FORMAT(a.redeem_date,'%Y-%m-%d') redeem_date_handle_,
         u.rel_name handle_name,u.mobile handle_mobile,
         u1.rel_name create_name,u1.mobile create_mobile,
-        qz.admin_name qz_name,zs.admin_name zs_name,err.admin_name err_name,
+        qz.admin_name qz_name,zs.admin_name zs_name,err.admin_name err_name,ww.admin_name ww_name,
         bd.brand_name, mx.admin_name mx_name, fk.admin_name fk_name,mx.phone mx_phone";
         $this->db->select($select)->from('loan_master a');
         $this->db->join('users u','a.user_id = u.user_id','left');
@@ -815,6 +840,7 @@ class Manager_model extends MY_Model
         $this->db->join('admin qz', 'a.qz_admin_id = qz.admin_id', 'left');
         $this->db->join('admin zs', 'a.zs_admin_id = zs.admin_id', 'left');
         $this->db->join('admin err', 'a.err_admin_id = err.admin_id', 'left');
+        $this->db->join('admin ww', 'a.ww_admin_id = ww.admin_id', 'left');
         //$this->db->join('admin cw', 'a.cw_admin_id = cw.admin_id', 'left');
         $loan_info = $this->db->where('a.loan_id', $loan_id)->get()->row_array();
         if(!$loan_info)
