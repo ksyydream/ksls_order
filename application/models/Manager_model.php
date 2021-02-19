@@ -463,6 +463,15 @@ class Manager_model extends MY_Model
      * @author yangyang
      * @date 2021-01-12
      */
+     public function get_brand4select($status= 0){
+      $this->db->select();
+      $this->db->from("brand");
+      if($status)
+        $this->db->where('status', $status);
+        $data = $this->db->get()->result_array();
+        return $data;
+	 }
+
     public function brand_list($page = 1){
         $data['limit'] = $this->limit;
 
@@ -699,7 +708,7 @@ class Manager_model extends MY_Model
         $data['order_type'] = trim($this->input->get('type_id')) ? trim($this->input->get('type_id')) : null;
         $data['status'] = trim($this->input->get('status')) ? trim($this->input->get('status')) : null;
         $data['flag'] = trim($this->input->get('flag')) ? trim($this->input->get('flag')) : null;
-         $data['brand_id'] = trim($this->input->get('brand_id')) ? trim($this->input->get('brand_id')) : null;
+        $data['brand_id'] = trim($this->input->get('brand_id')) ? trim($this->input->get('brand_id')) : null;
         $data['s_date'] = trim($this->input->get('s_date')) ? trim($this->input->get('s_date')) : '';
         $data['e_date'] = trim($this->input->get('e_date')) ? trim($this->input->get('e_date')) : '';
         //获取总记录数
@@ -711,6 +720,7 @@ class Manager_model extends MY_Model
         if($data['keyword']){
             $this->db->group_start();
             $this->db->like('b.borrower_name', $data['keyword']);
+            $this->db->or_like('b.borrower_card', $data['keyword']);
             $this->db->group_end();
         }
         if($data['flag']){
@@ -732,9 +742,10 @@ class Manager_model extends MY_Model
         $data['total_rows'] = $num->num;
 
         //获取详细列
-       $this->db->select("a.loan_id,a.work_no,a.loan_money,a.is_td_ng,a.order_type,a.is_err,a.need_mx,
+       $this->db->select("a.loan_id,a.work_no,a.loan_money,a.is_td_ng,a.order_type,a.is_err,a.need_mx,a.status,a.flag,
         u.rel_name handle_name,u.mobile handle_mobile,
         u1.rel_name create_name,u1.mobile create_mobile,
+        fk.admin_name fk_name,qz.admin_name qz_name,
          bd.brand_name,FROM_UNIXTIME(a.create_time) loan_cdate, mx.admin_name mx_name,mx.phone mx_phone,a.appointment_date");
         $this->db->from('loan_master a');
         $this->db->join('users u','a.user_id = u.user_id','left');
@@ -742,10 +753,13 @@ class Manager_model extends MY_Model
         $this->db->join('brand bd','a.brand_id = bd.id','left');
         $this->db->join('loan_borrowers b', 'a.loan_id = b.loan_id', 'left');
         $this->db->join('admin mx', 'a.mx_admin_id = mx.admin_id', 'left');
+        $this->db->join('admin fk', 'a.fk_admin_id = fk.admin_id', 'left');
+        $this->db->join('admin qz', 'a.qz_admin_id = qz.admin_id', 'left');
         //$this->db->where($where);
         if($data['keyword']){
             $this->db->group_start();
             $this->db->like('b.borrower_name', $data['keyword']);
+            $this->db->or_like('b.borrower_card', $data['keyword']);
             $this->db->group_end();
         }
         if($data['flag']){
@@ -770,4 +784,238 @@ class Manager_model extends MY_Model
         $data['res_list'] = $this->db->get()->result_array();
         return $data;
     }
+
+    public function loan_edit($loan_id){
+      //这里可能需要加入role_id 权限
+      $select = "a.*,FROM_UNIXTIME(a.create_time) loan_cdate,
+     
+        FROM_UNIXTIME(a.err_time) err_date_,
+        FROM_UNIXTIME(a.ww_time) ww_date_,
+        FROM_UNIXTIME(a.mx_time) mx_date_,
+        FROM_UNIXTIME(a.fk_time) fk_date_,
+        FROM_UNIXTIME(a.zs_time) zs_date_,
+        FROM_UNIXTIME(a.wq_time) wq_date_,
+        FROM_UNIXTIME(a.tg_time) tg_date_,
+        FROM_UNIXTIME(a.nj_time) nj_date_,
+        FROM_UNIXTIME(a.make_loan_time) make_loan_date_,
+        FROM_UNIXTIME(a.gh_time) gh_date_,
+        FROM_UNIXTIME(a.returned_money_time) returned_money_date_,
+        DATE_FORMAT(a.appointment_date,'%Y-%m-%d') appointment_date_handle_,
+        DATE_FORMAT(a.redeem_date,'%Y-%m-%d') redeem_date_handle_,
+        u.rel_name handle_name,u.mobile handle_mobile,
+        u1.rel_name create_name,u1.mobile create_mobile,
+        qz.admin_name qz_name,zs.admin_name zs_name,err.admin_name err_name,
+        bd.brand_name, mx.admin_name mx_name, fk.admin_name fk_name,mx.phone mx_phone";
+        $this->db->select($select)->from('loan_master a');
+        $this->db->join('users u','a.user_id = u.user_id','left');
+        $this->db->join('users u1','a.create_user_id = u1.user_id','left');
+        $this->db->join('brand bd','a.brand_id = bd.id','left');
+        $this->db->join('admin mx', 'a.mx_admin_id = mx.admin_id', 'left');
+        $this->db->join('admin fk', 'a.fk_admin_id = fk.admin_id', 'left');
+        $this->db->join('admin qz', 'a.qz_admin_id = qz.admin_id', 'left');
+        $this->db->join('admin zs', 'a.zs_admin_id = zs.admin_id', 'left');
+        $this->db->join('admin err', 'a.err_admin_id = err.admin_id', 'left');
+        //$this->db->join('admin cw', 'a.cw_admin_id = cw.admin_id', 'left');
+        $loan_info = $this->db->where('a.loan_id', $loan_id)->get()->row_array();
+        if(!$loan_info)
+            return $this->fun_fail('未找到相关订单!');
+        $this->db->select('*');
+        $this->db->from('loan_borrowers');
+        $this->db->where('loan_id', $loan_id);
+        $loan_info['borrowers_list'] = $this->db->get()->result_array();
+        return $this->fun_success('获取成功!', $loan_info);
+	}
+
+     /**
+     *********************************************************************************************
+     * 以下代码为系统记录模块
+     *********************************************************************************************
+     */
+
+    /**
+     * 短信日志列表
+     * @author yangyang <yang.yang@thmarket.cn>
+     * @date 2019-07-23
+     */
+    public function sms_list($page = 1){
+        $data['limit'] = $this->limit;//每页显示多少调数据
+        $data['mobile'] = trim($this->input->get('mobile')) ? trim($this->input->get('mobile')) : null;
+        $data['s_date'] = trim($this->input->get('s_date')) ? trim($this->input->get('s_date')) : '';
+        $data['e_date'] = trim($this->input->get('e_date')) ? trim($this->input->get('e_date')) : '';
+        $where_ = array('sl.id >' => 0);
+        if ($data['s_date']) {
+            $where_['sl.add_time >='] = strtotime($data['s_date'] . " 00:00:00");
+        }
+        if ($data['e_date']) {
+            $where_['sl.add_time <='] = strtotime($data['e_date'] . " 00:00:00");
+        }
+        if ($data['mobile']) {
+            $where_['sl.mobile like'] = '%' . $data['mobile'] . '%';
+        }
+        $this->db->select('count(1) num');
+        $this->db->from('sms_log sl');
+        $this->db->where($where_);
+        $rs_total = $this->db->get()->row();
+        //die(var_dump($this->db->last_query()));
+        //总记录数
+        $total_rows = $rs_total->num;
+        $data['total_rows'] = $total_rows;
+        //list
+        $this->db->select('sl.*');
+        $this->db->from('sms_log sl');
+        $this->db->where($where_);
+        $this->db->limit($data['limit'], $offset = ($page - 1) * $data['limit']);
+        $this->db->order_by('sl.add_time', 'desc');
+        $data['res_list'] = $this->db->get()->result_array();
+        return $data;
+    }
+
+    /**
+     * 同盾日志列表
+     * @author yangyang <yang.yang@thmarket.cn>
+     * @date 2019-07-23
+     */
+    public function tongdun_log_list($page = 1){
+        $data['limit'] = $this->limit;//每页显示多少调数据
+        $data['keyword'] = trim($this->input->get('keyword')) ? trim($this->input->get('keyword')) : null;
+        $data['keyword2'] = trim($this->input->get('keyword2')) ? trim($this->input->get('keyword2')) : null;
+        $data['s_date'] = trim($this->input->get('s_date')) ? trim($this->input->get('s_date')) : '';
+        $data['e_date'] = trim($this->input->get('e_date')) ? trim($this->input->get('e_date')) : '';
+
+        $this->db->select('count(1) num');
+        $this->db->from('tongdun_log tl');
+        $this->db->join('users us', 'tl.user_id = us.user_id', 'left');
+        if ($data['keyword']) {
+            $this->db->group_start();
+            $this->db->like('tl.account_name', $data['keyword']);
+            $this->db->or_like('tl.id_number', $data['keyword']);
+            $this->db->group_end();
+        }
+        if ($data['keyword2']) {
+            $this->db->group_start();
+            $this->db->like('us.rel_name', $data['keyword2']);
+            $this->db->or_like('us.mobile', $data['keyword2']);
+            $this->db->group_end();
+        }
+        if ($data['s_date']) {
+            $this->db->where('tl.add_time >=', strtotime($data['s_date'] . " 00:00:00"));
+        }
+        if ($data['e_date']) {
+            $this->db->where('tl.add_time <=', strtotime($data['e_date'] . " 23:59:59"));
+        }
+        $rs_total = $this->db->get()->row();
+        //总记录数
+        $total_rows = $rs_total->num;
+        $data['total_rows'] = $total_rows;
+        //list
+        $this->db->select('tl.*, us.rel_name us_rel_name_, us.mobile us_mobile_');
+        $this->db->from('tongdun_log tl');
+        $this->db->join('users us', 'tl.user_id = us.user_id', 'left');
+        if ($data['keyword']) {
+            $this->db->group_start();
+            $this->db->like('tl.account_name', $data['keyword']);
+            $this->db->or_like('tl.id_number', $data['keyword']);
+            $this->db->group_end();
+        }
+        if ($data['keyword2']) {
+            $this->db->group_start();
+            $this->db->like('us.rel_name', $data['keyword2']);
+            $this->db->or_like('us.mobile', $data['keyword2']);
+            $this->db->group_end();
+        }
+        if ($data['s_date']) {
+            $this->db->where('tl.add_time >=', strtotime($data['s_date'] . " 00:00:00"));
+        }
+        if ($data['e_date']) {
+            $this->db->where('tl.add_time <=', strtotime($data['e_date'] . " 23:59:59"));
+        }
+        $this->db->limit($data['limit'], $offset = ($page - 1) * $data['limit']);
+        $this->db->order_by('tl.add_time', 'desc');
+        $data['res_list'] = $this->db->get()->result_array();
+        return $data;
+    }
+
+    /**
+     * 同盾数据列表
+     * @author yangyang <yang.yang@thmarket.cn>
+     * @date 2019-07-25
+     */
+    public function tongdun_info_list($page = 1){
+        $data['limit'] = $this->limit;//每页显示多少调数据
+        $data['keyword'] = trim($this->input->get('keyword')) ? trim($this->input->get('keyword')) : null;
+        $data['keyword2'] = trim($this->input->get('keyword2')) ? trim($this->input->get('keyword2')) : null;
+        $data['s_date'] = trim($this->input->get('s_date')) ? trim($this->input->get('s_date')) : '';
+        $data['e_date'] = trim($this->input->get('e_date')) ? trim($this->input->get('e_date')) : '';
+
+        $this->db->select('count(1) num');
+        $this->db->from('tongdun_info ti');
+        $this->db->join('users us', 'ti.user_id = us.user_id', 'left');
+        if ($data['keyword']) {
+            $this->db->group_start();
+            $this->db->like('ti.account_name', $data['keyword']);
+            $this->db->or_like('ti.id_number', $data['keyword']);
+            $this->db->group_end();
+        }
+        if ($data['keyword2']) {
+            $this->db->group_start();
+            $this->db->like('us.rel_name', $data['keyword2']);
+            $this->db->or_like('us.mobile', $data['keyword2']);
+            $this->db->group_end();
+        }
+        if ($data['s_date']) {
+            $this->db->where('ti.add_time >=', strtotime($data['s_date'] . " 00:00:00"));
+        }
+        if ($data['e_date']) {
+            $this->db->where('ti.add_time <=', strtotime($data['e_date'] . " 23:59:59"));
+        }
+        $rs_total = $this->db->get()->row();
+        //总记录数
+        $total_rows = $rs_total->num;
+        $data['total_rows'] = $total_rows;
+        //list
+        $this->db->select('ti.*, us.rel_name us_rel_name_, us.mobile us_mobile_');
+        $this->db->from('tongdun_info ti');
+        $this->db->join('users us', 'ti.user_id = us.user_id', 'left');
+        if ($data['keyword']) {
+            $this->db->group_start();
+            $this->db->like('ti.account_name', $data['keyword']);
+            $this->db->or_like('ti.id_number', $data['keyword']);
+            $this->db->group_end();
+        }
+        if ($data['keyword2']) {
+            $this->db->group_start();
+            $this->db->like('us.rel_name', $data['keyword2']);
+            $this->db->or_like('us.mobile', $data['keyword2']);
+            $this->db->group_end();
+        }
+        if ($data['s_date']) {
+            $this->db->where('ti.add_time >=', strtotime($data['s_date'] . " 00:00:00"));
+        }
+        if ($data['e_date']) {
+            $this->db->where('ti.add_time <=', strtotime($data['e_date'] . " 23:59:59"));
+        }
+        $this->db->limit($data['limit'], $offset = ($page - 1) * $data['limit']);
+        $this->db->order_by('ti.add_time', 'desc');
+        $data['res_list'] = $this->db->get()->result_array();
+        $td_deadline_ = $this->config->item('td_deadline'); //缓存数据使用限期,这里是秒为单位的
+        foreach($data['res_list'] as $k_ => $item){
+            if($item['add_time'] + $td_deadline_ < time()){
+                $data['res_list'][$k_]['gq_flag'] = 1;   //过期标记位
+            }else{
+                $data['res_list'][$k_]['gq_flag'] = -1;  //过期标记位
+            }
+        }
+        return $data;
+    }
+
+    //同盾数据详情
+    public function tongdun_info_detail($id){
+        $this->db->select('ti.*, us.rel_name us_rel_name_, us.mobile us_mobile_');
+        $this->db->from('tongdun_info ti');
+        $this->db->join('users us', 'ti.user_id = us.user_id', 'left');
+        $this->db->where('id', $id);
+        $data = $this->db->get()->row_array();
+        return $data;
+    }
+
 }

@@ -1,0 +1,140 @@
+{{include file='manager/public/head.html'}}
+<body class="no-skin">
+{{include file='manager/public/header.html'}}
+<div class="main-container" id="main-container">
+    <script type="text/javascript">
+        try {
+            ace.settings.check('main-container', 'fixed')
+        } catch (e) {
+        }
+    </script>
+    <style>
+        pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+        .string { color: green; }
+        .number { color: darkorange; }
+        .boolean { color: blue; }
+        .null { color: magenta; }
+        .key { color: red; }
+    </style>
+    {{include file='manager/public/sidebar.html'}}
+    <div class="main-content">
+        <div class="main-content-inner">
+            <!-- #section:basics/content.breadcrumbs -->
+            {{include file='manager/public/breadcrumbs.html'}}
+
+            <!-- /section:basics/content.breadcrumbs -->
+            <div class="page-content">
+                {{include file='manager/public/set.html'}}
+
+                <!-- /section:settings.box -->
+                <div class="row">
+                    <div class="col-xs-12">
+                        <!-- PAGE CONTENT BEGINS -->
+                        <form class="form-horizontal" role="form" action="" method="post">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label no-padding-right">
+                                    <a href="javascript:history.go(-1)" class="btn" type="reset"><i class="icon-undo bigger-110"></i>返 回</a>
+                                </label>
+                                <div class="col-sm-9">
+                                    <span class="help-inline col-xs-12 col-sm-7"></span>
+                                </div>
+                            </div>
+                            <div class="space-4"></div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label no-padding-right" for="account_name"> 被查询人姓名 </label>
+                                <div class="col-sm-9">
+                                    <input type="text" id="account_name" name="account_name" readonly="readonly" class="rcol-xs-10 col-sm-5" value="{{$data.account_name|default:''}}">
+                                    <span class="help-inline col-xs-12 col-sm-7"></span>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label no-padding-right" for="id_number"> 被查询人身份证号 </label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="id_number" id="id_number" readonly="readonly" class="rcol-xs-10 col-sm-5" value="{{$data.id_number|default:''}}">
+                                    <span class="help-inline col-xs-12 col-sm-7"></span>
+                                </div>
+                            </div>
+
+                            <div class="space-4"></div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label no-padding-right" for="account_mobile"> 被查询人手机号 </label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="account_mobile" id="account_mobile" readonly="readonly" class="col-xs-10 col-sm-5" value="{{$data.account_mobile|default:''}}">
+                                    <span class="help-inline col-xs-12 col-sm-7"></span>
+                                </div>
+                            </div>
+                            <div class="space-4"></div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label no-padding-right" for="us_rel_name_"> 提交申请人姓名 </label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="us_rel_name_" id="us_rel_name_" readonly="readonly" class="col-xs-10 col-sm-5" value="{{$data.us_rel_name_|default:''}}">
+                                    <span class="help-inline col-xs-12 col-sm-7"></span>
+                                </div>
+                            </div>
+                            <div class="space-4"></div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label no-padding-right" for="us_mobile_"> 提交申请人手机号 </label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="us_mobile_" id="us_mobile_" readonly="readonly" class="col-xs-10 col-sm-5" value="{{$data.us_mobile_|default:''}}">
+                                    <span class="help-inline col-xs-12 col-sm-7"></span>
+                                </div>
+                            </div>
+                            <div class="space-4"></div>
+
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label no-padding-right" for="add_time"> 同盾数据获取时间 </label>
+                                <div class="col-sm-9">
+                                    <input type="text" name="add_time" id="add_time" readonly="readonly" class="col-xs-10 col-sm-5" value='{{$data.add_time|date_format:"%Y-%m-%d %H:%M:%S"}}'>
+                                    <span class="help-inline col-xs-12 col-sm-7"></span>
+                                </div>
+                            </div>
+                            <div class="space-4"></div>
+                            <input type="hidden" id="json_data" readonly="readonly" value='{{$data.json_data}}'>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label no-padding-right" for="result"> 同盾数据详情 </label>
+                                <div class="col-sm-9">
+                                    <pre id="result"></pre>
+                                    <span class="help-inline col-xs-12 col-sm-7"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-offset-2 col-md-9">
+
+                                &nbsp; &nbsp; &nbsp;
+                                <a href="javascript:history.go(-1)" class="btn" type="reset">
+
+                                    <i class="icon-undo bigger-110"></i>
+
+                                    返 回
+
+                                </a>
+                            </div>
+                        </form>
+                        <!-- PAGE CONTENT ENDS -->
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.page-content -->
+        </div>
+    </div><!-- /.main-content -->
+    {{include file='manager/public/footer.html'}}
+
+</div><!-- /.main-container -->
+
+{{include file='manager/public/footerjs.html'}}
+<!-- inline scripts related to this page -->
+<script src="/manager_statics/qwadmin/js/date-time/bootstrap-datepicker.js"></script>
+<script src="/manager_statics/app/ajaxfileupload.js"></script>
+<script type="text/javascript">
+    window.onload = function() {
+        var jsondata = $("#json_data").val();
+        var jdata = JSON.stringify(JSON.parse(jsondata), null, 4);
+        console.log(jdata);//这是在输出框的json数据确实被格式话了
+        $("#result").html(jdata);//这时数据展示正确
+    };
+
+
+</script>
+</body>
+</html>

@@ -491,7 +491,78 @@ class Manager extends MY_Controller {
         $this->assign('pager', $pager);
         $this->assign('page', $page);
         $this->assign('data', $data);
+        $brand_list = $this->manager_model->get_brand4select();
+        $this->assign('brand_list', $brand_list);
         $this->display('manager/loan/loan_list.html');
+    }
+
+    public function loan_edit($loan_id){
+        $data = $this->manager_model->loan_edit($loan_id);
+        if($data["status"] != 1){
+            $this->show_message('未找到同盾信息!');
+        }
+        $this->assign('data', $data["result"]);
+        $this->display('manager/loan/loan_detail.html');
+	}
+
+     /**
+     *********************************************************************************************
+     * 以下代码为系统记录模块
+     *********************************************************************************************
+     */
+
+    /**
+     * 短信日志列表
+     * @author yangyang <yang.yang@thmarket.cn>
+     * @date 2019-07-23
+     */
+    public function sms_list($page = 1){
+        $data = $this->manager_model->sms_list($page, 1);
+        $base_url = "/manager/sms_list/";
+        $pager = $this->pagination->getPageLink4manager($base_url, $data['total_rows'], $data['limit']);
+        $this->assign('pager', $pager);
+        $this->assign('page', $page);
+        $this->assign('data', $data);
+        $this->display('manager/log_list/sms_list.html');
+    }
+
+    /**
+     * 同盾日志列表
+     * @author yangyang <yang.yang@thmarket.cn>
+     * @date 2019-07-23
+     */
+    public function tongdun_log_list($page = 1){
+        $data = $this->manager_model->tongdun_log_list($page, 1);
+        $base_url = "/manager/tongdun_log_list/";
+        $pager = $this->pagination->getPageLink4manager($base_url, $data['total_rows'], $data['limit']);
+        $this->assign('pager', $pager);
+        $this->assign('page', $page);
+        $this->assign('data', $data);
+        $this->display('manager/log_list/tongdun_log_list.html');
+    }
+
+    /**
+     * 同盾数据列表
+     * @author yangyang <yang.yang@thmarket.cn>
+     * @date 2019-07-23
+     */
+    public function tongdun_info_list($page = 1){
+        $data = $this->manager_model->tongdun_info_list($page, 1);
+        $base_url = "/manager/tongdun_info_list/";
+        $pager = $this->pagination->getPageLink4manager($base_url, $data['total_rows'], $data['limit']);
+        $this->assign('pager', $pager);
+        $this->assign('page', $page);
+        $this->assign('data', $data);
+        $this->display('manager/log_list/tongdun_info_list.html');
+    }
+
+    public function tongdun_info_detail($id){
+        $data = $this->manager_model->tongdun_info_detail($id);
+        if(!$data){
+            $this->show_message('未找到同盾信息!');
+        }
+        $this->assign('data', $data);
+        $this->display('manager/log_list/tongdun_info_detail.html');
     }
 
 }

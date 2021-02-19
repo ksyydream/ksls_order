@@ -168,18 +168,34 @@ class Loan_model extends MY_Model
         $num = $this->db->get()->row();
         $res['total_rows'] = $num->num;
         $res['total_page'] = ceil($res['total_rows'] / $data['limit']);
-        $this->db->select("a.loan_id,a.work_no,a.loan_money,a.is_td_ng,a.order_type,a.is_err,a.need_mx,
+        $this->db->select("a.loan_id,a.work_no,a.loan_money,a.is_td_ng,a.order_type,a.is_err,a.need_mx,a.status,a.flag,
         u.rel_name handle_name,u.mobile handle_mobile,
         u1.rel_name create_name,u1.mobile create_mobile,
         DATE_FORMAT(a.appointment_date,'%Y-%m-%d') appointment_date_handle_,
         DATE_FORMAT(a.redeem_date,'%Y-%m-%d') redeem_date_handle_,
-         bd.brand_name,FROM_UNIXTIME(a.create_time) loan_cdate, mx.admin_name mx_name,mx.phone mx_phone,a.appointment_date");
+         FROM_UNIXTIME(a.err_time) err_date_,
+        FROM_UNIXTIME(a.ww_time) ww_date_,
+        FROM_UNIXTIME(a.mx_time) mx_date_,
+        FROM_UNIXTIME(a.fk_time) fk_date_,
+        FROM_UNIXTIME(a.zs_time) zs_date_,
+        FROM_UNIXTIME(a.wq_time) wq_date_,
+        FROM_UNIXTIME(a.tg_time) tg_date_,
+        FROM_UNIXTIME(a.nj_time) nj_date_,
+        FROM_UNIXTIME(a.make_loan_time) make_loan_date_,
+        FROM_UNIXTIME(a.gh_time) gh_date_,
+        FROM_UNIXTIME(a.returned_money_time) returned_money_date_,
+        mx.admin_name mx_name,mx.phone mx_phone,
+        fk.admin_name fk_name,fk.phone fk_phone,
+        qz.admin_name qz_name,qz.phone qz_phone,
+         bd.brand_name,FROM_UNIXTIME(a.create_time) loan_cdate,a.appointment_date");
         $this->db->from('loan_master a');
         $this->db->join('users u','a.user_id = u.user_id','left');
         $this->db->join('users u1','a.create_user_id = u1.user_id','left');
         $this->db->join('brand bd','a.brand_id = bd.id','left');
         $this->db->join('loan_borrowers b', 'a.loan_id = b.loan_id', 'left');
         $this->db->join('admin mx', 'a.mx_admin_id = mx.admin_id', 'left');
+        $this->db->join('admin fk', 'a.fk_admin_id = fk.admin_id', 'left');
+        $this->db->join('admin qz', 'a.qz_admin_id = qz.admin_id', 'left');
         $this->db->where($where);
         if($data['keyword']){
             $this->db->group_start();
@@ -217,15 +233,30 @@ class Loan_model extends MY_Model
         $select = "a.*,FROM_UNIXTIME(a.create_time) loan_cdate,
         DATE_FORMAT(a.appointment_date,'%Y-%m-%d') appointment_date_handle_,
         DATE_FORMAT(a.redeem_date,'%Y-%m-%d') redeem_date_handle_,
+         FROM_UNIXTIME(a.err_time) err_date_,
+        FROM_UNIXTIME(a.ww_time) ww_date_,
+        FROM_UNIXTIME(a.mx_time) mx_date_,
+        FROM_UNIXTIME(a.fk_time) fk_date_,
+        FROM_UNIXTIME(a.zs_time) zs_date_,
+        FROM_UNIXTIME(a.wq_time) wq_date_,
+        FROM_UNIXTIME(a.tg_time) tg_date_,
+        FROM_UNIXTIME(a.nj_time) nj_date_,
+        FROM_UNIXTIME(a.make_loan_time) make_loan_date_,
+        FROM_UNIXTIME(a.gh_time) gh_date_,
+        FROM_UNIXTIME(a.returned_money_time) returned_money_date_,
         u.rel_name handle_name,u.mobile handle_mobile,
         u1.rel_name create_name,u1.mobile create_mobile,
-        bd.brand_name, mx.admin_name mx_name, fk.admin_name fk_name,mx.phone mx_phone";
+        mx.admin_name mx_name,mx.phone mx_phone,
+        fk.admin_name fk_name,fk.phone fk_phone,
+        qz.admin_name qz_name,qz.phone qz_phone,
+        bd.brand_name";
         $this->db->select($select)->from('loan_master a');
         $this->db->join('users u','a.user_id = u.user_id','left');
         $this->db->join('users u1','a.create_user_id = u1.user_id','left');
         $this->db->join('brand bd','a.brand_id = bd.id','left');
         $this->db->join('admin mx', 'a.mx_admin_id = mx.admin_id', 'left');
         $this->db->join('admin fk', 'a.fk_admin_id = fk.admin_id', 'left');
+         $this->db->join('admin qz', 'a.qz_admin_id = qz.admin_id', 'left');
         $loan_info = $this->db->where('a.loan_id', $loan_id)->get()->row_array();
         if(!$loan_info)
             return $this->fun_fail('未找到相关订单!');
@@ -540,7 +571,7 @@ class Loan_model extends MY_Model
                 break;
             case 'ww':
                 $ww_data_ = array(
-                    'order_type' => -1,
+                    'order_type' => 2,
                     'flag' => -1,
                     'ww_time' => time(),
                     'mx_time' => time(),
@@ -602,7 +633,7 @@ class Loan_model extends MY_Model
                 break;
             case 'ww':
                 $ww_data_ = array(
-                    'order_type' => -1,
+                    'order_type' => 2,
                     'flag' => -1,
                     'ww_time' => time(),
                     'fk_time' => time(),
@@ -653,7 +684,7 @@ class Loan_model extends MY_Model
                 break;
             case 'ww':
                 $ww_data_ = array(
-                    'order_type' => -1,
+                    'order_type' => 2,
                     'flag' => -1,
                     'ww_time' => time(),
                     'zs_time' => time(),
