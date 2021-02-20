@@ -217,6 +217,17 @@ class Loan_model extends MY_Model
             $this->db->from('loan_borrowers');
             $this->db->where('loan_id', $v['loan_id']);
             $res['res_list'][$k]['borrowers_list'] = $this->db->get()->result_array();
+
+            $this->db->select("s.id")->from('supervise s');
+            $this->db->join('loan_supervise ls','s.id = ls.option_id and ls.loan_id = '. $v['loan_id'],'left');
+            $this->db->where('s.status', 1);
+            $this->db->where('ls.id', null);
+            $check_supervise_ = $this->db->order_by('s.id','asc')->get()->row_array();
+            if($check_supervise_ && $v['flag'] == 1){
+                $res['res_list'][$k]['need_supervise_'] = 1;
+            }else{
+                $res['res_list'][$k]['need_supervise_'] = -1;
+            }
         }
         return $res;
     }
@@ -257,6 +268,16 @@ class Loan_model extends MY_Model
         $this->db->from('loan_borrowers');
         $this->db->where('loan_id', $loan_id);
         $loan_info['borrowers_list'] = $this->db->get()->result_array();
+        $this->db->select("s.id")->from('supervise s');
+        $this->db->join('loan_supervise ls','s.id = ls.option_id and ls.loan_id = '. $loan_id,'left');
+        $this->db->where('s.status', 1);
+        $this->db->where('ls.id', null);
+        $check_supervise_ = $this->db->order_by('s.id','asc')->get()->row_array();
+        if($check_supervise_ && $loan_id == 1){
+            $loan_info['need_supervise_'] = 1;
+        }else{
+            $loan_info['need_supervise_'] = -1;
+        }
         return $this->fun_success('获取成功!', $loan_info);
 	}
 
@@ -301,6 +322,23 @@ class Loan_model extends MY_Model
         );
         return $this->fun_success('获取成功!', $result);
     }
+
+    //管理员审核操作记录
+    private function save_loan_log4admin($loan_id, $admin_id, $action_type){
+        $check_status_ = $this->db->select('status')->from('loan_master')->where('loan_id', $loan_id)->get()->row_array();
+        if($check_status_){
+            $insert_= array(
+                'admin_id' => $admin_id,
+                'loan_id' => $loan_id,
+                'action_type' => $action_type,
+                'status' => $check_status_['status'],
+                'cdate' => time()
+            );
+            $this->db->insert('loan_log', $insert_);
+        }
+
+    }
+
     /**
      *********************************************************************************************
      * 以下代码为大客户端 专用
@@ -586,37 +624,37 @@ class Loan_model extends MY_Model
         if($check_role4admin_['status'] != 1)
             return $check_role4admin_;
         $action_type_= $this->input->post('action_type');
+        $update_data_ = array();
         switch($action_type_){
             case 'pass':
             case 'pass_need':
-                $pass_data_ = array(
+                $update_data_ = array(
                     'mx_time' => time(),
                     'mx_remark' => $this->input->post('mx_remark'),
                     'status' => 2
                 );
                 if($action_type_ == 'pass_need'){
-                    $pass_data_['need_mx'] = 1;
+                    $update_data_['need_mx'] = 1;
                 }else{
-                    $pass_data_['ht_id'] = $this->input->post('ht_id');
-                    $pass_data_['jj_price'] = $this->input->post('jj_price') ? $this->input->post('jj_price') : 0;
-                    if(!$pass_data_['ht_id'])
+                    $update_data_['ht_id'] = $this->input->post('ht_id');
+                    $update_data_['jj_price'] = $this->input->post('jj_price') ? $this->input->post('jj_price') : 0;
+                    if(!$update_data_['ht_id'])
                         return $this->fun_fail('请选择合同版本!');
-                    if($pass_data_['jj_price'] < 0)
+                    if($update_data_['jj_price'] < 0)
                         return $this->fun_fail('请输入居间服务费!');
-                    $ht_info_ = $this->readByID('contract', 'ht_id', $pass_data_['ht_id']);
+                    $ht_info_ = $this->readByID('contract', 'ht_id', $update_data_['ht_id']);
                     if(!$ht_info_ || $ht_info_['status'] != 1)
                         return $this->fun_fail('请选择有效合同版本!');
-                    $pass_data_['ht_name'] = $ht_info_['ht_name'];
+                    $update_data_['ht_name'] = $ht_info_['ht_name'];
                 }
-                //if(!$pass_data_['mx_remark'])
+                //if(!$update_data_['mx_remark'])
                     //return $this->fun_fail('请填写面签意见!');
-                $pass_data_['fk_admin_id'] = $this->get_role_admin_id(2);
-                if($pass_data_['fk_admin_id'] == -1)
+                $update_data_['fk_admin_id'] = $this->get_role_admin_id(2);
+                if($update_data_['fk_admin_id'] == -1)
                     return $this->fun_fail('缺少有效的风控人员,请联系技术部!');
-                $this->db->where('loan_id', $loan_id)->update('loan_master', $pass_data_);
                 break;
             case 'ww':
-                $ww_data_ = array(
+                $update_data_ = array(
                     'order_type' => 2,
                     'flag' => -1,
                     'ww_time' => time(),
@@ -624,26 +662,25 @@ class Loan_model extends MY_Model
                     'ww_admin_id' => $admin_id,
                     'ww_remark' => $this->input->post('mx_remark')
                 );
-                //if(!$ww_data_['ww_remark'])
+                //if(!$update_data_['ww_remark'])
                     //return $this->fun_fail('请填写委外意见!');
-                $this->db->where('loan_id', $loan_id)->update('loan_master', $ww_data_);
                 break;
             case 'cancel':
-                $cancel_data_ = array(
+                $update_data_ = array(
                     'flag' => -1,
                     'mx_time' => time(),
                     'err_remark' => $this->input->post('mx_remark'),
                     'err_admin_id' => $admin_id,
                     'err_time' => time()
                 );
-                //if(!$cancel_data_['mx_remark'])
+                //if(!$update_data_['mx_remark'])
                     //return $this->fun_fail('请填写面签意见!');
-                $this->db->where('loan_id', $loan_id)->update('loan_master', $cancel_data_);
                 break;
             default:
                 return $this->fun_fail('请求错误!');
         }
-
+        $this->save_loan_log4admin($loan_id, $admin_id, $action_type_);
+        $this->db->where('loan_id', $loan_id)->update('loan_master', $update_data_);
         return $this->fun_success('操作成功!');
     }
 
@@ -653,33 +690,34 @@ class Loan_model extends MY_Model
         $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, array(2));
         if($check_role4admin_['status'] != 1)
             return $check_role4admin_;
+        $update_data_ = array();
         $action_type_= $this->input->post('action_type');
         switch($action_type_){
             case 'pass':
-                $pass_data_ = array(
+                $update_data_ = array(
                     'fk_time' => time(),
                     'fk_remark' => $this->input->post('fk_remark'),
                     'status' => 3
                 );
-                //if(!$pass_data_['fk_remark'])
+                //if(!$update_data_['fk_remark'])
                     //return $this->fun_fail('请填写风控意见!');
                 $check_need_ = $this->db->select('need_mx')->from('loan_master')->where('loan_id', $loan_id)->get()->row_array();
                 if($check_need_ && $check_need_['need_mx'] == 1){
-                    $pass_data_['ht_id'] = $this->input->post('ht_id');
-                    $pass_data_['jj_price'] = $this->input->post('jj_price') ? $this->input->post('jj_price') : 0;
-                    if(!$pass_data_['ht_id'])
+                    $update_data_['ht_id'] = $this->input->post('ht_id');
+                    $update_data_['jj_price'] = $this->input->post('jj_price') ? $this->input->post('jj_price') : 0;
+                    if(!$update_data_['ht_id'])
                         return $this->fun_fail('请选择合同版本!');
-                    if($pass_data_['jj_price'] < 0)
+                    if($update_data_['jj_price'] < 0)
                         return $this->fun_fail('请输入居间服务费!');
-                    $ht_info_ = $this->readByID('contract', 'ht_id', $pass_data_['ht_id']);
+                    $ht_info_ = $this->readByID('contract', 'ht_id', $update_data_['ht_id']);
                     if(!$ht_info_ || $ht_info_['status'] != 1)
                         return $this->fun_fail('请选择有效合同版本!');
-                    $pass_data_['ht_name'] = $ht_info_['ht_name'];
+                    $update_data_['ht_name'] = $ht_info_['ht_name'];
                 }
-                $this->db->where('loan_id', $loan_id)->update('loan_master', $pass_data_);
+
                 break;
             case 'ww':
-                $ww_data_ = array(
+                $update_data_ = array(
                     'order_type' => 2,
                     'flag' => -1,
                     'ww_time' => time(),
@@ -687,12 +725,11 @@ class Loan_model extends MY_Model
                     'ww_admin_id' => $admin_id,
                     'ww_remark' => $this->input->post('mx_remark')
                 );
-                //if(!$ww_data_['ww_remark'])
+                //if(!$update_data_['ww_remark'])
                     //return $this->fun_fail('请填写风控意见!');
-                $this->db->where('loan_id', $loan_id)->update('loan_master', $ww_data_);
                 break;
             case 'cancel':
-                $cancel_data_ = array(
+                $update_data_ = array(
                     'flag' => -1,
                     'fk_time' => time(),
                     'err_remark' => $this->input->post('fk_remark'),
@@ -701,11 +738,13 @@ class Loan_model extends MY_Model
                 );
                 //if(!$cancel_data_['err_remark'])
                     //return $this->fun_fail('请填写风控意见!');
-                $this->db->where('loan_id', $loan_id)->update('loan_master', $cancel_data_);
+
                 break;
             default:
                 return $this->fun_fail('请求错误!');
         }
+        $this->save_loan_log4admin($loan_id, $admin_id, $action_type_);
+        $this->db->where('loan_id', $loan_id)->update('loan_master', $update_data_);
         return $this->fun_success('操作成功!');
     }
 
@@ -715,23 +754,24 @@ class Loan_model extends MY_Model
         $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, array(3));
         if($check_role4admin_['status'] != 1)
             return $check_role4admin_;
+        $update_data_ = array();
         $action_type_= $this->input->post('action_type');
         switch($action_type_){
             case 'pass':
-                $pass_data_ = array(
+                $update_data_ = array(
                     'zs_time' => time(),
                     'zs_remark' => $this->input->post('zs_remark'),
                     'status' => 4
                 );
-                //if(!$pass_data_['zs_remark'])
+                //if(!$update_data_['zs_remark'])
                     //return $this->fun_fail('请填写终审意见!');
-                $pass_data_['qz_admin_id'] = $this->get_role_admin_id(3);
-                if($pass_data_['qz_admin_id'] == -1)
+                $update_data_['qz_admin_id'] = $this->get_role_admin_id(3);
+                if($update_data_['qz_admin_id'] == -1)
                     return $this->fun_fail('缺少有效的权证人员,请联系技术部!');
-                $this->db->where('loan_id', $loan_id)->update('loan_master', $pass_data_);
+
                 break;
             case 'ww':
-                $ww_data_ = array(
+                $update_data_ = array(
                     'order_type' => 2,
                     'flag' => -1,
                     'ww_time' => time(),
@@ -739,25 +779,26 @@ class Loan_model extends MY_Model
                     'ww_admin_id' => $admin_id,
                     'ww_remark' => $this->input->post('zs_remark')
                 );
-                //if(!$ww_data_['ww_remark'])
+                //if(!$update_data_['ww_remark'])
                     //return $this->fun_fail('请填写终审意见!');
-                $this->db->where('loan_id', $loan_id)->update('loan_master', $ww_data_);
                 break;
             case 'cancel':
-                $cancel_data_ = array(
+                $update_data_ = array(
                     'flag' => -1,
                     'zs_time' => time(),
                     'err_remark' => $this->input->post('zs_remark'),
                     'err_admin_id' => $admin_id,
                     'err_time' => time()
                 );
-                //if(!$cancel_data_['err_remark'])
+                //if(!$update_data_['err_remark'])
                     //return $this->fun_fail('请填写终审意见!');
-                $this->db->where('loan_id', $loan_id)->update('loan_master', $cancel_data_);
+
                 break;
             default:
                 return $this->fun_fail('请求错误!');
         }
+        $this->save_loan_log4admin($loan_id, $admin_id, $action_type_);
+        $this->db->where('loan_id', $loan_id)->update('loan_master', $update_data_);
         return $this->fun_success('操作成功!');
     }
 
@@ -850,6 +891,7 @@ class Loan_model extends MY_Model
             default:
                 return $this->fun_fail('请求错误!');
         }
+        $this->save_loan_log4admin($loan_id, $admin_id, $action_type_);
         $this->db->where('loan_id', $loan_id)->update('loan_master', $update_data_);
         return $this->fun_success('操作成功!');
     }
@@ -906,6 +948,7 @@ class Loan_model extends MY_Model
             default:
                 return $this->fun_fail('请求错误!');
         }
+        $this->save_loan_log4admin($loan_id, $admin_id, $action_type_);
         $this->db->where('loan_id', $loan_id)->update('loan_master', $update_data_);
         return $this->fun_success('操作成功!');
     }
@@ -1033,5 +1076,63 @@ class Loan_model extends MY_Model
         }
         $rs = $this->loan_count($where);
         return $rs;
+    }
+
+    public function show_loan_supervise(){
+        $loan_id = $this->input->post('loan_id');
+        if(!$loan_id || $loan_id <= 0)
+            return $this->fun_fail('未传入必要信息!');
+        $this->db->select("s.*,ls.option_value,ifnull(ls.id,-1) is_check")->from('supervise s');
+        $this->db->join('loan_supervise ls','s.id = ls.option_id and ls.loan_id = '. $loan_id,'left');
+        $this->db->where('s.status', 1);
+        $loan_supervise = $this->db->order_by('s.id','asc')->get()->result_array();
+        foreach($loan_supervise as $k => $v) {
+            if($loan_supervise[$k]['is_check'] != -1){
+                $loan_supervise[$k]['is_check'] = 1;
+            }
+        }
+        return $this->fun_success('获取成功!', $loan_supervise);
+
+    }
+
+    public function save_loan_supervise($admin_id,$role_id){
+        $loan_id = $this->input->post('loan_id');
+        if(!$loan_id || $loan_id <= 0)
+            return $this->fun_fail('未传入必要信息!');
+        $loan_info_ = $this->readByID('loan_master', 'loan_id', $loan_id);
+        if(!$loan_info_){
+            return $this->fun_fail('信息不存在!');
+        }
+        if($role_id != 4)
+            return $this->fun_fail('您无权限操作!');
+        $supervise_arr = $this->input->post("supervise_arr");
+        if(!is_array($supervise_arr)){
+            $supervise_arr = json_decode($supervise_arr,true);
+        }
+        $supervise_list_ = $this->db->select()->from('supervise')->where('status', 1)->get()->result_array();
+        $check_super_ = array();
+        foreach($supervise_list_ as $k => $v) {
+            $check_super_[$v['id']] = $v;
+        }
+        $insert_arr_ = array();
+        foreach($supervise_arr as $k => $v) {
+            $s_insert_ = array(
+                'option_id' => $v['id'],
+                'option_value' => isset($v['option_value']) ? trim($v['option_value']) : '',
+                'cdate' => time(),
+                'loan_id' => $loan_id,
+                'admin_id' => $admin_id
+            );
+            if(isset($check_super_[$v['id']]) && $check_super_[$v['id']]['type'] == 2 && $s_insert_['option_value'] == '')
+                return $this->fun_fail($check_super_[$v['id']]['name'] . ' 必须有详细说明');
+            $insert_arr_[] = $s_insert_;
+        }
+        $this->db->where('loan_id', $loan_id)->delete('loan_supervise');
+        if($insert_arr_){
+            $this->db->insert_batch('loan_supervise', $insert_arr_);
+        }
+        return $this->fun_success('保存成功!');
+
+
     }
 }

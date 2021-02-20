@@ -187,7 +187,7 @@ class Mini_admin extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
-    //权证审核
+    //财务审核
     public function handle_loan_cw(){
         $rs = $this->loan_model->handle_loan_cw($this->admin_id);
         $this->ajaxReturn($rs);
@@ -199,5 +199,16 @@ class Mini_admin extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
+    //赎楼监管项
+    public function show_loan_supervise(){
+        $rs = $this->loan_model->show_loan_supervise();
+        $this->ajaxReturn($rs);
+    }
+
+    //保存赎楼监管项
+    public function save_loan_supervise(){
+        $rs = $this->loan_model->save_loan_supervise($this->admin_id, $this->role_id);
+        $this->ajaxReturn($rs);
+    }
 
 }
