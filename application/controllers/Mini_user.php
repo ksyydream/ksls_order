@@ -89,5 +89,11 @@ class Mini_user extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
+    //修改个人信息
+    public function save_user_info(){
+        $user_info = $this->mini_user_model->save_user_info($this->user_id);
+        $this->ajaxReturn($user_info);
+    }
+
 
 }

@@ -110,5 +110,32 @@ class Mini_user_model extends MY_Model
         return $this->fun_success('获取成功', $res);
     }
 
+    //修改个人信息
+    public function save_user_info($user_id){
+        $user_data = array(
+            'rel_name' => trim($this->input->post('rel_name')),
+            'brand_id' => trim($this->input->post('brand_id')) ? trim($this->input->post('brand_id')) : -1,
+            'shop_name' => trim($this->input->post('shop_name')),
+        );
+        if(!$user_data['rel_name']){
+            return $this->fun_fail('姓名不能为空!');
+        }
+        if(!$user_data['shop_name']){
+            return $this->fun_fail('门店地址不能为空!');
+        }
+        $user_info_ = $this->db->select()->from('users')->where('user_id', $user_id)->get()->row_array();
+        if($user_info_ && $user_info_['brand_id'] != $user_data['brand_id']){
+            $check_ = $this->db->select('loan_id')->from('loan_master')->where(array('flag' => 1))->get()->row_array();
+            if($check_){
+                return $this->fun_fail('存在未处理的申请单,不可修改大客户品牌!');
+            }
+        }else{
+            //以防万一 还是去除
+            unset($user_data['brand_id']);
+        }
+        $this->db->where('user_id', $user_id)->update('users',$user_data);
+        return $this->fun_success('操作成功');
+    }
+
 
 }
