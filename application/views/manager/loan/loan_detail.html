@@ -333,7 +333,7 @@
 
                                                             <div class="profile-info-value">
                                                                 <span>
-                                                                    <textarea rows="5" style="width:700px">{{$data.mx_remark|default:''}}</textarea>
+                                                                    <textarea rows="4" style="width:900px">{{$data.mx_remark|default:''}}</textarea>
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -370,7 +370,7 @@
 
                                                             <div class="profile-info-value">
                                                                 <span>
-                                                                    <textarea rows="5" style="width:700px">{{$data.fk_remark|default:''}}</textarea>
+                                                                    <textarea rows="3" style="width:900px">{{$data.fk_remark|default:''}}</textarea>
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -394,7 +394,7 @@
 
                                                             <div class="profile-info-value">
                                                                 <span>
-                                                                    <textarea rows="5" style="width:700px">{{$data.zs_remark|default:''}}</textarea>
+                                                                    <textarea rows="4" style="width:900px">{{$data.zs_remark|default:''}}</textarea>
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -487,6 +487,27 @@
 
 
                                                     </div>
+
+                                                    {{if !empty($data.loan_supervise) }}
+                                                    <div class="widget-box widget-color-dark">
+
+
+                                                        <div class="widget-body">
+                                                            <div class="widget-main">
+                                                                <ul class="list-unstyled spaced2">
+                                                                    {{foreach from=$data.loan_supervise key=k item=v}}
+                                                                    <li>
+                                                                        <i class="ace-icon fa {{if $v.is_check == 1}}fa-check green{{else}}fa-times red{{/if}}"></i>
+                                                                        {{$v.name}}  {{if $v.type == 2}}【补充信息】{{$v.option_value}}{{/if}}
+                                                                    </li>
+
+                                                                    {{/foreach}}
+
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>{{/if}}
                                                 </div>
                                             </div>
                                             <h4 class="blue">
@@ -518,7 +539,7 @@
 
                                                             <div class="profile-info-value">
                                                                 <span>
-                                                                    <textarea rows="5" style="width:700px">{{$data.ww_remark|default:''}}</textarea>
+                                                                    <textarea rows="4" style="width:900px">{{$data.ww_remark|default:''}}</textarea>
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -556,7 +577,7 @@
 
                                                             <div class="profile-info-value">
                                                                 <span>
-                                                                    <textarea rows="5" style="width:700px">{{$data.err_remark|default:''}}</textarea>
+                                                                    <textarea rows="4" style="width:900px">{{$data.err_remark|default:''}}</textarea>
                                                                 </span>
                                                             </div>
                                                         </div>

@@ -849,6 +849,18 @@ class Manager_model extends MY_Model
         $this->db->from('loan_borrowers');
         $this->db->where('loan_id', $loan_id);
         $loan_info['borrowers_list'] = $this->db->get()->result_array();
+
+        // 其实与Loan_model的代码重复
+        $this->db->select("s.*,ls.option_value,ifnull(ls.id,-1) is_check")->from('supervise s');
+        $this->db->join('loan_supervise ls','s.id = ls.option_id and ls.loan_id = '. $loan_id,'left');
+        $this->db->where('s.status', 1);
+        $loan_supervise = $this->db->order_by('s.id','asc')->get()->result_array();
+        foreach($loan_supervise as $k => $v) {
+            if($loan_supervise[$k]['is_check'] != -1){
+                $loan_supervise[$k]['is_check'] = 1;
+            }
+        }
+        $loan_info['loan_supervise'] = $loan_supervise;
         return $this->fun_success('获取成功!', $loan_info);
 	}
 
