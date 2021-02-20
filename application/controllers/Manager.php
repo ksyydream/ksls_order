@@ -10,7 +10,7 @@ class Manager extends MY_Controller {
      * @Copyright (C) 2018, Tianhuan Co., Ltd.
     */
     private $admin_id = 0;
-
+    private $role_id = 0;
 	public function __construct()
     {
         parent::__construct();
@@ -26,10 +26,13 @@ class Manager extends MY_Controller {
         }
         $this->manager_model->save_admin_log($admin_info['admin_id']);
         $this->admin_id = $admin_info['admin_id'];
+        $this->role_id = $admin['role_id'];
         if ($admin['group_id'] != 1 && !$this->manager_model->check($this->uri->segment(1) . '/' . $this->uri->segment(2), $admin_info['admin_id'])){
             if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest')
             {
-              echo -99;exit();
+              //echo -99;exit();
+                $err_ = $this->manager_model->fun_fail('你没有操作权限');
+                $this->ajaxReturn($err_);
             }
             else {
                 $this->show_message('没有权限访问本页面!');
@@ -520,6 +523,32 @@ class Manager extends MY_Controller {
         $this->display('manager/loan/loan_detail.html');
 	}
 
+    //保存风控报告
+    public function save_fk_report(){
+        $rs = $this->manager_model->save_fk_report($this->admin_id,$this->role_id);
+        $this->ajaxReturn($rs);
+    }
+
+    //修改面签经理
+    public function mx_admin_change4loan(){
+        $this->load->model('loan_model');
+        $rs = $this->loan_model->mx_admin_change4loan($this->admin_id,$this->role_id);
+        $this->ajaxReturn($rs);
+    }
+
+    //修改风控经理
+    public function fk_admin_change4loan(){
+        $this->load->model('loan_model');
+        $rs = $this->loan_model->fk_admin_change4loan($this->admin_id,$this->role_id);
+        $this->ajaxReturn($rs);
+    }
+
+    //修改权证经理
+    public function qz_admin_change4loan(){
+        $this->load->model('loan_model');
+        $rs = $this->loan_model->qz_admin_change4loan($this->admin_id,$this->role_id);
+        $this->ajaxReturn($rs);
+    }
      /**
      *********************************************************************************************
      * 以下代码为系统记录模块

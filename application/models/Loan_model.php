@@ -649,9 +649,16 @@ class Loan_model extends MY_Model
                 }
                 //if(!$update_data_['mx_remark'])
                     //return $this->fun_fail('请填写面签意见!');
-                $update_data_['fk_admin_id'] = $this->get_role_admin_id(2);
-                if($update_data_['fk_admin_id'] == -1)
-                    return $this->fun_fail('缺少有效的风控人员,请联系技术部!');
+                //如果已分配风控经理就不再做自动分配
+                $check_fk_ = $this->db->select('fk_admin_id')->from('loan_master')->where('loan_id', $loan_id)->get()->row_array();
+                if($check_fk_ && $check_fk_['fk_admin_id'] > 0){
+
+                }else{
+                    $update_data_['fk_admin_id'] = $this->get_role_admin_id(2);
+                    if($update_data_['fk_admin_id'] == -1)
+                        return $this->fun_fail('缺少有效的风控人员,请联系技术部!');
+                }
+
                 break;
             case 'ww':
                 $update_data_ = array(
@@ -765,10 +772,15 @@ class Loan_model extends MY_Model
                 );
                 //if(!$update_data_['zs_remark'])
                     //return $this->fun_fail('请填写终审意见!');
-                $update_data_['qz_admin_id'] = $this->get_role_admin_id(3);
-                if($update_data_['qz_admin_id'] == -1)
-                    return $this->fun_fail('缺少有效的权证人员,请联系技术部!');
+                //如果已分配权证经理就不再做自动分配
+                $check_qz_ = $this->db->select('qz_admin_id')->from('loan_master')->where('loan_id', $loan_id)->get()->row_array();
+                if($check_qz_ && $check_qz_['qz_admin_id'] > 0){
 
+                }else{
+                    $update_data_['qz_admin_id'] = $this->get_role_admin_id(3);
+                    if($update_data_['qz_admin_id'] == -1)
+                        return $this->fun_fail('缺少有效的权证人员,请联系技术部!');
+                }
                 break;
             case 'ww':
                 $update_data_ = array(
@@ -1134,5 +1146,65 @@ class Loan_model extends MY_Model
         return $this->fun_success('保存成功!');
 
 
+    }
+
+    /**
+     *********************************************************************************************
+     * 以下代码为PC端 专用, 以防万一 以后小程序也需要
+     *********************************************************************************************
+     */
+
+    //修改面签经理
+    public function mx_admin_change4loan($admin_id,$role_id){
+        $loan_id = $this->input->post('loan_id');
+        if(!$loan_id || $loan_id <= 0)
+            return $this->fun_fail('未传入必要信息!');
+        $loan_info = $this->db->select("flag,status")->from("loan_master")->where('loan_id', $loan_id)->get()->row_array();
+        if(!$loan_info)
+            return $this->fun_fail('申请单不存在!');
+        $mx_admin_id = $this->input->post('mx_admin_id');
+        if(!$mx_admin_id)
+            return $this->fun_fail('未传入面签经理信息!');
+        $admin_info = $this->readByID('admin','admin_id', $mx_admin_id);
+        if(!$admin_info || $admin_info['status'] != 1 || $admin_info['role_id'] != 1)
+            return $this->fun_fail('未选择有效的面签经理!');
+        $this->db->where('loan_id', $loan_id)->update('loan_master', array('mx_admin_id' => $mx_admin_id));
+        return $this->fun_success('操作成功!');
+    }
+
+    //修改风控经理
+    public function fk_admin_change4loan($admin_id,$role_id){
+        $loan_id = $this->input->post('loan_id');
+        if(!$loan_id || $loan_id <= 0)
+            return $this->fun_fail('未传入必要信息!');
+        $loan_info = $this->db->select("flag,status")->from("loan_master")->where('loan_id', $loan_id)->get()->row_array();
+        if(!$loan_info)
+            return $this->fun_fail('申请单不存在!');
+        $fk_admin_id = $this->input->post('fk_admin_id');
+        if(!$fk_admin_id)
+            return $this->fun_fail('未传入风控经理信息!');
+        $admin_info = $this->readByID('admin','admin_id', $fk_admin_id);
+        if(!$admin_info || $admin_info['status'] != 1 || $admin_info['role_id'] != 2)
+            return $this->fun_fail('未选择有效的风控经理!');
+        $this->db->where('loan_id', $loan_id)->update('loan_master', array('fk_admin_id' => $fk_admin_id));
+        return $this->fun_success('操作成功!');
+    }
+
+    //修改权证经理
+    public function qz_admin_change4loan($admin_id,$role_id){
+        $loan_id = $this->input->post('loan_id');
+        if(!$loan_id || $loan_id <= 0)
+            return $this->fun_fail('未传入必要信息!');
+        $loan_info = $this->db->select("flag,status")->from("loan_master")->where('loan_id', $loan_id)->get()->row_array();
+        if(!$loan_info)
+            return $this->fun_fail('申请单不存在!');
+        $qz_admin_id = $this->input->post('qz_admin_id');
+        if(!$qz_admin_id)
+            return $this->fun_fail('未传入风控经理信息!');
+        $admin_info = $this->readByID('admin','admin_id', $qz_admin_id);
+        if(!$admin_info || $admin_info['status'] != 1 || $admin_info['role_id'] != 3)
+            return $this->fun_fail('未选择有效的风控经理!');
+        $this->db->where('loan_id', $loan_id)->update('loan_master', array('qz_admin_id' => $qz_admin_id));
+        return $this->fun_success('操作成功!');
     }
 }

@@ -130,4 +130,34 @@ class Manager_login extends MY_Controller {
         $data['time'] = $time;
         echo json_encode($data);
     }
+
+    /**
+     * 获取可用面签经理列表
+     */
+    public function get_mx_list4loan() {
+        $this->load->model('common4manager_model', 'cm_model');
+        $data = $this->cm_model->get_mx_list4loan();
+        $this->assign('data', $data);
+        $this->display('manager/loan/show_mx_list4loan.html');
+    }
+
+    /**
+     * 获取可用面签经理列表
+     */
+    public function get_fk_list4loan() {
+        $this->load->model('common4manager_model', 'cm_model');
+        $data = $this->cm_model->get_fk_list4loan();
+        $this->assign('data', $data);
+        $this->display('manager/loan/show_fk_list4loan.html');
+    }
+
+    /**
+     * 获取可用面签经理列表
+     */
+    public function get_qz_list4loan() {
+        $this->load->model('common4manager_model', 'cm_model');
+        $data = $this->cm_model->get_qz_list4loan();
+        $this->assign('data', $data);
+        $this->display('manager/loan/show_qz_list4loan.html');
+    }
 }

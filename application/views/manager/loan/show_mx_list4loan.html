@@ -1,0 +1,20 @@
+<table style="width: 99%">
+	
+	<tr>
+        <td style="width: 100px">在职面签经理：</td>
+        <td>
+            <select name="sel_mx_admin_id" id="sel_mx_admin_id" style="width: 90%">
+                <option value="">-请选择-</option>
+                {{foreach from=$data key=k item=v}}
+                <option value="{{$v.admin_id}}">{{$v.admin_name}}-{{$v.user}}</option>
+                {{/foreach}}
+            </select>
+        </td> 
+    </tr>
+
+</table>
+
+<script type="text/javascript">
+
+</script>
+

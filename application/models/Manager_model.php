@@ -864,6 +864,28 @@ class Manager_model extends MY_Model
         return $this->fun_success('获取成功!', $loan_info);
 	}
 
+    public function save_fk_report($admin_id, $role_id){
+        $loan_id = $this->input->post('loan_id');
+        if(!$loan_id || $loan_id <= 0)
+            return $this->fun_fail('未传入必要信息!');
+        $loan_info_ = $this->db->select("fk_admin_id, status, flag")->from("loan_master")->where("loan_id", $loan_id)->get()->row_array();
+        if(!$loan_info_){
+            return $this->fun_fail('信息不存在!');
+        }
+        if($role_id != 2)
+            return $this->fun_fail('只有风控经理才可操作!');
+        if($loan_info_['fk_admin_id'] != $admin_id)
+            return $this->fun_fail('只有指定风控经理才可操作!');
+        if($loan_info_['status'] != 2 || $loan_info_['flag'] != 1)
+            return $this->fun_fail('当前已不是风控审核状态!');
+        $fk_report = $this->input->post("fk_report");
+        $update_ = array(
+            'fk_report' => $fk_report
+        );
+        $this->db->where(array('loan_id' => $loan_id, 'status' => 2))->update('loan_master', $update_);
+        return $this->fun_success('保存成功!');
+    }
+
      /**
      *********************************************************************************************
      * 以下代码为系统记录模块

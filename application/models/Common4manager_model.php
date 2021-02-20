@@ -28,6 +28,21 @@ class Common4manager_model extends MY_Model
         return $res;
     }
 
+    public function get_mx_list4loan() {
+        $data = $this->db->select()->from('admin')->where(array('status' => 1, 'role_id' => 1))->get()->result_array();
+        return $data;
+    }
+
+    public function get_fk_list4loan() {
+        $data = $this->db->select()->from('admin')->where(array('status' => 1, 'role_id' => 2))->get()->result_array();
+        return $data;
+    }
+
+    public function get_qz_list4loan() {
+        $data = $this->db->select()->from('admin')->where(array('status' => 1, 'role_id' => 3))->get()->result_array();
+        return $data;
+    }
+
     /** check fun */
 
 

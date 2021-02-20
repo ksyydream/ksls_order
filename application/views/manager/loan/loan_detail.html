@@ -45,7 +45,9 @@
                         
                 
                         <!-- PAGE CONTENT BEGINS -->
-                        <!--<form id="save_form" class="form-horizontal" role="form" action="/manager/" method="post">-->
+                        <form id="save_form" class="form-horizontal" role="form" action="" method="post">
+
+
                            <div class="tabbable">
                                     <ul class="nav nav-tabs padding-18 tab-size-bigger" id="myTab">
                                         <li class="active">
@@ -83,6 +85,7 @@
                                                                  <div class="space-4"></div>
                                                                  <div class="profile-user-info profile-user-info-striped">
                                                                      <div class="profile-info-row">
+                                                                         <input type="hidden" name="loan_id" id="loan_id" value="{{$data.loan_id|default:''}}">
                                                                          <div class="profile-info-name"> 赎楼单号 </div>
 
                                                                          <div class="profile-info-value">
@@ -298,7 +301,16 @@
 
                                             <div class="space-8"></div>
                                              <div class="row">
-                                                                 
+                                                 <div class="col-sm-11">
+                                                     <textarea rows="20" name="fk_report" id="fk_report" style="width:900px">{{$data.fk_report|default:''}}</textarea>
+                                                 </div>
+                                                 <div class="col-sm-11">
+                                                     <button class="btn btn-info" id="fk_report_btn" type="button">
+                                                         <i class="icon-ok bigger-110"></i>
+                                                         风控报告提交
+                                                     </button>
+                                                 </div>
+
                                                     </div>
                                             
                         
@@ -590,7 +602,7 @@
                                                               </div>    
                                                                      
                                 </div>
-
+                        </form>
 
                             <div class="col-md-offset-2 col-md-9">
                                
@@ -622,7 +634,32 @@
 <script type="text/javascript" src="/manager_statics/app/lightbox-plus-jquery.min.js?v2"></script>
 <script type="text/javascript">
 
+    $("#fk_report_btn").click(function(){
 
+        var form = document.getElementById('save_form');
+
+        var formdata = new FormData(form);
+        $.ajax({
+            type : "POST",
+            url : "/manager/save_fk_report",
+            data : formdata,
+            async: false,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success : function(data) {
+                var return_ = JSON.parse(data)
+                if(return_.status == 1){
+                    layer.msg(return_.msg);
+                }else{
+                    layer.msg(return_.msg);
+                }
+            },
+            error:function(){
+                layer.msg('网络异常!');
+            }
+        });
+    })
  
 </script>
 </body>
