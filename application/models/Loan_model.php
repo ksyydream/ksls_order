@@ -1100,7 +1100,9 @@ class Loan_model extends MY_Model
         $loan_supervise = $this->db->order_by('s.id','asc')->get()->result_array();
         foreach($loan_supervise as $k => $v) {
             if($loan_supervise[$k]['is_check'] != -1){
-                $loan_supervise[$k]['is_check'] = 1;
+                $loan_supervise[$k]['is_check'] = true;
+            }else{
+                $loan_supervise[$k]['is_check'] = false;
             }
         }
         return $this->fun_success('获取成功!', $loan_supervise);
