@@ -129,7 +129,7 @@
                                                                                  {{if $data.status == 9}}<span class="label label-danger arrowed arrowed-right">待回款</span>{{/if}}
                                                                                  {{if $data.status == 10}}<span class="label label-success arrowed arrowed-right">已回款</span>{{/if}}
                                                                                  {{if $data.flag == 1}}
-                                                                                 <a href="javascript:void(0);" dataid="{{$v.loan_id}}" id="status_c_btn">修改</a>
+                                                                                 <a href="javascript:void(0);" id="status_c_btn">修改</a>
                                                                                  {{/if}}
 
                                                                              </span>
@@ -181,7 +181,7 @@
                                                                          <div class="profile-info-name"> 借款金额 </div>
 
                                                                          <div class="profile-info-value">
-                                                                             <span>{{$data.loan_money|default:''}}</span>
+                                                                             <span>{{$data.loan_money|default:''}}万</span>
                                                                          </div>
                                                                      </div>
 
@@ -189,7 +189,7 @@
                                                                          <div class="profile-info-name"> 老贷金额 </div>
 
                                                                          <div class="profile-info-value">
-                                                                             <span>{{$data.old_loan_money|default:''}}</span>
+                                                                             <span>{{$data.old_loan_money|default:''}}万</span>
                                                                          </div>
                                                                      </div>
 
@@ -204,7 +204,7 @@
                                                                          <div class="profile-info-name"> 老贷一抵金额 </div>
 
                                                                          <div class="profile-info-value">
-                                                                             <span>{{$data.old_mortgage_money_one|default:''}}</span>
+                                                                             <span>{{$data.old_mortgage_money_one|default:''}}万</span>
                                                                          </div>
                                                                      </div>
                                                                      <div class="profile-info-row">
@@ -218,14 +218,14 @@
                                                                          <div class="profile-info-name"> 老贷二抵金额 </div>
 
                                                                          <div class="profile-info-value">
-                                                                             <span>{{$data.old_mortgage_money_two|default:''}}</span>
+                                                                             <span>{{$data.old_mortgage_money_two|default:'-'}}万</span>
                                                                          </div>
                                                                      </div>
                                                                      <div class="profile-info-row">
                                                                          <div class="profile-info-name"> 房屋成交总价 </div>
 
                                                                          <div class="profile-info-value">
-                                                                             <span>{{$data.houses_price|default:''}}</span>
+                                                                             <span>{{$data.houses_price|default:''}}万</span>
                                                                          </div>
                                                                      </div>
 
@@ -233,7 +233,7 @@
                                                                          <div class="profile-info-name"> 买方贷款金额 </div>
 
                                                                          <div class="profile-info-value">
-                                                                             <span>{{$data.buyer_loan|default:''}}</span>
+                                                                             <span>{{$data.buyer_loan|default:''}}万</span>
                                                                          </div>
                                                                      </div>
 
