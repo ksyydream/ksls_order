@@ -41,7 +41,7 @@
                 <!-- /section:settings.box -->
                 <div class="row">
                     <div class="col-xs-12">
-                        <div class="alert alert-info">修改状态只可往前修改</div>
+                        <div class="alert alert-info">修改工作流只可往前修改,且只有进行中的申请单才可修改</div>
                         
                 
                         <!-- PAGE CONTENT BEGINS -->
@@ -128,6 +128,10 @@
                                                                                  {{if $data.status == 8}}<span class="label label arrowed arrowed-right">待过户</span>{{/if}}
                                                                                  {{if $data.status == 9}}<span class="label label-danger arrowed arrowed-right">待回款</span>{{/if}}
                                                                                  {{if $data.status == 10}}<span class="label label-success arrowed arrowed-right">已回款</span>{{/if}}
+                                                                                 {{if $data.flag == 1}}
+                                                                                 <a href="javascript:void(0);" dataid="{{$v.loan_id}}" id="status_c_btn">修改</a>
+                                                                                 {{/if}}
+
                                                                              </span>
                                                                          </div>
                                                                      </div>
@@ -631,7 +635,7 @@
 {{include file='manager/public/footerjs.html'}}
 <!-- inline scripts related to this page -->
 
-<script type="text/javascript" src="/manager_statics/app/lightbox-plus-jquery.min.js?v2"></script>
+
 <script type="text/javascript">
 
     $("#fk_report_btn").click(function(){
@@ -660,6 +664,38 @@
             }
         });
     })
+
+    $("#status_c_btn").click(function(){
+        var id = $('#loan_id').val();
+        var result = $.ajax({
+            url : '/manager_login/get_status_list4loan',
+            cache : false,
+            async : false,
+            type : "POST"
+        }).responseText;
+        var index_ = layer.confirm(result, {
+            btn: ['确认','关闭'], //按钮
+            //skin: 'demo-class',
+            area: ['500px', 'auto']
+        }, function(){
+            var sel_loan_status_ = $.trim($("#sel_loan_status_").val());
+            if(sel_loan_status_ == '') {
+                alert("必须选择工作流!");
+                return false;
+            }
+            $.post('/manager/status_change4loan',{status:sel_loan_status_,loan_id:id},function(rs){
+                var data = JSON.parse(rs);
+                if(data.status == 1){
+                    location.reload()
+                }else{
+                    layer.msg(data.msg, {icon: 2});
+                    return false;
+                }
+            })
+        }, function(){
+
+        });
+    });
  
 </script>
 </body>

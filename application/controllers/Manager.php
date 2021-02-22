@@ -517,11 +517,44 @@ class Manager extends MY_Controller {
     public function loan_edit($loan_id){
         $data = $this->manager_model->loan_edit($loan_id);
         if($data["status"] != 1){
-            $this->show_message('未找到同盾信息!');
+            $this->show_message('未找到信息!');
         }
         $this->assign('data', $data["result"]);
         $this->display('manager/loan/loan_detail.html');
 	}
+
+    /**
+     * 赎楼申请单列表(风控专属)
+     * @author yangyang <yang.yang@thmarket.cn>
+     * @date 2021-02-22
+     */
+    public function loan4fk_list($page = 1){
+        $where = array('a.fk_admin_id' => $this->admin_id);
+        $data = $this->manager_model->loan_list($page, $where);
+        $base_url = "/manager/loan_list/";
+        $pager = $this->pagination->getPageLink4manager($base_url, $data['total_rows'], $data['limit']);
+        $this->assign('pager', $pager);
+        $this->assign('page', $page);
+        $this->assign('data', $data);
+        $brand_list = $this->manager_model->get_brand4select();
+        $this->assign('brand_list', $brand_list);
+        $this->display('manager/loan/loan_list.html');
+    }
+
+    /**
+     * 赎楼申请单详情(风控专属)
+     * @author yangyang <yang.yang@thmarket.cn>
+     * @date 2021-02-22
+     */
+    public function loan4fk_edit($loan_id){
+        $where = array('a.fk_admin_id' => $this->admin_id);
+        $data = $this->manager_model->loan_edit($loan_id, $where);
+        if($data["status"] != 1){
+            $this->show_message('未找到信息!');
+        }
+        $this->assign('data', $data["result"]);
+        $this->display('manager/loan/loan_detail.html');
+    }
 
     //保存风控报告
     public function save_fk_report(){
@@ -547,6 +580,13 @@ class Manager extends MY_Controller {
     public function qz_admin_change4loan(){
         $this->load->model('loan_model');
         $rs = $this->loan_model->qz_admin_change4loan($this->admin_id,$this->role_id);
+        $this->ajaxReturn($rs);
+    }
+
+    //修改工作流
+    public function status_change4loan(){
+        $this->load->model('loan_model');
+        $rs = $this->loan_model->status_change4loan($this->admin_id,$this->role_id);
         $this->ajaxReturn($rs);
     }
      /**

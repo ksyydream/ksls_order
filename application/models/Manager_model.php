@@ -726,7 +726,7 @@ class Manager_model extends MY_Model
      * @date 2021-02-18
      */
 
-    public function loan_list($page = 1){
+    public function loan_list($page = 1, $where = array()){
         $data['limit'] = $this->limit;
         $data['keyword'] = trim($this->input->get('keyword')) ? trim($this->input->get('keyword')) : null;
         $data['order_type'] = trim($this->input->get('type_id')) ? trim($this->input->get('type_id')) : null;
@@ -740,7 +740,8 @@ class Manager_model extends MY_Model
         $this->db->select('count(DISTINCT a.loan_id) num');
         $this->db->from('loan_master a');
         $this->db->join('loan_borrowers b', 'a.loan_id = b.loan_id', 'left');
-        //$this->db->where($where);
+        if($where)
+            $this->db->where($where);
         if($data['keyword']){
             $this->db->group_start();
             $this->db->like('b.borrower_name', $data['keyword']);
@@ -779,7 +780,8 @@ class Manager_model extends MY_Model
         $this->db->join('admin mx', 'a.mx_admin_id = mx.admin_id', 'left');
         $this->db->join('admin fk', 'a.fk_admin_id = fk.admin_id', 'left');
         $this->db->join('admin qz', 'a.qz_admin_id = qz.admin_id', 'left');
-        //$this->db->where($where);
+        if($where)
+            $this->db->where($where);
         if($data['keyword']){
             $this->db->group_start();
             $this->db->like('b.borrower_name', $data['keyword']);
@@ -810,7 +812,7 @@ class Manager_model extends MY_Model
         return $data;
     }
 
-    public function loan_edit($loan_id){
+    public function loan_edit($loan_id, $where = array()){
       //这里可能需要加入role_id 权限
       $select = "a.*,FROM_UNIXTIME(a.create_time) loan_cdate,
      
@@ -841,6 +843,8 @@ class Manager_model extends MY_Model
         $this->db->join('admin zs', 'a.zs_admin_id = zs.admin_id', 'left');
         $this->db->join('admin err', 'a.err_admin_id = err.admin_id', 'left');
         $this->db->join('admin ww', 'a.ww_admin_id = ww.admin_id', 'left');
+        if($where)
+            $this->db->where($where);
         //$this->db->join('admin cw', 'a.cw_admin_id = cw.admin_id', 'left');
         $loan_info = $this->db->where('a.loan_id', $loan_id)->get()->row_array();
         if(!$loan_info)

@@ -160,4 +160,9 @@ class Manager_login extends MY_Controller {
         $this->assign('data', $data);
         $this->display('manager/loan/show_qz_list4loan.html');
     }
+
+    public function get_status_list4loan() {
+
+        $this->display('manager/loan/show_status_list4loan.html');
+    }
 }

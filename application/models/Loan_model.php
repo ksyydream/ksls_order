@@ -1209,4 +1209,60 @@ class Loan_model extends MY_Model
         $this->db->where('loan_id', $loan_id)->update('loan_master', array('qz_admin_id' => $qz_admin_id));
         return $this->fun_success('操作成功!');
     }
+
+    public function status_change4loan($admin_id,$role_id){
+        $loan_id = $this->input->post('loan_id');
+        if(!$loan_id || $loan_id <= 0)
+            return $this->fun_fail('未传入必要信息!');
+        $loan_info = $this->db->select("flag,status,fk_admin_id,mx_time,fk_time,zs_time,has_wq,has_tg,has_nj,has_make_loan,has_gh")->from("loan_master")->where('loan_id', $loan_id)->get()->row_array();
+        if(!$loan_info)
+            return $this->fun_fail('申请单不存在!');
+        if($loan_info['flag'] != 1){
+            return $this->fun_fail('此赎楼申请单不在进行中,不可修改工作流!');
+        }
+        $status = $this->input->post('status');
+        if(!$status || !in_array($status, array(1,2,3,4,5,6,7,8,9)))
+            return $this->fun_fail('未传入合法的工作流!');
+        switch($status){
+            case 1:
+                break;
+            case 2:
+                if(!$loan_info['mx_time'])
+                    return $this->fun_fail('未完成面签审核,不可直接修改为风控!');
+                break;
+            case 3:
+                if(!$loan_info['fk_time'])
+                    return $this->fun_fail('未完成风控审核,不可直接修改为终审!');
+                break;
+            case 4:
+                if(!$loan_info['zs_time'])
+                    return $this->fun_fail('未完成终审审核,不可直接修改为待网签!');
+                break;
+            case 5:
+                if($loan_info['has_wq'] != 1)
+                    return $this->fun_fail('网签未通过,不可直接修改 待托管!');
+                break;
+            case 6:
+                if($loan_info['has_tg'] != 1)
+                    return $this->fun_fail('托管未通过,不可直接修改 待按揭放款!');
+                break;
+            case 7:
+                if($loan_info['has_nj'] != 1)
+                    return $this->fun_fail('按揭放款未通过,不可直接修改 待赎楼借款放款!');
+                break;
+            case 8:
+                if($loan_info['has_make_loan'] != 1)
+                    return $this->fun_fail('赎楼借款放款未通过,不可直接修改 待过户!');
+                break;
+            case 9:
+                if($loan_info['has_gh'] != 1)
+                    return $this->fun_fail('过户未通过,不可直接修改 待回款!');
+                break;
+            default:
+                break;
+
+        }
+        $this->db->where(array('loan_id' => $loan_id, 'flag' => 1))->update('loan_master', array('status' => $status));
+        return $this->fun_success('操作成功!');
+    }
 }
