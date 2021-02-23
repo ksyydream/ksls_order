@@ -133,7 +133,7 @@ class Loan_model extends MY_Model
         $data['keyword'] = $this->input->post('keyword')?trim($this->input->post('keyword')):null;
         $data['brand_id'] = $this->input->post('brand_id')?trim($this->input->post('brand_id')):null;
         $data['user_id'] = $this->input->post('user_id')?trim($this->input->post('user_id')):null;
-        $data['flag'] = $this->input->post('flag') ? trim($this->input->post('flag')) : 1; //默认查进行中
+        $data['flag'] = $this->input->post('flag') ? trim($this->input->post('flag')) : null; //默认查进行中 取消默认
         $data['status'] = $this->input->post('status') ? trim($this->input->post('status')) : null;
 
         $page = $this->input->post('page')?trim($this->input->post('page')):1;
