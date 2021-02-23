@@ -1137,6 +1137,10 @@ class Loan_model extends MY_Model
                 'loan_id' => $loan_id,
                 'admin_id' => $admin_id
             );
+            $is_check_ = isset($v['is_check']) ? $v['is_check'] : false;
+            if(!$is_check_)
+                continue;
+
             if(isset($check_super_[$v['id']]) && $check_super_[$v['id']]['type'] == 2 && $s_insert_['option_value'] == '')
                 return $this->fun_fail($check_super_[$v['id']]['name'] . ' 必须有详细说明');
             $insert_arr_[] = $s_insert_;
@@ -1210,6 +1214,7 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功!');
     }
 
+    //修改工作流节点,在修改时判断上一节点是否完成 且只能修改进行中的赎楼单
     public function status_change4loan($admin_id,$role_id){
         $loan_id = $this->input->post('loan_id');
         if(!$loan_id || $loan_id <= 0)
