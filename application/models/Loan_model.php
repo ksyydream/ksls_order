@@ -135,6 +135,7 @@ class Loan_model extends MY_Model
         $data['user_id'] = $this->input->post('user_id')?trim($this->input->post('user_id')):null;
         $data['flag'] = $this->input->post('flag') ? trim($this->input->post('flag')) : null; //默认查进行中 取消默认
         $data['status'] = $this->input->post('status') ? trim($this->input->post('status')) : null;
+        $data['is_err'] = $this->input->post('is_err') ? trim($this->input->post('is_err')) : null;
 
         $page = $this->input->post('page')?trim($this->input->post('page')):1;
         $this->db->select('count(DISTINCT a.loan_id) num');
@@ -148,6 +149,9 @@ class Loan_model extends MY_Model
         }
         if($data['flag']){
             $this->db->where('a.flag', $data['flag']);
+        }
+        if($data['is_err']){
+            $this->db->where('a.is_err', $data['is_err']);
         }
         if($data['status']){
             $this->db->where('a.status', $data['status']);
@@ -197,6 +201,9 @@ class Loan_model extends MY_Model
         }
         if($data['flag']){
             $this->db->where('a.flag', $data['flag']);
+        }
+        if($data['is_err']){
+            $this->db->where('a.is_err', $data['is_err']);
         }
         if($data['status']){
             $this->db->where('a.status', $data['status']);
