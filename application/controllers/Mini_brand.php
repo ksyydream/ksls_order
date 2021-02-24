@@ -68,4 +68,9 @@ class Mini_brand extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
+    public function change_password(){
+        $rs = $this->mini_brand_model->change_password($this->brand_id);
+        $this->ajaxReturn($rs);
+    }
+
 }

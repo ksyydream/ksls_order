@@ -395,6 +395,11 @@ class Manager extends MY_Controller {
         }
     }
 
+    public function refresh_brand_password(){
+        $res = $this->manager_model->refresh_brand_password($this->admin_id);
+        $this->ajaxReturn($res);
+    }
+
     /**
      * 会员列表
      * @author yangyang <yang.yang@thmarket.cn>

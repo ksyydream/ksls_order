@@ -54,5 +54,17 @@ class Mini_brand_model extends MY_Model
         $this->db->where('id', $brand_id)->update('brand', $update_data);
     }
 
+    public function change_password($brand_id){
+        $new_password = $this->input->post('new_password') ? trim($this->input->post('new_password')) : '';
+        if(!$new_password)
+            return $this->fun_fail('新密码不能为空!');
+        if(strlen($new_password) < 6)
+            return $this->fun_fail('新密码长度不能小于6位!');
+        if(!ctype_alnum($new_password))
+            return $this->fun_fail('新密码只能为字母和数字!');
+        $this->db->where(array('id' => $brand_id))->update('brand', array('password' => sha1($new_password)));
+        return $this->fun_success('修改成功');
+    }
+
 
 }
