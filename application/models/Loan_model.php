@@ -610,9 +610,7 @@ class Loan_model extends MY_Model
 
         $this->db->where(array(
             'loan_id' => $loan_id,
-            'status' => 1,
             'flag' => 1,
-            'mx_admin_id' => $admin_id
         ))->update('loan_master', $update_);
         return $this->fun_success('操作成功');
     }
