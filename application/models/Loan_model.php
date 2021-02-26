@@ -184,6 +184,7 @@ class Loan_model extends MY_Model
         mx.admin_name mx_name,mx.phone mx_phone,
         fk.admin_name fk_name,fk.phone fk_phone,
         qz.admin_name qz_name,qz.phone qz_phone,
+        fc.admin_name fc_name,fc.phone fc_phone,
          bd.brand_name,FROM_UNIXTIME(a.create_time) loan_cdate,a.appointment_date");
         $this->db->from('loan_master a');
         $this->db->join('users u','a.user_id = u.user_id','left');
@@ -193,6 +194,7 @@ class Loan_model extends MY_Model
         $this->db->join('admin mx', 'a.mx_admin_id = mx.admin_id', 'left');
         $this->db->join('admin fk', 'a.fk_admin_id = fk.admin_id', 'left');
         $this->db->join('admin qz', 'a.qz_admin_id = qz.admin_id', 'left');
+        $this->db->join('admin fc', 'a.fc_admin_id = fc.admin_id', 'left');
         $this->db->where($where);
         if($data['keyword']){
             $this->db->group_start();
@@ -260,6 +262,7 @@ class Loan_model extends MY_Model
         mx.admin_name mx_name,mx.phone mx_phone,
         fk.admin_name fk_name,fk.phone fk_phone,
         qz.admin_name qz_name,qz.phone qz_phone,
+        fc.admin_name fc_name,fc.phone fc_phone,
         bd.brand_name";
         $this->db->select($select)->from('loan_master a');
         $this->db->join('users u','a.user_id = u.user_id','left');
@@ -268,6 +271,7 @@ class Loan_model extends MY_Model
         $this->db->join('admin mx', 'a.mx_admin_id = mx.admin_id', 'left');
         $this->db->join('admin fk', 'a.fk_admin_id = fk.admin_id', 'left');
          $this->db->join('admin qz', 'a.qz_admin_id = qz.admin_id', 'left');
+        $this->db->join('admin fc', 'a.fc_admin_id = fc.admin_id', 'left');
         $loan_info = $this->db->where('a.loan_id', $loan_id)->get()->row_array();
         if(!$loan_info)
             return $this->fun_fail('未找到相关订单!');
@@ -777,14 +781,14 @@ class Loan_model extends MY_Model
                 );
                 //if(!$update_data_['zs_remark'])
                     //return $this->fun_fail('请填写终审意见!');
-                //如果已分配权证经理就不再做自动分配
+                //如果已分配权证(银行)经理就不再做自动分配
                 $check_qz_ = $this->db->select('qz_admin_id')->from('loan_master')->where('loan_id', $loan_id)->get()->row_array();
                 if($check_qz_ && $check_qz_['qz_admin_id'] > 0){
 
                 }else{
                     $update_data_['qz_admin_id'] = $this->get_role_admin_id(3);
                     if($update_data_['qz_admin_id'] == -1)
-                        return $this->fun_fail('缺少有效的权证人员,请联系技术部!');
+                        return $this->fun_fail('缺少有效的权证(银行)人员,请联系技术部!');
                 }
                 break;
             case 'ww':
@@ -819,7 +823,7 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功!');
     }
 
-    //权证审核
+    //权证(银行)审核
     public function handle_loan_qz($admin_id){
         $loan_id = $this->input->post('loan_id');
         $action_type_= $this->input->post('action_type');
@@ -834,11 +838,8 @@ class Loan_model extends MY_Model
             case 'nj':
                 $check_status = array(6);
                 break;
-            case 'gh':
-                $check_status = array(8);
-                break;
             case 'err':
-                $check_status = array(4,5,6,8);
+                $check_status = array(4,5,6);
                 break;
             default:
                 return $this->fun_fail('请求错误!');
@@ -887,6 +888,45 @@ class Loan_model extends MY_Model
                 if(!$update_data_['redeem_date'])
                     return $this->fun_fail('请填写预约赎楼时间!');
                 break;
+            case 'err':
+                $update_data_ = array(
+                    'err_remark' => $this->input->post('err_remark'),
+                    'is_err' => 1,
+                    'flag' => -1,
+                    'err_admin_id' => $admin_id,
+                    'err_time' => time()
+                );
+                if(!$update_data_['err_remark'])
+                    return $this->fun_fail('请填写异常原因!');
+                break;
+            default:
+                return $this->fun_fail('请求错误!');
+        }
+        $this->save_loan_log4admin($loan_id, $admin_id, $action_type_);
+        $this->db->where('loan_id', $loan_id)->update('loan_master', $update_data_);
+        return $this->fun_success('操作成功!');
+    }
+
+    //权证(交易中心)审核
+    public function handle_loan_fc($admin_id){
+        $loan_id = $this->input->post('loan_id');
+        $action_type_= $this->input->post('action_type');
+        $check_status = array(-99);
+        switch($action_type_){
+            case 'gh':
+                $check_status = array(8);
+                break;
+            case 'err':
+                $check_status = array(8);
+                break;
+            default:
+                return $this->fun_fail('请求错误!');
+        }
+        $check_role4admin_ = $this->check_role4admin($admin_id, $loan_id, $check_status);
+        if($check_role4admin_['status'] != 1)
+            return $check_role4admin_;
+        $update_data_ = array();
+        switch($action_type_){
             case 'gh':
                 $update_data_ = array(
                     'gh_time' => time(),
@@ -942,6 +982,15 @@ class Loan_model extends MY_Model
                     'has_make_loan' => 1,
                     'status' => 8
                 );
+                //如果已分配权证(交易中心)经理就不再做自动分配
+                $check_fc_ = $this->db->select('fc_admin_id')->from('loan_master')->where('loan_id', $loan_id)->get()->row_array();
+                if($check_fc_ && $check_fc_['fc_admin_id'] > 0){
+
+                }else{
+                    $update_data_['fc_admin_id'] = $this->get_role_admin_id(7);
+                    if($update_data_['fc_admin_id'] == -1)
+                        return $this->fun_fail('缺少有效的权证(交易中心)人员,请联系技术部!');
+                }
                 break;
             case 'returned':
                 $update_data_ = array(
@@ -1007,8 +1056,7 @@ class Loan_model extends MY_Model
             case 4:
             case 5:
             case 6:
-            case 8:
-                //权证权限
+                //权证(银行)权限
                 if($admin_info_['role_id'] != 3)
                     return $this->fun_fail('您无权限操作此单!');
                 break;
@@ -1016,6 +1064,11 @@ class Loan_model extends MY_Model
             case 9:
                 //财务权限
                 if($admin_info_['role_id'] != 4)
+                    return $this->fun_fail('您无权限操作此单!');
+                break;
+            case 8:
+                //权证(交易中心)权限
+                if($admin_info_['role_id'] != 7)
                     return $this->fun_fail('您无权限操作此单!');
                 break;
             default:
@@ -1043,10 +1096,19 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功', $res_);
     }
 
-    //赎楼申请单列表 管理员端, 权证
+    //赎楼申请单列表 管理员端, 权证(银行)
     public function loan_list4qz($admin_id){
         $where_ = array('a.qz_admin_id' => $admin_id);
         $order_1 = 'a.zs_time';
+        $order_2 = 'desc';
+        $res_ = $this->loan_list($where_,$order_1,$order_2);
+        return $this->fun_success('操作成功', $res_);
+    }
+
+    //赎楼申请单列表 管理员端, 权证(交易中心)
+    public function loan_list4fc($admin_id){
+        $where_ = array('a.fc_admin_id' => $admin_id);
+        $order_1 = 'a.make_loan_time';
         $order_2 = 'desc';
         $res_ = $this->loan_list($where_,$order_1,$order_2);
         return $this->fun_success('操作成功', $res_);
@@ -1078,7 +1140,7 @@ class Loan_model extends MY_Model
                 $where = array('fk_admin_id' => $admin_id);
                 break;
             case 3:
-                //权证
+                //权证(银行)
                 $where = array('qz_admin_id' => $admin_id);
                 break;
             case 4:
@@ -1086,6 +1148,10 @@ class Loan_model extends MY_Model
                 break;
             case 5:
                 //终审
+                break;
+            case 7:
+                //权证(交易中心)
+                $where = array('fc_admin_id' => $admin_id);
                 break;
             default:
                 return $this->fun_fail("未找到可用数据！");
@@ -1201,7 +1267,7 @@ class Loan_model extends MY_Model
         return $this->fun_success('操作成功!');
     }
 
-    //修改权证经理
+    //修改权证(银行)经理
     public function qz_admin_change4loan($admin_id,$role_id){
         $loan_id = $this->input->post('loan_id');
         if(!$loan_id || $loan_id <= 0)
@@ -1211,11 +1277,29 @@ class Loan_model extends MY_Model
             return $this->fun_fail('申请单不存在!');
         $qz_admin_id = $this->input->post('qz_admin_id');
         if(!$qz_admin_id)
-            return $this->fun_fail('未传入风控经理信息!');
+            return $this->fun_fail('未传入权证(银行)经理信息!');
         $admin_info = $this->readByID('admin','admin_id', $qz_admin_id);
         if(!$admin_info || $admin_info['status'] != 1 || $admin_info['role_id'] != 3)
-            return $this->fun_fail('未选择有效的风控经理!');
+            return $this->fun_fail('未选择有效的权证(银行)经理!');
         $this->db->where('loan_id', $loan_id)->update('loan_master', array('qz_admin_id' => $qz_admin_id));
+        return $this->fun_success('操作成功!');
+    }
+
+    //修改权证(交易中心)经理
+    public function fc_admin_change4loan($admin_id,$role_id){
+        $loan_id = $this->input->post('loan_id');
+        if(!$loan_id || $loan_id <= 0)
+            return $this->fun_fail('未传入必要信息!');
+        $loan_info = $this->db->select("flag,status")->from("loan_master")->where('loan_id', $loan_id)->get()->row_array();
+        if(!$loan_info)
+            return $this->fun_fail('申请单不存在!');
+        $fc_admin_id = $this->input->post('fc_admin_id');
+        if(!$fc_admin_id)
+            return $this->fun_fail('未传入权证(交易中心)经理信息!');
+        $admin_info = $this->readByID('admin','admin_id', $fc_admin_id);
+        if(!$admin_info || $admin_info['status'] != 1 || $admin_info['role_id'] != 7)
+            return $this->fun_fail('未选择有效的权证(交易中心)经理!');
+        $this->db->where('loan_id', $loan_id)->update('loan_master', array('fc_admin_id' => $fc_admin_id));
         return $this->fun_success('操作成功!');
     }
 

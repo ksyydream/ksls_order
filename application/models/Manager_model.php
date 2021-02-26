@@ -778,7 +778,7 @@ class Manager_model extends MY_Model
        $this->db->select("a.loan_id,a.work_no,a.loan_money,a.is_td_ng,a.order_type,a.is_err,a.need_mx,a.status,a.flag,
         u.rel_name handle_name,u.mobile handle_mobile,
         u1.rel_name create_name,u1.mobile create_mobile,
-        fk.admin_name fk_name,qz.admin_name qz_name,
+        fk.admin_name fk_name,qz.admin_name qz_name,fc.admin_name fc_name,
          bd.brand_name,FROM_UNIXTIME(a.create_time) loan_cdate, mx.admin_name mx_name,mx.phone mx_phone,a.appointment_date");
         $this->db->from('loan_master a');
         $this->db->join('users u','a.user_id = u.user_id','left');
@@ -788,6 +788,7 @@ class Manager_model extends MY_Model
         $this->db->join('admin mx', 'a.mx_admin_id = mx.admin_id', 'left');
         $this->db->join('admin fk', 'a.fk_admin_id = fk.admin_id', 'left');
         $this->db->join('admin qz', 'a.qz_admin_id = qz.admin_id', 'left');
+        $this->db->join('admin fc', 'a.fc_admin_id = fc.admin_id', 'left');
         if($where)
             $this->db->where($where);
         if($data['keyword']){
@@ -839,7 +840,7 @@ class Manager_model extends MY_Model
         DATE_FORMAT(a.redeem_date,'%Y-%m-%d') redeem_date_handle_,
         u.rel_name handle_name,u.mobile handle_mobile,
         u1.rel_name create_name,u1.mobile create_mobile,
-        qz.admin_name qz_name,zs.admin_name zs_name,err.admin_name err_name,ww.admin_name ww_name,
+        qz.admin_name qz_name,zs.admin_name zs_name,err.admin_name err_name,ww.admin_name ww_name,fc.admin_name fc_name,
         bd.brand_name, mx.admin_name mx_name, fk.admin_name fk_name,mx.phone mx_phone";
         $this->db->select($select)->from('loan_master a');
         $this->db->join('users u','a.user_id = u.user_id','left');
@@ -848,6 +849,7 @@ class Manager_model extends MY_Model
         $this->db->join('admin mx', 'a.mx_admin_id = mx.admin_id', 'left');
         $this->db->join('admin fk', 'a.fk_admin_id = fk.admin_id', 'left');
         $this->db->join('admin qz', 'a.qz_admin_id = qz.admin_id', 'left');
+        $this->db->join('admin fc', 'a.fc_admin_id = fc.admin_id', 'left');
         $this->db->join('admin zs', 'a.zs_admin_id = zs.admin_id', 'left');
         $this->db->join('admin err', 'a.err_admin_id = err.admin_id', 'left');
         $this->db->join('admin ww', 'a.ww_admin_id = ww.admin_id', 'left');

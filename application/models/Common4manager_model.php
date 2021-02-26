@@ -43,6 +43,12 @@ class Common4manager_model extends MY_Model
         return $data;
     }
 
+    public function get_fc_list4loan() {
+        $data = $this->db->select()->from('admin')->where(array('status' => 1, 'role_id' => 7))->get()->result_array();
+        return $data;
+    }
+
+
     /** check fun */
 
 

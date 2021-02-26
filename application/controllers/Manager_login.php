@@ -142,7 +142,7 @@ class Manager_login extends MY_Controller {
     }
 
     /**
-     * 获取可用面签经理列表
+     * 获取可用风控经理列表
      */
     public function get_fk_list4loan() {
         $this->load->model('common4manager_model', 'cm_model');
@@ -152,13 +152,23 @@ class Manager_login extends MY_Controller {
     }
 
     /**
-     * 获取可用面签经理列表
+     * 获取可用权证(银行)经理列表
      */
     public function get_qz_list4loan() {
         $this->load->model('common4manager_model', 'cm_model');
         $data = $this->cm_model->get_qz_list4loan();
         $this->assign('data', $data);
         $this->display('manager/loan/show_qz_list4loan.html');
+    }
+
+    /**
+     * 获取可用权证(交易中心)经理列表
+     */
+    public function get_fc_list4loan() {
+        $this->load->model('common4manager_model', 'cm_model');
+        $data = $this->cm_model->get_fc_list4loan();
+        $this->assign('data', $data);
+        $this->display('manager/loan/show_fc_list4loan.html');
     }
 
     public function get_status_list4loan() {

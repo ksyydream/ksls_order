@@ -62,6 +62,10 @@ class Mini_admin extends Mini_controller {
         if($this->role_id == 3 && $borrower_info['qz_admin_id'] != $this->admin_id){
             $this->ajaxReturn($this->loan_model->fun_fail("您无权限操作此单！"));
         }
+        //验证权证(交易中心)权限
+        if($this->role_id == 7 && $borrower_info['fc_admin_id'] != $this->admin_id){
+            $this->ajaxReturn($this->loan_model->fun_fail("您无权限操作此单！"));
+        }
         $this->ajaxReturn($rs);
     }
 
@@ -91,6 +95,11 @@ class Mini_admin extends Mini_controller {
                 $rs = $this->loan_model->loan_list4zs($this->admin_id);
                 $this->ajaxReturn($rs);
                 break;
+            case 7:
+                //权证 交易中心
+                $rs = $this->loan_model->loan_list4fc($this->admin_id);
+                $this->ajaxReturn($rs);
+                break;
             default:
                 $this->ajaxReturn($this->loan_model->fun_fail("未找到可用数据！"));
 
@@ -114,10 +123,15 @@ class Mini_admin extends Mini_controller {
         if($this->role_id == 2 && $loan_info['fk_admin_id'] != $this->admin_id){
             $this->ajaxReturn($this->loan_model->fun_fail("您无权限操作此单！"));
         }
-        //验证权证权限
+        //验证权证(银行)权限
         if($this->role_id == 3 && $loan_info['qz_admin_id'] != $this->admin_id){
             $this->ajaxReturn($this->loan_model->fun_fail("您无权限操作此单！"));
         }
+        //验证权证(交易中心)权限
+        if($this->role_id == 7 && $loan_info['fc_admin_id'] != $this->admin_id){
+            $this->ajaxReturn($this->loan_model->fun_fail("您无权限操作此单！"));
+        }
+
 
         //返回信息
         $this->ajaxReturn($this->loan_model->fun_success("获取成功！", $loan_info));
@@ -181,9 +195,15 @@ class Mini_admin extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
-    //权证审核
+    //权证(银行)审核
     public function handle_loan_qz(){
         $rs = $this->loan_model->handle_loan_qz($this->admin_id);
+        $this->ajaxReturn($rs);
+    }
+
+    //权证(银行)审核
+    public function handle_loan_fc(){
+        $rs = $this->loan_model->handle_loan_fc($this->admin_id);
         $this->ajaxReturn($rs);
     }
 

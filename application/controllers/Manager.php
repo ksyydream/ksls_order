@@ -581,10 +581,17 @@ class Manager extends MY_Controller {
         $this->ajaxReturn($rs);
     }
 
-    //修改权证经理
+    //修改权证(银行)经理
     public function qz_admin_change4loan(){
         $this->load->model('loan_model');
         $rs = $this->loan_model->qz_admin_change4loan($this->admin_id,$this->role_id);
+        $this->ajaxReturn($rs);
+    }
+
+    //修改权证(交易中心)经理
+    public function fc_admin_change4loan(){
+        $this->load->model('loan_model');
+        $rs = $this->loan_model->fc_admin_change4loan($this->admin_id,$this->role_id);
         $this->ajaxReturn($rs);
     }
 
