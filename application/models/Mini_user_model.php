@@ -43,7 +43,7 @@ class Mini_user_model extends MY_Model
     }
 
     public function get_user_info($user_id){
-        $row = $this->db->select(" us.rel_name, us.brand_id, b.brand_name")
+        $row = $this->db->select(" us.rel_name, us.brand_id, b.brand_name, us.other_brand")
             ->from('users us')
             ->join('brand b','us.brand_id = b.id','left')
             ->where(array('user_id' => $user_id))->get()->row_array();
@@ -116,12 +116,20 @@ class Mini_user_model extends MY_Model
             'rel_name' => trim($this->input->post('rel_name')),
             'brand_id' => trim($this->input->post('brand_id')) ? trim($this->input->post('brand_id')) : -1,
             'shop_name' => trim($this->input->post('shop_name')),
+            'other_brand' => trim($this->input->post('other_brand')) ? trim($this->input->post('other_brand')) : '',
         );
         if(!$user_data['rel_name']){
             return $this->fun_fail('姓名不能为空!');
         }
         if(!$user_data['shop_name']){
             return $this->fun_fail('门店地址不能为空!');
+        }
+        if($user_data['brand_id'] == -1){
+            if(!$user_data['other_brand']){
+                return $this->fun_fail('品牌不能为空!');
+            }
+        }else{
+            $user_data['other_brand'] = '';
         }
         $user_info_ = $this->db->select()->from('users')->where('user_id', $user_id)->get()->row_array();
         if($user_info_ && $user_info_['brand_id'] != $user_data['brand_id']){

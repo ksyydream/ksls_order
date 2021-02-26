@@ -95,6 +95,7 @@ class Mini_login_model extends MY_Model
             'reg_time' => time(),
             'brand_id' => trim($this->input->post('brand_id')) ? trim($this->input->post('brand_id')) : -1,
             'shop_name' => trim($this->input->post('shop_name')),
+            'other_brand' => trim($this->input->post('other_brand')) ? trim($this->input->post('other_brand')) : '',
         );
         $sms_code = $this->input->post('sms_code');
         if(!$user_data['rel_name']){
@@ -111,6 +112,13 @@ class Mini_login_model extends MY_Model
         }
         if(!$user_data['shop_name']){
             return $this->fun_fail('门店地址不能为空!');
+        }
+        if($user_data['brand_id'] == -1){
+            if(!$user_data['other_brand']){
+                return $this->fun_fail('品牌不能为空!');
+            }
+        }else{
+            $user_data['other_brand'] = '';
         }
         $check_sms = $this->check_sms($user_data['mobile'], $sms_code, 1);
         if($check_sms['status'] != 1){

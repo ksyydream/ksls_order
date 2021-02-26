@@ -634,7 +634,7 @@ class Loan_model extends MY_Model
             return $check_role4admin_;
         $action_type_= $this->input->post('action_type');
         $update_data_ = array();
-        switch($action_type_){
+        switch($action_type_) {
             case 'pass':
             case 'pass_need':
                 $update_data_ = array(
@@ -642,29 +642,25 @@ class Loan_model extends MY_Model
                     'mx_remark' => $this->input->post('mx_remark'),
                     'status' => 2
                 );
-                if($action_type_ == 'pass_need'){
+                if ($action_type_ == 'pass_need') {
                     $update_data_['need_mx'] = 1;
-                }else{
-                    $update_data_['ht_id'] = $this->input->post('ht_id');
-                    $update_data_['jj_price'] = $this->input->post('jj_price') ? $this->input->post('jj_price') : 0;
-                    if(!$update_data_['ht_id'])
-                        return $this->fun_fail('请选择合同版本!');
-                    if($update_data_['jj_price'] < 0)
-                        return $this->fun_fail('请输入居间服务费!');
-                    $ht_info_ = $this->readByID('contract', 'ht_id', $update_data_['ht_id']);
-                    if(!$ht_info_ || $ht_info_['status'] != 1)
-                        return $this->fun_fail('请选择有效合同版本!');
-                    $update_data_['ht_name'] = $ht_info_['ht_name'];
                 }
-                //if(!$update_data_['mx_remark'])
-                    //return $this->fun_fail('请填写面签意见!');
-                //如果已分配风控经理就不再做自动分配
+                $update_data_['ht_id'] = $this->input->post('ht_id');
+                $update_data_['jj_price'] = $this->input->post('jj_price') ? $this->input->post('jj_price') : 0;
+                if (!$update_data_['ht_id'])
+                    return $this->fun_fail('请选择合同版本!');
+                if ($update_data_['jj_price'] < 0)
+                    return $this->fun_fail('请输入居间服务费!');
+                $ht_info_ = $this->readByID('contract', 'ht_id', $update_data_['ht_id']);
+                if (!$ht_info_ || $ht_info_['status'] != 1)
+                    return $this->fun_fail('请选择有效合同版本!');
+                $update_data_['ht_name'] = $ht_info_['ht_name'];
                 $check_fk_ = $this->db->select('fk_admin_id')->from('loan_master')->where('loan_id', $loan_id)->get()->row_array();
-                if($check_fk_ && $check_fk_['fk_admin_id'] > 0){
+                if ($check_fk_ && $check_fk_['fk_admin_id'] > 0) {
 
-                }else{
+                } else {
                     $update_data_['fk_admin_id'] = $this->get_role_admin_id(2);
-                    if($update_data_['fk_admin_id'] == -1)
+                    if ($update_data_['fk_admin_id'] == -1)
                         return $this->fun_fail('缺少有效的风控人员,请联系技术部!');
                 }
 
@@ -679,7 +675,7 @@ class Loan_model extends MY_Model
                     'ww_remark' => $this->input->post('mx_remark')
                 );
                 //if(!$update_data_['ww_remark'])
-                    //return $this->fun_fail('请填写委外意见!');
+                //return $this->fun_fail('请填写委外意见!');
                 break;
             case 'cancel':
                 $update_data_ = array(
@@ -690,7 +686,7 @@ class Loan_model extends MY_Model
                     'err_time' => time()
                 );
                 //if(!$update_data_['mx_remark'])
-                    //return $this->fun_fail('请填写面签意见!');
+                //return $this->fun_fail('请填写面签意见!');
                 break;
             default:
                 return $this->fun_fail('请求错误!');
@@ -717,19 +713,6 @@ class Loan_model extends MY_Model
                 );
                 //if(!$update_data_['fk_remark'])
                     //return $this->fun_fail('请填写风控意见!');
-                $check_need_ = $this->db->select('need_mx')->from('loan_master')->where('loan_id', $loan_id)->get()->row_array();
-                if($check_need_ && $check_need_['need_mx'] == 1){
-                    $update_data_['ht_id'] = $this->input->post('ht_id');
-                    $update_data_['jj_price'] = $this->input->post('jj_price') ? $this->input->post('jj_price') : 0;
-                    if(!$update_data_['ht_id'])
-                        return $this->fun_fail('请选择合同版本!');
-                    if($update_data_['jj_price'] < 0)
-                        return $this->fun_fail('请输入居间服务费!');
-                    $ht_info_ = $this->readByID('contract', 'ht_id', $update_data_['ht_id']);
-                    if(!$ht_info_ || $ht_info_['status'] != 1)
-                        return $this->fun_fail('请选择有效合同版本!');
-                    $update_data_['ht_name'] = $ht_info_['ht_name'];
-                }
 
                 break;
             case 'ww':
