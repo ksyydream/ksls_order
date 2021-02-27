@@ -55,7 +55,8 @@ class Loan_model extends MY_Model
             'old_mortgage_bank_one' => trim($this->input->post('old_mortgage_bank_one')) ? trim($this->input->post('old_mortgage_bank_one')) : null,
             'old_mortgage_bank_two' => trim($this->input->post('old_mortgage_bank_two')) ? trim($this->input->post('old_mortgage_bank_two')) : null,
             'houses_price' => trim($this->input->post('houses_price')) ? trim($this->input->post('houses_price')) : null,
-            'buyer_loan' => trim($this->input->post('buyer_loan')) ? trim($this->input->post('buyer_loan')) : null
+            'buyer_loan' => trim($this->input->post('buyer_loan')) ? trim($this->input->post('buyer_loan')) : null,
+            'old_loan_type' => trim($this->input->post('old_loan_type')) ? trim($this->input->post('old_loan_type')) : null,
 		);
         //先验证关键数据是否有效
         if(!$data['loan_money'] || $data['loan_money'] <= 0){
@@ -64,6 +65,10 @@ class Loan_model extends MY_Model
 
         if(!$data['old_loan_money']){
             return $this->fun_fail('老贷金额不能为空!');
+        }
+
+        if(!$data['old_loan_type'] || !in_array($data['old_loan_type'], array(1,2))){
+            return $this->fun_fail('老贷类型不可为空!');
         }
 
         if(!$data['old_mortgage_bank_one']){
@@ -1159,12 +1164,16 @@ class Loan_model extends MY_Model
                 $loan_supervise[$k]['is_check'] = false;
             }
         }
-        return $this->fun_success('获取成功!', $loan_supervise);
+        $data_ = $this->db->select("supervise_remark")->from('loan_master')->where('loan_id', $loan_id)->get()->row_array();
+        $rs['list'] = $loan_supervise;
+        $rs['supervise_remark'] = $data_ ? $data_['supervise_remark'] : '';
+        return $this->fun_success('获取成功!', $rs);
 
     }
 
     public function save_loan_supervise($admin_id,$role_id){
         $loan_id = $this->input->post('loan_id');
+        $supervise_remark = trim($this->input->post('supervise_remark')) ? trim($this->input->post('supervise_remark')) : '';
         if(!$loan_id || $loan_id <= 0)
             return $this->fun_fail('未传入必要信息!');
         $loan_info_ = $this->readByID('loan_master', 'loan_id', $loan_id);
@@ -1192,8 +1201,13 @@ class Loan_model extends MY_Model
                 'admin_id' => $admin_id
             );
             $is_check_ = isset($v['is_check']) ? $v['is_check'] : false;
-            if(!$is_check_)
-                continue;
+            if(!$is_check_){
+                if(!$supervise_remark){
+                    return $this->fun_fail('存在未选择项时必须填写备注!');
+                }else{
+                    continue;
+                }
+            }
 
             if(isset($check_super_[$v['id']]) && $check_super_[$v['id']]['type'] == 2 && $s_insert_['option_value'] == '')
                 return $this->fun_fail($check_super_[$v['id']]['name'] . ' 必须有详细说明');
@@ -1203,6 +1217,7 @@ class Loan_model extends MY_Model
         if($insert_arr_){
             $this->db->insert_batch('loan_supervise', $insert_arr_);
         }
+        $this->db->where('loan_id', $loan_id)->update('loan_master', array('supervise_remark' => $supervise_remark));
         return $this->fun_success('保存成功!');
 
 
