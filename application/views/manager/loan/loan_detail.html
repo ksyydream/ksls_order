@@ -194,6 +194,17 @@
                                                                      </div>
 
                                                                      <div class="profile-info-row">
+                                                                         <div class="profile-info-name"> 老贷类型 </div>
+
+                                                                         <div class="profile-info-value">
+                                                                             <span>
+                                                                                 {{if $data.old_loan_type == 1}}按揭{{/if}}
+                                                                                    {{if $data.old_loan_type == 2}}一抵{{/if}}
+                                                                             </span>
+                                                                         </div>
+                                                                     </div>
+
+                                                                     <div class="profile-info-row">
                                                                          <div class="profile-info-name"> 老贷一抵机构 </div>
 
                                                                          <div class="profile-info-value">
@@ -525,7 +536,9 @@
                                                                     </li>
 
                                                                     {{/foreach}}
-
+                                                                    <li>
+                                                                        备注:{{$data.supervise_remark|default:''}}
+                                                                    </li>
                                                                 </ul>
                                                             </div>
                                                         </div>
