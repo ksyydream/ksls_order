@@ -76,7 +76,7 @@ class Loan_model extends MY_Model
         }
 
         if(!$data['old_mortgage_money_one']){
-            return $this->fun_fail('老贷一抵金额 不能为空!');
+            //return $this->fun_fail('老贷一抵金额 不能为空!');
         }
 
         if(!$data['houses_price'] || $data['loan_money'] <= 0){
@@ -617,8 +617,8 @@ class Loan_model extends MY_Model
             return $this->fun_fail('老贷金额不能为空!');
         if(!$update_['old_mortgage_bank_one'])
             return $this->fun_fail('老贷一抵机构名称 不能为空!');
-        if(!$update_['old_mortgage_money_one'])
-            return $this->fun_fail('老贷一抵金额 不能为空!');
+        //if(!$update_['old_mortgage_money_one'])
+            //return $this->fun_fail('老贷一抵金额 不能为空!');
         if(!$update_['houses_price'] || $update_['loan_money'] <= 0)
             return $this->fun_fail('房屋总价 不能为空!');
         if(!$update_['buyer_loan']  || $update_['loan_money'] <= 0)
