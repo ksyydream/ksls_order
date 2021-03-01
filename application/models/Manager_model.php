@@ -507,6 +507,16 @@ class Manager_model extends MY_Model
         $id = $this->input->post('id');
         if($id){
             unset($data['create_time']);
+            $data['username'] = trim($this->input->post('username'));
+            if(!$data['username'])
+                return $this->fun_fail('用户名不能为空！');
+            $check_ = $this->db->select('*')->from('brand')->where(array('username' => $data['username'], 'id <>' => $id))->get()->row_array();
+            if($check_)
+                return $this->fun_fail('此用户名已注册,不可使用！');
+            if(strlen($data['username']) < 6)
+                return $this->fun_fail('用户名长度不能小于6位!');
+            if(!ctype_alnum($data['username']))
+                return $this->fun_fail('用户名只能为字母和数字!');
             $this->db->where('id', $id)->update('brand', $data);
         }else{
             $data['username'] = $this->get_username();

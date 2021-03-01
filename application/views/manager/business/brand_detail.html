@@ -47,8 +47,17 @@
                                     <span class="help-inline col-xs-12 col-sm-7"></span>
                                 </div>
                             </div>
+                            {{if $data.id|default:-1 >= 1}}
                             <div class="space-4"></div>
-
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label no-padding-right" for="username"> 用户名称 </label>
+                                <div class="col-sm-9">
+                                    <input type="text" id="username" name="username" class="rcol-xs-10 col-sm-5" value="{{$data.username|default:''}}">
+                                    <span class="help-inline col-xs-12 col-sm-7"></span>
+                                </div>
+                            </div>
+                            {{/if}}
+                            <div class="space-4"></div>
                             <div class="form-group">
                                 <label class="col-sm-2 control-label no-padding-right" for="status"> 是否启用 </label>
                                 <div class="control-label no-padding-left col-sm-1">

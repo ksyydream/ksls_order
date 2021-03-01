@@ -520,7 +520,7 @@ class MY_Model extends CI_Model{
 
     //获取随机登陆账号
     public function get_username(){
-        $title_ = 'KS' . date('Ymd', time());
+        $title_ = 'KS' . date('ym', time());
         $username = $title_ . sprintf('%03s', $this->get_sys_num_auto($title_));
         $check = $this->db->select('id')->from('brand')->where('username',$username)->order_by('id','desc')->get()->row_array();
         if($check)
