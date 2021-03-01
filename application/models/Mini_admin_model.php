@@ -66,7 +66,7 @@ class Mini_admin_model extends MY_Model
             return $this->fun_fail('新密码长度不能小于6位!');
         if(!ctype_alnum($new_password))
             return $this->fun_fail('新密码只能为字母和数字!');
-        $this->db->where(array('admin_id' => $admin_id))->update('admin_id', array('password' => password($new_password)));
+        $this->db->where(array('admin_id' => $admin_id))->update('admin', array('password' => password($new_password)));
         return $this->fun_success('修改成功');
     }
 }
