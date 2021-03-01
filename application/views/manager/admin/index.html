@@ -54,7 +54,7 @@
                                         <th>用户名</th>
                                         <th>用户组</th>
                                         <th>小程序权限</th>
-                                        <th class="center">性别</th>
+                                        <th>姓名</th>
                                         <th class="center">生日</th>
                                         <th>电话</th>
                                         <th>邮箱</th>
@@ -69,7 +69,7 @@
                                            {{$v.title}}
                                         </td>
                                         <td>{{$v.role_name}}</td>
-                                        <td class="center">{{if $v.sex == 1}}男{{elseif $v.sex == 2}}女{{else}}保密{{/if}}</td>
+                                        <td>{{$v.admin_name}}</td>
                                         <td class="center">{{$v.birthday|date_format:"%Y-%m-%d"}}</td>
                                         <td>{{$v.phone}}</td>
                                         <td>{{$v.email}}</td>
