@@ -231,4 +231,9 @@ class Mini_admin extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
+    public function change_password(){
+        $rs = $this->mini_admin_model->change_password($this->admin_id);
+        $this->ajaxReturn($rs);
+    }
+
 }
