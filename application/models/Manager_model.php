@@ -661,6 +661,14 @@ class Manager_model extends MY_Model
         return $this->fun_success('操作成功');
     }
 
+    public function refresh_users_password($admin_id){
+        $id = $this->input->post('id');
+        if(!$id)
+            return $this->fun_fail('信息缺失!');
+        $this->db->where(array('user_id' => $id))->update('users', array('password' => sha1('888888')));
+        return $this->fun_success('重置成功!');
+    }
+
       /**
      *********************************************************************************************
      * 赎楼业务相关

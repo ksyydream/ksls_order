@@ -95,5 +95,10 @@ class Mini_user extends Mini_controller {
         $this->ajaxReturn($user_info);
     }
 
+    public function change_password(){
+        $rs = $this->mini_user_model->change_password($this->user_id);
+        $this->ajaxReturn($rs);
+    }
+
 
 }

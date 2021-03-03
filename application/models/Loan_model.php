@@ -49,35 +49,30 @@ class Loan_model extends MY_Model
             'create_time' => time(),
             'loan_money' => trim($this->input->post('loan_money')),
             'appointment_date' => trim($this->input->post('appointment_date')),
-            'old_loan_money' => trim($this->input->post('old_loan_money')) ? trim($this->input->post('old_loan_money')) : null,
-            'old_mortgage_money_one' => trim($this->input->post('old_mortgage_money_one')) ? trim($this->input->post('old_mortgage_money_one')) : null,
-            'old_mortgage_money_two' => trim($this->input->post('old_mortgage_money_two')) ? trim($this->input->post('old_mortgage_money_two')) : null,
-            'old_mortgage_bank_one' => trim($this->input->post('old_mortgage_bank_one')) ? trim($this->input->post('old_mortgage_bank_one')) : null,
-            'old_mortgage_bank_two' => trim($this->input->post('old_mortgage_bank_two')) ? trim($this->input->post('old_mortgage_bank_two')) : null,
+            //'old_loan_money' => trim($this->input->post('old_loan_money')) ? trim($this->input->post('old_loan_money')) : null,
+            //'old_mortgage_money_one' => trim($this->input->post('old_mortgage_money_one')) ? trim($this->input->post('old_mortgage_money_one')) : null,
+            //'old_mortgage_money_two' => trim($this->input->post('old_mortgage_money_two')) ? trim($this->input->post('old_mortgage_money_two')) : null,
+            //'old_mortgage_bank_one' => trim($this->input->post('old_mortgage_bank_one')) ? trim($this->input->post('old_mortgage_bank_one')) : null,
+            //'old_mortgage_bank_two' => trim($this->input->post('old_mortgage_bank_two')) ? trim($this->input->post('old_mortgage_bank_two')) : null,
             'houses_price' => trim($this->input->post('houses_price')) ? trim($this->input->post('houses_price')) : null,
             'buyer_loan' => trim($this->input->post('buyer_loan')) ? trim($this->input->post('buyer_loan')) : null,
-            'old_loan_type' => trim($this->input->post('old_loan_type')) ? trim($this->input->post('old_loan_type')) : null,
+            'still_pay_back' => trim($this->input->post('still_pay_back')) ? trim($this->input->post('still_pay_back')) : null,
+            'mortgage_agency' => trim($this->input->post('mortgage_agency')) ? trim($this->input->post('mortgage_agency')) : null,
+            'buyer_mortgage_bank' => trim($this->input->post('buyer_mortgage_bank')) ? trim($this->input->post('buyer_mortgage_bank')) : null,
+
 		);
         //先验证关键数据是否有效
         if(!$data['loan_money'] || $data['loan_money'] <= 0){
             return $this->fun_fail('借款金额不能为空!');
         }
 
-        if(!$data['old_loan_money']){
-            return $this->fun_fail('老贷金额不能为空!');
-        }
 
-        if(!$data['old_loan_type'] || !in_array($data['old_loan_type'], array(1,2))){
-            return $this->fun_fail('老贷类型不可为空!');
-        }
-
-        if(!$data['old_mortgage_bank_one']){
-            return $this->fun_fail('老贷一抵机构名称 不能为空!');
-        }
-
-        if(!$data['old_mortgage_money_one']){
-            //return $this->fun_fail('老贷一抵金额 不能为空!');
-        }
+        if(!$data['still_pay_back'])
+            return $this->fun_fail('需还抵押贷款金额不能为空!');
+        if(!$data['mortgage_agency'])
+            return $this->fun_fail('抵押机构不能为空!');
+        if(!$data['buyer_mortgage_bank'])
+            return $this->fun_fail('买方按揭机构不能为空!');
 
         if(!$data['houses_price'] || $data['loan_money'] <= 0){
             return $this->fun_fail('房屋总价 不能为空!');
@@ -601,24 +596,29 @@ class Loan_model extends MY_Model
         $update_ = array(
             'modify_time' => time(),
             'loan_money' => trim($this->input->post('loan_money')),
-            'old_loan_money' => trim($this->input->post('old_loan_money')) ? trim($this->input->post('old_loan_money')) : null,
-            'old_mortgage_money_one' => trim($this->input->post('old_mortgage_money_one')) ? trim($this->input->post('old_mortgage_money_one')) : null,
-            'old_mortgage_money_two' => trim($this->input->post('old_mortgage_money_two')) ? trim($this->input->post('old_mortgage_money_two')) : null,
-            'old_mortgage_bank_one' => trim($this->input->post('old_mortgage_bank_one')) ? trim($this->input->post('old_mortgage_bank_one')) : null,
-            'old_mortgage_bank_two' => trim($this->input->post('old_mortgage_bank_two')) ? trim($this->input->post('old_mortgage_bank_two')) : null,
+            //'old_loan_money' => trim($this->input->post('old_loan_money')) ? trim($this->input->post('old_loan_money')) : null,
+            //'old_mortgage_money_one' => trim($this->input->post('old_mortgage_money_one')) ? trim($this->input->post('old_mortgage_money_one')) : null,
+            //'old_mortgage_money_two' => trim($this->input->post('old_mortgage_money_two')) ? trim($this->input->post('old_mortgage_money_two')) : null,
+            //'old_mortgage_bank_one' => trim($this->input->post('old_mortgage_bank_one')) ? trim($this->input->post('old_mortgage_bank_one')) : null,
+            //'old_mortgage_bank_two' => trim($this->input->post('old_mortgage_bank_two')) ? trim($this->input->post('old_mortgage_bank_two')) : null,
             'houses_price' => trim($this->input->post('houses_price')) ? trim($this->input->post('houses_price')) : null,
-            'buyer_loan' => trim($this->input->post('buyer_loan')) ? trim($this->input->post('buyer_loan')) : null
+            'buyer_loan' => trim($this->input->post('buyer_loan')) ? trim($this->input->post('buyer_loan')) : null,
+            'still_pay_back' => trim($this->input->post('still_pay_back')) ? trim($this->input->post('still_pay_back')) : null,
+            'mortgage_agency' => trim($this->input->post('mortgage_agency')) ? trim($this->input->post('mortgage_agency')) : null,
+            'buyer_mortgage_bank' => trim($this->input->post('buyer_mortgage_bank')) ? trim($this->input->post('buyer_mortgage_bank')) : null,
         );
 
         //先验证关键数据是否有效
         if(!$update_['loan_money'] || $update_['loan_money'] <= 0)
             return $this->fun_fail('借款金额不能为空!');
-        if(!$update_['old_loan_money'])
-            return $this->fun_fail('老贷金额不能为空!');
-        if(!$update_['old_mortgage_bank_one'])
-            return $this->fun_fail('老贷一抵机构名称 不能为空!');
-        //if(!$update_['old_mortgage_money_one'])
-            //return $this->fun_fail('老贷一抵金额 不能为空!');
+
+        if(!$update_['still_pay_back'])
+            return $this->fun_fail('需还抵押贷款金额不能为空!');
+        if(!$update_['mortgage_agency'])
+            return $this->fun_fail('抵押机构不能为空!');
+        if(!$update_['buyer_mortgage_bank'])
+            return $this->fun_fail('买方按揭机构不能为空!');
+
         if(!$update_['houses_price'] || $update_['loan_money'] <= 0)
             return $this->fun_fail('房屋总价 不能为空!');
         if(!$update_['buyer_loan']  || $update_['loan_money'] <= 0)

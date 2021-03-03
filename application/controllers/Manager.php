@@ -444,6 +444,11 @@ class Manager extends MY_Controller {
         }
     }
 
+    public function refresh_users_password(){
+        $res = $this->manager_model->refresh_users_password($this->admin_id);
+        $this->ajaxReturn($res);
+    }
+
      /**
      *********************************************************************************************
      * 赎楼业务相关

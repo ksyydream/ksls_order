@@ -97,6 +97,7 @@ class Mini_login_model extends MY_Model
             'shop_name' => trim($this->input->post('shop_name')),
             'other_brand' => trim($this->input->post('other_brand')) ? trim($this->input->post('other_brand')) : '',
         );
+        $password_ = trim($this->input->post('password'));
         $sms_code = $this->input->post('sms_code');
         if(!$user_data['rel_name']){
             return $this->fun_fail('姓名不能为空!');
@@ -110,6 +111,13 @@ class Mini_login_model extends MY_Model
         if(!$sms_code){
             return $this->fun_fail('短信验证码不能为空!');
         }
+        if(!$password_){
+            return $this->fun_fail('密码不能为空!');
+        }
+        if(strlen($password_) < 6)
+            return $this->fun_fail('新密码长度不能小于6位!');
+        if(!ctype_alnum($password_))
+            return $this->fun_fail('新密码只能为字母和数字!');
         if(!$user_data['shop_name']){
             return $this->fun_fail('门店地址不能为空!');
         }
@@ -120,6 +128,7 @@ class Mini_login_model extends MY_Model
         }else{
             $user_data['other_brand'] = '';
         }
+        $user_data['password'] = sha1($password_);
         $check_sms = $this->check_sms($user_data['mobile'], $sms_code, 1);
         if($check_sms['status'] != 1){
             return $check_sms;
@@ -167,6 +176,42 @@ class Mini_login_model extends MY_Model
         if ($row) {
             if($row['status'] != 1)
                 return $this->fun_fail('账号禁用');
+            $code = $this->input->post('code');
+            $re_openid = $this->get_mini_openid4log($code);
+            if($re_openid['status'] == 1){
+                $openid = $re_openid['result']['openid'];
+                $this->delOpenidById($row['user_id'], $openid, 'users');
+                $this->db->where(array('user_id' => $row['user_id']))->update('users', array('mini_openid' => $openid));
+            }
+            return $this->fun_success('操作成功',$row);
+        } else {
+            return $this->fun_fail('账号未注册或密码错误');
+        }
+    }
+
+    //门店登录
+    public function user_login_password(){
+        $data = array(
+            'mobile' => trim($this->input->post('mobile')),
+            'password' => trim($this->input->post('password')),
+        );
+        if(!$data['mobile']){
+            return $this->fun_fail('手机号不能为空!');
+        }
+        if(!check_mobile($data['mobile'])){
+            return $this->fun_fail('手机号不规范!');
+        }
+        if(!$data['password']){
+            return $this->fun_fail('密码不能为空!');
+        }
+
+        $row = $this->db->select()->from('users')->where(array('mobile' => $data['mobile']))->get()->row_array();
+        if ($row) {
+            if($row['password'] != sha1($data['password']))
+                return $this->fun_fail('账号未注册或密码错误!');
+            if($row['status'] != 1)
+                return $this->fun_fail('账号禁用');
+
             $code = $this->input->post('code');
             $re_openid = $this->get_mini_openid4log($code);
             if($re_openid['status'] == 1){
