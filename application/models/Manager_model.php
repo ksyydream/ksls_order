@@ -169,6 +169,7 @@ class Manager_model extends MY_Model
     public function admin_list($page = 1) {
         $data['limit'] = $this->limit;//每页显示多少调数据
         $data['keyword'] = trim($this->input->get('keyword')) ? trim($this->input->get('keyword')) : null;
+        $data['status'] = trim($this->input->get('status')) ? trim($this->input->get('status')) : null;
         $data['field'] = trim($this->input->get('field')) ? trim($this->input->get('field')) : 1;// 1是用户名,2是电话,3是QQ,4是邮箱
         $data['order'] = trim($this->input->get('order')) ? trim($this->input->get('order')) : 1;// 1是desc,2是asc
         $this->db->select('count(1) num');
@@ -194,6 +195,8 @@ class Manager_model extends MY_Model
                     break;
             }
         }
+        if($data['status'])
+            $this->db->where('a.status', $data['status']);
         $rs_total = $this->db->get()->row();
         //总记录数
         $total_rows = $rs_total->num;
@@ -223,6 +226,8 @@ class Manager_model extends MY_Model
                     break;
             }
         }
+        if($data['status'])
+            $this->db->where('a.status', $data['status']);
         $this->db->limit($data['limit'], $offset = ($page - 1) * $data['limit']);
         if ($data['order'] == 1) {
             $this->db->order_by('a.t', 'desc');
@@ -324,16 +329,32 @@ class Manager_model extends MY_Model
      */
     public function admin_del($id) {
         if (!$id)
-            return -1;
+            return $this->fun_fail('删除失败');
         $admin_info = $this->get_admin($id);
         if (!$admin_info)
-            return -1;
+            return $this->fun_fail('删除失败');
         if ($admin_info['group_id'] == 1)
-            return -2;
+            return $this->fun_fail('该管理员为超级管理员权限不可直接删除');
         $rs = $this->db->where('admin_id', $id)->delete('admin');
         if ($rs)
-            return 1;
-        return -1;
+            return $this->fun_success('删除成功');
+        return $this->fun_fail('删除失败');
+    }
+
+    public function refresh_admin_status($admin_id){
+        $id = $this->input->post('id');
+        $data_s = $this->input->post('data_s');
+        if(!$id)
+            return $this->fun_fail('信息缺失!');
+        if(!$data_s || !in_array($data_s, array(1,-1)))
+            return $this->fun_fail('操作异常!');
+        $admin_info = $this->get_admin($id);
+        if (!$admin_info)
+            return $this->fun_fail('信息缺失');
+        if ($admin_info['group_id'] == 1)
+            return $this->fun_fail('该管理员为超级管理员权限不可停用');
+        $this->db->where(array('admin_id' => $id))->update('admin', array('status' => $data_s));
+        return $this->fun_success('修改成功!');
     }
 
     /**

@@ -242,6 +242,13 @@ class Manager extends MY_Controller {
      */
     public function admin_del($id){
         echo $this->manager_model->admin_del($id);
+        $res = $this->manager_model->refresh_brand_password($this->admin_id);
+        $this->ajaxReturn($res);
+    }
+
+    public function refresh_admin_status(){
+        $res = $this->manager_model->refresh_admin_status($this->admin_id);
+        $this->ajaxReturn($res);
     }
 
     /**
