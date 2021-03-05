@@ -126,6 +126,9 @@ class Mini_login_model extends MY_Model
                 return $this->fun_fail('品牌不能为空!');
             }
         }else{
+            $brand_info_ = $this->db->select()->from('brand')->where(array('id' => $user_data['brand_id'], 'status' => 1))->get()->row_array();
+            if(!$brand_info_)
+                return $this->fun_fail('所选品牌无效!');
             $user_data['other_brand'] = '';
         }
         $user_data['password'] = sha1($password_);

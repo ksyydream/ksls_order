@@ -814,7 +814,7 @@ class Manager_model extends MY_Model
         $data['total_rows'] = $num->num;
 
         //获取详细列
-       $this->db->select("a.loan_id,a.work_no,a.loan_money,a.is_td_ng,a.order_type,a.is_err,a.need_mx,a.status,a.flag,
+       $this->db->select("a.loan_id,a.work_no,a.loan_money,a.is_td_ng,a.order_type,a.is_err,a.need_mx,a.status,a.flag,a.other_brand,
         u.rel_name handle_name,u.mobile handle_mobile,
         u1.rel_name create_name,u1.mobile create_mobile,
         fk.admin_name fk_name,qz.admin_name qz_name,fc.admin_name fc_name,
@@ -857,6 +857,11 @@ class Manager_model extends MY_Model
         $this->db->limit($data['limit'], $offset = ($page - 1) * $data['limit']);
         $data['res_list'] = $this->db->get()->result_array();
         //die(var_dump($this->db->last_query()));
+        foreach($data['res_list'] as $k => $v){
+            if($data['res_list'][$k]['brand_name'] == ''){
+                $data['res_list'][$k]['brand_name'] = '其他(' .$data['res_list'][$k]['other_brand'] . ')';
+            }
+        }
         return $data;
     }
 
@@ -914,6 +919,9 @@ class Manager_model extends MY_Model
             }
         }
         $loan_info['loan_supervise'] = $loan_supervise;
+        if($loan_info['brand_name'] == ''){
+            $loan_info['brand_name'] = '其他(' . $loan_info['other_brand'] . ')';
+        }
         return $this->fun_success('获取成功!', $loan_info);
 	}
 

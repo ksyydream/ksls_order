@@ -45,6 +45,7 @@ class Loan_model extends MY_Model
             'user_id' => $user_id,
             'create_user_id' => $user_id,
             'brand_id' => $brand_id,
+            'other_brand' => $user_info['other_brand'],
             'modify_time' => time(),
             'create_time' => time(),
             'loan_money' => trim($this->input->post('loan_money')),
@@ -165,7 +166,7 @@ class Loan_model extends MY_Model
         $num = $this->db->get()->row();
         $res['total_rows'] = $num->num;
         $res['total_page'] = ceil($res['total_rows'] / $data['limit']);
-        $this->db->select("a.loan_id,a.work_no,a.loan_money,a.is_td_ng,a.order_type,a.is_err,a.need_mx,a.status,a.flag,
+        $this->db->select("a.loan_id,a.work_no,a.loan_money,a.is_td_ng,a.order_type,a.is_err,a.need_mx,a.status,a.flag,a.other_brand,
         u.rel_name handle_name,u.mobile handle_mobile,
         u1.rel_name create_name,u1.mobile create_mobile,
         DATE_FORMAT(a.appointment_date,'%Y-%m-%d') appointment_date_handle_,
@@ -237,6 +238,9 @@ class Loan_model extends MY_Model
             }else{
                 $res['res_list'][$k]['need_supervise_'] = -1;
             }
+            if($res['res_list'][$k]['brand_name'] == ''){
+                $res['res_list'][$k]['brand_name'] = '其他(' .$res['res_list'][$k]['other_brand'] . ')';
+            }
         }
         return $res;
     }
@@ -288,6 +292,9 @@ class Loan_model extends MY_Model
             $loan_info['need_supervise_'] = 1;
         }else{
             $loan_info['need_supervise_'] = -1;
+        }
+        if($loan_info['brand_name'] == ''){
+            $loan_info['brand_name'] = '其他(' .$loan_info['other_brand'] . ')';
         }
         return $this->fun_success('获取成功!', $loan_info);
 	}
