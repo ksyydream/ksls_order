@@ -60,6 +60,7 @@ class Mini_brand extends Mini_controller {
     public function user_list(){
         $where = array('a.brand_id' => $this->brand_id);
         $rs = $this->mini_user_model->user_list($where);
+        $this->ajaxReturn($rs);
     }
 
     //获取业务总数
