@@ -28,7 +28,7 @@ class Mini_brand extends Mini_controller {
             $this->ajaxReturn($check_re);
         }
         $this->brand_id = $check_re['result']['id'];
-        $this->mini_brand_model->update_brand_tt($this->brand_id); //操作就更新登录时间
+        $this->mini_brand_model->update_brand_tt($this->brand_id, $token); //操作就更新登录时间
     }
 
     public function get_brand_info(){

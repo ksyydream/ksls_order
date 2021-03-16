@@ -18,7 +18,7 @@ class Mini_brand_model extends MY_Model
     }
 
     public function check_token($token, $brand_id = 0){
-        $brand_info_ = $this->db->select()->from('brand')->where(array('token' => $token))->get()->row_array();
+        $brand_info_ = $this->db->select('a.id,a.status,b.mini_last_login')->from('brand a')->join('brand_login b', 'a.id = b.brand_id', 'inner')->where(array('b.token' => $token))->get()->row_array();
         if(!$brand_info_){
             return array('status' => -100, 'msg' => '未找到登录信息!', "result" => '');
         }
@@ -46,12 +46,24 @@ class Mini_brand_model extends MY_Model
         return $this->fun_success('获取成功',$row);
     }
 
-    public function update_brand_tt($brand_id,$token = ''){
+    public function update_brand_tt($brand_id,$token){
         $update_data = array('mini_last_login' => time());
-        if($token){
-            $update_data['token'] = $token;
-        }
-        $this->db->where('id', $brand_id)->update('brand', $update_data);
+        $this->db->where(array('brand_id' => $brand_id, 'token' => $token))->update('brand_login', $update_data);
+    }
+
+    public function insert_brand_tt($brand_id,$token, $openid){
+        $insert_data = array(
+            'mini_last_login'   => time(),
+            'create_time'       => time(),
+            'brand_id'          => $brand_id,
+            'token'             => $token,
+            'mini_openid'            => $openid,
+        );
+        $this->delOpenidById($brand_id, $openid, 'brand');
+        //insert 之前 再删除下,以免有重复
+        if($openid)
+            $this->db->where(array('brand_id' => $brand_id, 'mini_openid' => $openid))->delete('brand_login');
+        $this->db->insert('brand_login', $insert_data);
     }
 
     public function change_password($brand_id){

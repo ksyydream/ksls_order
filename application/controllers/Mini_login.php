@@ -39,7 +39,7 @@ class Mini_login extends Mini_controller {
         if($rs['status'] == 1){
             $brand_id = $rs['result']['id'];
             $token = $this->set_token_uid($brand_id,'BRAND');
-            $this->mini_brand_model->update_brand_tt($brand_id,$token);
+            $this->mini_brand_model->insert_brand_tt($brand_id, $token, $rs['result']['login_openid_']);
             $rs['result'] = array('token' => $token);
         }
         $this->ajaxReturn($rs);
@@ -116,6 +116,7 @@ class Mini_login extends Mini_controller {
         if($check_mini_['status'] == 1){
             $result_ = array();
             $id_ = $check_mini_['result']['id'];
+            $openid_ = $check_mini_['result']['mini_openid'];
             switch($check_mini_['result']['type']){
                 case 'user':
                     $token = $this->set_token_uid($id_,'USER');
@@ -124,7 +125,7 @@ class Mini_login extends Mini_controller {
                     break;
                 case 'brand':
                     $token = $this->set_token_uid($id_,'BRAND');
-                    $this->mini_brand_model->update_brand_tt($id_,$token);
+                    $this->mini_brand_model->insert_brand_tt($id_, $token, $openid_);
                     $result_ = array('token' => $token, 'type' => $check_mini_['result']['type'], 'role_id' => -1);
                     break;
                 case 'admin':
@@ -135,6 +136,7 @@ class Mini_login extends Mini_controller {
                 default:
                     $this->ajaxReturn($this->mini_login_model->fun_fail("未寻找到账号信息"));
             }
+
             $this->ajaxReturn($this->mini_login_model->fun_success("获取成功", $result_));
         }
         $this->ajaxReturn($check_mini_);

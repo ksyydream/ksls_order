@@ -74,12 +74,14 @@ class Mini_login_model extends MY_Model
         if ($row) {
             if($row['status'] != 1)
                 return $this->fun_fail('账号禁用');
+            $row['login_openid_'] = '';
             $code = $this->input->post('code');
             $re_openid = $this->get_mini_openid4log($code);
             if($re_openid['status'] == 1){
                 $openid = $re_openid['result']['openid'];
                 $this->delOpenidById($row['id'], $openid, 'brand');
-                $this->db->where(array('id' => $row['id']))->update('brand', array('mini_openid' => $openid));
+                $row['login_openid_'] = $openid;
+                //$this->db->where(array('id' => $row['id']))->update('brand', array('mini_openid' => $openid));
             }
             return $this->fun_success('操作成功',$row);
         } else {
@@ -269,22 +271,25 @@ class Mini_login_model extends MY_Model
                 if($brand_info && $brand_info['status'] != 1){
 
                 }else{
-                    $result_ = array('type' => 'user', 'id' => $check_user_['user_id'], 'role_id' => -1);
+                    $result_ = array('type' => 'user', 'id' => $check_user_['user_id'], 'role_id' => -1, 'mini_openid' => $openid);
                     return $this->fun_success('成功获取账号', $result_);
                 }
             }
 
-            $check_brand_ = $this->db->select()->from('brand')->where(array('mini_openid' => $openid, 'status' => 1))->get()->row_array();
+            //$check_brand_ = $this->db->select()->from('brand')->where(array('mini_openid' => $openid, 'status' => 1))->get()->row_array();
+            $check_brand_ = $this->db->select('a.*')->from('brand a')
+                ->join('brand_login b', 'a.id = b.brand_id', 'inner')
+                ->where(array('b.mini_openid' => $openid, 'a.status' => 1))->get()->row_array();
             if($check_brand_){
                 $this->delOpenidById($check_brand_['id'], $openid, 'brand');
-                $result_ = array('type' => 'brand', 'id' => $check_brand_['id'], 'role_id' => -1);
+                $result_ = array('type' => 'brand', 'id' => $check_brand_['id'], 'role_id' => -1, 'mini_openid' => $openid);
                 return $this->fun_success('成功获取账号', $result_);
             }
 
             $check_admin_ = $this->db->select()->from('admin')->where(array('mini_openid' => $openid, 'status' => 1))->get()->row_array();
             if($check_admin_){
                 $this->delOpenidById($check_admin_['admin_id'], $openid, 'admin');
-                $result_ = array('type' => 'admin', 'id' => $check_admin_['admin_id'], 'role_id' => $check_admin_['role_id']);
+                $result_ = array('type' => 'admin', 'id' => $check_admin_['admin_id'], 'role_id' => $check_admin_['role_id'], 'mini_openid' => $openid);
                 return $this->fun_success('成功获取账号', $result_);
             }
             return $this->fun_fail('为找到账号信息!');
