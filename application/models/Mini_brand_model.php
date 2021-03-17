@@ -22,7 +22,7 @@ class Mini_brand_model extends MY_Model
         if(!$brand_info_){
             return array('status' => -100, 'msg' => '未找到登录信息!', "result" => '');
         }
-        if(time() - $brand_info_['mini_last_login'] > 60 * 60 * 24 * 30){
+        if(time() - $brand_info_['mini_last_login'] > 60 * 60 * 12){
             return array('status' => -101, 'msg' => '请登录!', "result" => '');
         }
         if($brand_id != $brand_info_['id']){

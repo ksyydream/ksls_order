@@ -22,7 +22,7 @@ class Mini_admin_model extends MY_Model
         if(!$admin_info_){
             return array('status' => -101, 'msg' => '未找到登录信息!', "result" => '');
         }
-        if(time() - $admin_info_['mini_last_login'] > 60 * 60 * 24 * 30){
+        if(time() - $admin_info_['mini_last_login'] > 60 * 60 * 12){
             return array('status' => -101, 'msg' => '请登录!', "result" => '');
         }
         if($admin_id != $admin_info_['admin_id']){

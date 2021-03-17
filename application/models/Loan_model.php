@@ -46,6 +46,8 @@ class Loan_model extends MY_Model
             'create_user_id' => $user_id,
             'brand_id' => $brand_id,
             'other_brand' => $user_info['other_brand'],
+            'temp_rel_name' => $user_info['rel_name'],
+            'temp_shop_name' => $user_info['shop_name'],
             'modify_time' => time(),
             'create_time' => time(),
             'loan_money' => trim($this->input->post('loan_money')),

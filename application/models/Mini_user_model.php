@@ -22,7 +22,7 @@ class Mini_user_model extends MY_Model
         if(!$user_info_){
             return array('status' => -100, 'msg' => '未找到登录信息!', "result" => '');
         }
-        if(time() - $user_info_['mini_last_login'] > 60 * 60 * 24 * 30){
+        if(time() - $user_info_['mini_last_login'] > 60 * 60 * 12){
             return array('status' => -101, 'msg' => '请登录!', "result" => '');
         }
         if($user_id != $user_info_['user_id']){
@@ -87,7 +87,7 @@ class Mini_user_model extends MY_Model
         $res['total_rows'] = $num->num;
         $res['total_page'] = ceil($res['total_rows'] / $data['limit']);
 
-        $this->db->select('a.rel_name,a.mobile,a.shop_name,b.brand_name,a.status user_status,b.status brand_status');
+        $this->db->select('a.user_id,a.rel_name,a.mobile,a.shop_name,b.brand_name,a.status user_status,b.status brand_status');
         $this->db->from('users a');
         $this->db->join('brand b', 'a.brand_id = b.id', 'left');
         $this->db->where($where);
