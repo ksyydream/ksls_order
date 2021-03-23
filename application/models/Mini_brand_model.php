@@ -66,5 +66,14 @@ class Mini_brand_model extends MY_Model
         return $this->fun_success('修改成功');
     }
 
+    //获取门店二级列表
+    public function get_store_list($brand_id){
+        $this->db->select("store_name,store_id");
+        $this->db->from('brand_stores');
+        $this->db->where(array('status' => 1, 'brand_id' => $brand_id));
+        $re = $this->db->get()->result_array();
+        return $this->fun_success('获取成功', $re);
+    }
+
 
 }

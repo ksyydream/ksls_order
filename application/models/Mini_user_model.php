@@ -43,9 +43,10 @@ class Mini_user_model extends MY_Model
     }
 
     public function get_user_info($user_id){
-        $row = $this->db->select(" us.rel_name, us.brand_id, b.brand_name, us.other_brand, us.shop_name")
+        $row = $this->db->select(" us.rel_name, us.brand_id, b.brand_name, us.other_brand, us.shop_name, us.store_id, s.store_name")
             ->from('users us')
             ->join('brand b','us.brand_id = b.id','left')
+            ->join('brand_stores s','us.store_id = s.store_id','left')
             ->where(array('user_id' => $user_id))->get()->row_array();
         return $this->fun_success('获取成功',$row);
     }
@@ -64,6 +65,7 @@ class Mini_user_model extends MY_Model
         $data['limit'] = $this->mini_limit;//每页显示多少调数据
         $data['keyword'] = $this->input->post('keyword')?trim($this->input->post('keyword')):null;
         $data['brand_id'] = $this->input->post('brand_id')?trim($this->input->post('brand_id')):null;
+        $data['store_id'] = $this->input->post('store_id')?trim($this->input->post('store_id')):null;
         $data['status'] = $this->input->post('status')?trim($this->input->post('status')):null;
         $page = $this->input->post('page')?trim($this->input->post('page')):1;
         $this->db->select('count(a.user_id) num');
@@ -83,13 +85,17 @@ class Mini_user_model extends MY_Model
         if($data['brand_id']){
             $this->db->where('a.brand_id', $data['brand_id']);
         }
+        if($data['store_id']){
+            $this->db->where('a.store_id', $data['store_id']);
+        }
         $num = $this->db->get()->row();
         $res['total_rows'] = $num->num;
         $res['total_page'] = ceil($res['total_rows'] / $data['limit']);
 
-        $this->db->select('a.user_id,a.rel_name,a.mobile,a.shop_name,b.brand_name,a.status user_status,b.status brand_status');
+        $this->db->select('a.user_id,a.rel_name,a.mobile,a.shop_name,b.brand_name,a.status user_status,b.status brand_status,a.store_id,s.store_name');
         $this->db->from('users a');
         $this->db->join('brand b', 'a.brand_id = b.id', 'left');
+        $this->db->join('brand_stores s', 'a.store_id = s.store_id', 'left');
         $this->db->where($where);
         if($data['keyword']){
             $this->db->group_start();
@@ -104,6 +110,9 @@ class Mini_user_model extends MY_Model
         if($data['brand_id']){
             $this->db->where('a.brand_id', $data['brand_id']);
         }
+        if($data['store_id']){
+            $this->db->where('a.store_id', $data['store_id']);
+        }
         $this->db->order_by('a.reg_time', 'desc');
         $this->db->limit($data['limit'], $offset = ($page - 1) * $data['limit']);
         $res['res_list'] = $this->db->get()->result_array();
@@ -115,6 +124,7 @@ class Mini_user_model extends MY_Model
         $user_data = array(
             'rel_name' => trim($this->input->post('rel_name')),
             'brand_id' => trim($this->input->post('brand_id')) ? trim($this->input->post('brand_id')) : -1,
+            'store_id' => trim($this->input->post('store_id')) ? trim($this->input->post('store_id')) : -1,
             'shop_name' => trim($this->input->post('shop_name')),
             'other_brand' => trim($this->input->post('other_brand')) ? trim($this->input->post('other_brand')) : '',
         );
@@ -128,8 +138,21 @@ class Mini_user_model extends MY_Model
             if(!$user_data['other_brand']){
                 return $this->fun_fail('品牌不能为空!');
             }
+            if(!$user_data['shop_name'])
+                return $this->fun_fail('门店地址不能为空!');
         }else{
+            $brand_info_ = $this->db->select()->from('brand')->where(array('id' => $user_data['brand_id'], 'status' => 1))->get()->row_array();
+            if(!$brand_info_)
+                return $this->fun_fail('所选品牌无效!');
             $user_data['other_brand'] = '';
+            if($user_data['store_id'] == -1){
+                if(!$user_data['shop_name'])
+                    return $this->fun_fail('门店地址不能为空!');
+            }else{
+                $store_info_ = $this->db->select()->from('brand_stores')->where(array('store_id' => $user_data['store_id'], 'status' => 1))->get()->row_array();
+                if(!$store_info_)
+                    return $this->fun_fail('所选门店二级无效!');
+            }
         }
         $user_info_ = $this->db->select()->from('users')->where('user_id', $user_id)->get()->row_array();
         if($user_info_ && $user_info_['brand_id'] != $user_data['brand_id']){

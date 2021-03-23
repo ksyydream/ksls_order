@@ -94,6 +94,7 @@ class Mini_login_model extends MY_Model
             'rel_name' => trim($this->input->post('rel_name')),
             'reg_time' => time(),
             'brand_id' => trim($this->input->post('brand_id')) ? trim($this->input->post('brand_id')) : -1,
+            'store_id' => trim($this->input->post('store_id')) ? trim($this->input->post('store_id')) : -1,
             'shop_name' => trim($this->input->post('shop_name')),
             'other_brand' => trim($this->input->post('other_brand')) ? trim($this->input->post('other_brand')) : '',
         );
@@ -118,18 +119,26 @@ class Mini_login_model extends MY_Model
             return $this->fun_fail('新密码长度不能小于6位!');
         if(!ctype_alnum($password_))
             return $this->fun_fail('新密码只能为字母和数字!');
-        if(!$user_data['shop_name']){
-            return $this->fun_fail('门店地址不能为空!');
-        }
+
         if($user_data['brand_id'] == -1){
-            if(!$user_data['other_brand']){
+            if(!$user_data['other_brand'])
                 return $this->fun_fail('品牌不能为空!');
-            }
+            if(!$user_data['shop_name'])
+                return $this->fun_fail('门店地址不能为空!');
         }else{
             $brand_info_ = $this->db->select()->from('brand')->where(array('id' => $user_data['brand_id'], 'status' => 1))->get()->row_array();
             if(!$brand_info_)
                 return $this->fun_fail('所选品牌无效!');
             $user_data['other_brand'] = '';
+            if($user_data['store_id'] == -1){
+                if(!$user_data['shop_name'])
+                    return $this->fun_fail('门店地址不能为空!');
+            }else{
+                $store_info_ = $this->db->select()->from('brand_stores')->where(array('store_id' => $user_data['store_id'], 'status' => 1))->get()->row_array();
+                if(!$store_info_)
+                    return $this->fun_fail('所选门店二级无效!');
+            }
+
         }
         $user_data['password'] = sha1($password_);
         $check_sms = $this->check_sms($user_data['mobile'], $sms_code, 1);
@@ -251,6 +260,21 @@ class Mini_login_model extends MY_Model
         $re = $this->db->get()->result_array();
         return $this->fun_success('获取成功', $re);
 	}
+
+    //获取门店二级列表
+    public function get_store_list(){
+        if(!$brand_id = $this->input->post('brand_id'))
+            return $this->fun_fail('参数错误');
+        $brand_info_ = $this->db->select()->from('brand')->where(array('id' => $brand_id, 'status' => 1))->get()->row_array();
+        if(!$brand_info_)
+            return $this->fun_fail('大客户不可用');
+        $this->db->select("store_name,store_id");
+        $this->db->from('brand_stores');
+        if($status = $this->input->post('status'))
+            $this->db->where(array('status' => $status));
+        $re = $this->db->get()->result_array();
+        return $this->fun_success('获取成功', $re);
+    }
 
     public function check_mini(){
         $code_ = $this->input->post('code');

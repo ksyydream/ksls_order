@@ -103,6 +103,12 @@ class Mini_login extends Mini_controller {
         $this->ajaxReturn($rs);
 	}
 
+    //获取门店二级 列表
+    public function get_store_list(){
+        $rs = $this->mini_login_model->get_store_list();
+        $this->ajaxReturn($rs);
+    }
+
     //账号退出 三种账号均可以使用
     public function logout(){
         $token = $this->get_header_token();

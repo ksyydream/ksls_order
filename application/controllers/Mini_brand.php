@@ -36,6 +36,11 @@ class Mini_brand extends Mini_controller {
         $this->ajaxReturn($brand_info);
     }
 
+    public function get_store_list(){
+        $brand_info = $this->mini_brand_model->get_store_list($this->brand_id);
+        $this->ajaxReturn($brand_info);
+    }
+
     public function loan_list(){
         $rs = $this->loan_model->loan_list4brand($this->brand_id);
         $this->ajaxReturn($rs);
