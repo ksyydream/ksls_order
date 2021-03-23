@@ -92,7 +92,7 @@ class Mini_user_model extends MY_Model
         $res['total_rows'] = $num->num;
         $res['total_page'] = ceil($res['total_rows'] / $data['limit']);
 
-        $this->db->select('a.user_id,a.rel_name,a.mobile,a.shop_name,b.brand_name,a.status user_status,b.status brand_status,a.store_id,s.store_name');
+        $this->db->select('a.user_id,a.rel_name,a.mobile,a.other_brand,a.shop_name,b.brand_name,a.status user_status,b.status brand_status,a.store_id,s.store_name');
         $this->db->from('users a');
         $this->db->join('brand b', 'a.brand_id = b.id', 'left');
         $this->db->join('brand_stores s', 'a.store_id = s.store_id', 'left');
