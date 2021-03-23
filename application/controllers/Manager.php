@@ -408,6 +408,49 @@ class Manager extends MY_Controller {
     }
 
     /**
+     * 门店列表
+     * @author yangyang
+     * @date 2021-01-12
+     */
+    public function store_list($page = 1){
+        $data = $this->manager_model->store_list($page);
+        $base_url = "/manager/store_list/";
+        $pager = $this->pagination->getPageLink4manager($base_url, $data['total_rows'], $data['limit']);
+        $this->assign('pager', $pager);
+        $this->assign('page', $page);
+        $this->assign('data', $data);
+        $brand_list = $this->manager_model->get_brand4select();
+        $this->assign('brand_list', $brand_list);
+        $this->display('manager/business/store_list.html');
+    }
+
+    public function store_add(){
+        $brand_list = $this->manager_model->get_brand4select();
+        $this->assign('brand_list', $brand_list);
+        $this->display('manager/business/store_add.html');
+    }
+
+    public function store_edit($id){
+        $data = $this->manager_model->store_edit($id);
+        if(!$data){
+            $this->show_message('未找到信息!');
+        }
+        $this->assign('data', $data);
+        $this->display('manager/business/store_detail.html');
+    }
+
+    public function store_save(){
+        $res = $this->manager_model->store_save($this->admin_id);
+        if($res['status'] == 1){
+            $this->show_message($res['msg'], site_url('/manager/store_list'));
+        }else{
+            $this->show_message($res['msg']);
+        }
+    }
+
+
+
+    /**
      * 会员列表
      * @author yangyang <yang.yang@thmarket.cn>
      * @date 2018-04-01

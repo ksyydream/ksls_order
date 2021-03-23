@@ -64,6 +64,8 @@ class Loan_model extends MY_Model
             'buyer_mortgage_bank' => trim($this->input->post('buyer_mortgage_bank')) ? trim($this->input->post('buyer_mortgage_bank')) : null,
 
 		);
+        if($user_info['store_id'])
+            $data['store_id'] = $user_info['store_id'];
         //先验证关键数据是否有效
         if(!$data['loan_money'] || $data['loan_money'] <= 0){
             return $this->fun_fail('借款金额不能为空!');
