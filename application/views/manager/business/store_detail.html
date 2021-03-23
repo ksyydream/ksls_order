@@ -31,11 +31,11 @@
                     <div class="col-xs-12">
                         <!-- PAGE CONTENT BEGINS -->
                         <form id="save_form" class="form-horizontal" role="form" action="/manager/store_save" method="post">
-                            <input type="hidden" name="id" value="{{$data.id|default:''}}">
+                            <input type="hidden" name="id" value="{{$data.store_id|default:''}}">
                             <div class="form-group">
                                 <label class="col-sm-2 control-label no-padding-right" for="brand_name"> 大客户名称 </label>
                                 <div class="col-sm-9">
-                                    <input type="text" id="brand_name" required="required" class="rcol-xs-10 col-sm-5" value="{{$data.brand_name|default:''}}">
+                                    <input type="text" id="brand_name" readonly="readonly" class="rcol-xs-10 col-sm-5" value="{{$data.brand_name|default:''}}">
                                     <span class="help-inline col-xs-12 col-sm-7"></span>
                                 </div>
                             </div>
@@ -98,13 +98,13 @@
 
 
     $("#save_btn").click(function(){
-        var brand_name = $.trim($("#brand_name").val());
-        if(brand_name == "" ) {
-            layer.msg('大客户名称 不能为空', {icon: 2});
+        var store_name = $.trim($("#store_name").val());
+        if(store_name == "" ) {
+            layer.msg('门店二级名称 不能为空', {icon: 2});
             return false;
         }
 
-        
+
         $("#save_form").submit();
     })
 

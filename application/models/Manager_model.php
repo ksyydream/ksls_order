@@ -563,16 +563,28 @@ class Manager_model extends MY_Model
 
     public function store_list($page = 1){
         $data['limit'] = $this->limit;
-
+        $data['keyword'] = trim($this->input->get('keyword')) ? trim($this->input->get('keyword')) : null;
+        $data['brand_id'] = trim($this->input->get('brand_id')) ? trim($this->input->get('brand_id')) : null;
         //获取总记录数
         $this->db->select('count(1) num')->from('brand_stores a');
-
+        if ($data['keyword']) {
+            $this->db->like('a.store_name', $data['keyword']);
+        }
+        if ($data['brand_id']) {
+            $this->db->where('a.brand_id', $data['brand_id']);
+        }
         $num = $this->db->get()->row();
         $data['total_rows'] = $num->num;
 
         //获取详细列
         $this->db->select('a.*,b.brand_name,b.status b_status_')->from('brand_stores a');
         $this->db->join('brand b','a.brand_id = b.id', 'left');
+        if ($data['keyword']) {
+            $this->db->like('a.store_name', $data['keyword']);
+        }
+        if ($data['brand_id']) {
+            $this->db->where('a.brand_id', $data['brand_id']);
+        }
         $this->db->limit($this->limit, $offset = ($page - 1) * $this->limit);
         $this->db->order_by('a.create_time','desc');
         $data['res_list'] = $this->db->get()->result_array();
@@ -580,37 +592,32 @@ class Manager_model extends MY_Model
     }
 
     public function store_edit($id){
-        $detail =  $this->readByID('brand_stores', 'id', $id);
+        $this->db->select('a.*,b.brand_name,b.status b_status_')->from('brand_stores a');
+        $this->db->join('brand b','a.brand_id = b.id', 'left');
+        $this->db->where('store_id', $id);
+        $detail =  $this->db->get()->row_array();
         return $detail;
     }
 
     public function store_save(){
         $data =array(
-            'brand_name'=>trim($this->input->post('brand_name')),
-            'm_brand_name'=>trim($this->input->post('m_brand_name')),
+            'brand_id'=>trim($this->input->post('brand_id')),
+            'store_name'=>trim($this->input->post('store_name')),
             'create_time' => time(),
             'status' => trim($this->input->post('status')) ? trim($this->input->post('status')) : -1
         );
-        if(!$data['brand_name'])
-            return $this->fun_fail('大客户名称不能为空！');
+
+        if(!$data['store_name'])
+            return $this->fun_fail('二级名称不能为空！');
         $id = $this->input->post('id');
         if($id){
             unset($data['create_time']);
-            $data['username'] = trim($this->input->post('username'));
-            if(!$data['username'])
-                return $this->fun_fail('用户名不能为空！');
-            $check_ = $this->db->select('*')->from('brand')->where(array('username' => $data['username'], 'id <>' => $id))->get()->row_array();
-            if($check_)
-                return $this->fun_fail('此用户名已注册,不可使用！');
-            if(strlen($data['username']) < 6)
-                return $this->fun_fail('用户名长度不能小于6位!');
-            if(!ctype_alnum($data['username']))
-                return $this->fun_fail('用户名只能为字母和数字!');
-            $this->db->where('id', $id)->update('brand', $data);
+            unset($data['brand_id']);
+            $this->db->where('store_id', $id)->update('brand_stores', $data);
         }else{
-            $data['username'] = $this->get_username();
-            $data['password'] = sha1('123456');
-            $this->db->insert('brand', $data);
+            if(!$data['brand_id'])
+                return $this->fun_fail('大客户不能为空！');
+            $this->db->insert('brand_stores', $data);
         }
         return $this->fun_success('保存成功!');
     }

@@ -103,9 +103,9 @@
     $("#brand_id").select2();
 
     $("#save_btn").click(function(){
-        var brand_name = $.trim($("#brand_name").val());
-        if(brand_name == "" ) {
-            layer.msg('大客户名称 不能为空', {icon: 2});
+        var store_name = $.trim($("#store_name").val());
+        if(store_name == "" ) {
+            layer.msg('门店二级名称 不能为空', {icon: 2});
             return false;
         }
 
