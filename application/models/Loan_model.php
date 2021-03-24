@@ -147,6 +147,7 @@ class Loan_model extends MY_Model
         $this->db->select('count(DISTINCT a.loan_id) num');
         $this->db->from('loan_master a');
         $this->db->join('loan_borrowers b', 'a.loan_id = b.loan_id', 'left');
+        $this->db->join('users u','a.user_id = u.user_id','left');
         $this->db->where($where);
         if($data['keyword']){
             $this->db->group_start();
@@ -273,7 +274,7 @@ class Loan_model extends MY_Model
         FROM_UNIXTIME(a.make_loan_time) make_loan_date_,
         FROM_UNIXTIME(a.gh_time) gh_date_,
         FROM_UNIXTIME(a.returned_money_time) returned_money_date_,
-        u.rel_name handle_name,u.mobile handle_mobile,
+        u.rel_name handle_name,u.mobile handle_mobile,u.invite,
         u1.rel_name create_name,u1.mobile create_mobile,
         mx.admin_name mx_name,mx.phone mx_phone,
         fk.admin_name fk_name,fk.phone fk_phone,
@@ -1132,6 +1133,14 @@ class Loan_model extends MY_Model
     public function loan_list4cw($admin_id){
         $where_ = array('a.loan_id >' => 0);
         $order_1 = 'a.nj_time';
+        $order_2 = 'desc';
+        $res_ = $this->loan_list($where_,$order_1,$order_2);
+        return $this->fun_success('操作成功', $res_);
+    }
+
+    public function loan_list4invite($admin_id){
+        $where_ = array('u.invite' => $admin_id);
+        $order_1 = 'a.create_time';
         $order_2 = 'desc';
         $res_ = $this->loan_list($where_,$order_1,$order_2);
         return $this->fun_success('操作成功', $res_);

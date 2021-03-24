@@ -142,6 +142,33 @@ class Mini_admin extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
+    //邀请门店账号列表
+    public function invite_list(){
+        $where = array('a.invite' => $this->admin_id);
+        $rs = $this->mini_user_model->user_list($where);
+        $this->ajaxReturn($rs);
+    }
+
+    //邀请门店账号列表
+    public function invite_loan_list(){
+        $rs = $this->loan_model->loan_list4invite($this->admin_id);
+        $this->ajaxReturn($rs);
+    }
+
+    //邀请门店账号列表
+    public function invite_loan_info(){
+        $loan_id = $this->input->post('loan_id');
+        $rs = $this->loan_model->loan_info($loan_id);
+        if ($rs['status'] != 1) {
+            $this->ajaxReturn($rs);
+        }
+        //验证权限
+        $loan_info = $rs['result'];
+        if($loan_info['invite'] != $this->admin_id)
+            $this->ajaxReturn($this->loan_model->fun_fail("您无权限操作此单！"));
+        $this->ajaxReturn($rs);
+    }
+
     /**
      *********************************************************************************************
      * 以下代码为面签 专用

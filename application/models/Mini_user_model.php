@@ -125,6 +125,7 @@ class Mini_user_model extends MY_Model
             'rel_name' => trim($this->input->post('rel_name')),
             'brand_id' => trim($this->input->post('brand_id')) ? trim($this->input->post('brand_id')) : -1,
             'store_id' => trim($this->input->post('store_id')) ? trim($this->input->post('store_id')) : -1,
+            'invite' => trim($this->input->post('invite')) ? trim($this->input->post('invite')) : null,
             'shop_name' => trim($this->input->post('shop_name')),
             'other_brand' => trim($this->input->post('other_brand')) ? trim($this->input->post('other_brand')) : '',
         );
@@ -155,6 +156,15 @@ class Mini_user_model extends MY_Model
             }
         }
         $user_info_ = $this->db->select()->from('users')->where('user_id', $user_id)->get()->row_array();
+        if($user_info_['invite']){
+            unset($user_data['invite']);
+        }else{
+            if($user_data['invite']){
+                $check_invite_ = $this->db->select()->from('admin')->where(array('admin_id' => $user_data['invite'], 'status' => 1))->get()->row_array();
+                if(!$check_invite_)
+                    return $this->fun_fail('此邀请码不可使用!');
+            }
+        }
         if($user_info_ && $user_info_['brand_id'] != $user_data['brand_id']){
             $check_ = $this->db->select('loan_id')->from('loan_master')->where(array('flag' => 1))->get()->row_array();
             if($check_){

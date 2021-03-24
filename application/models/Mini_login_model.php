@@ -95,6 +95,7 @@ class Mini_login_model extends MY_Model
             'reg_time' => time(),
             'brand_id' => trim($this->input->post('brand_id')) ? trim($this->input->post('brand_id')) : -1,
             'store_id' => trim($this->input->post('store_id')) ? trim($this->input->post('store_id')) : -1,
+            'invite' => trim($this->input->post('invite')) ? trim($this->input->post('invite')) : null,
             'shop_name' => trim($this->input->post('shop_name')),
             'other_brand' => trim($this->input->post('other_brand')) ? trim($this->input->post('other_brand')) : '',
         );
@@ -119,7 +120,11 @@ class Mini_login_model extends MY_Model
             return $this->fun_fail('新密码长度不能小于6位!');
         if(!ctype_alnum($password_))
             return $this->fun_fail('新密码只能为字母和数字!');
-
+        if($user_data['invite']){
+            $check_invite_ = $this->db->select()->from('admin')->where(array('admin_id' => $user_data['invite'], 'status' => 1))->get()->row_array();
+            if(!$check_invite_)
+                return $this->fun_fail('此邀请码不可使用!');
+        }
         if($user_data['brand_id'] == -1){
             if(!$user_data['other_brand'])
                 return $this->fun_fail('品牌不能为空!');
