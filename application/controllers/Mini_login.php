@@ -151,6 +151,14 @@ class Mini_login extends Mini_controller {
         $this->ajaxReturn($rs);
     }
 
+    public function qr_code_raw4agent($invite)
+    {
+        require_once (APPPATH . 'libraries/phpqrcode/phpqrcode.php');
+        $data = array('invite' => $invite);
+        $str_ = json_encode($data, JSON_UNESCAPED_UNICODE);
+        QRcode::png($str_);
+    }
+
 
 
 }
