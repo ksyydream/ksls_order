@@ -171,6 +171,16 @@ class Manager_login extends MY_Controller {
         $this->display('manager/loan/show_fc_list4loan.html');
     }
 
+    /**
+     * 获取可用权证(交易中心)经理列表
+     */
+    public function get_admin_list4user() {
+        $this->load->model('common4manager_model', 'cm_model');
+        $data = $this->cm_model->get_admin_list4user();
+        $this->assign('data', $data);
+        $this->display('manager/users/show_admin_list4user.html');
+    }
+
     public function get_status_list4loan() {
 
         $this->display('manager/loan/show_status_list4loan.html');

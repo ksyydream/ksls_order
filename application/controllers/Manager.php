@@ -499,6 +499,11 @@ class Manager extends MY_Controller {
         $this->ajaxReturn($res);
     }
 
+    public function invite_change4user(){
+        $res = $this->manager_model->invite_change4user($this->admin_id);
+        $this->ajaxReturn($res);
+    }
+
      /**
      *********************************************************************************************
      * 赎楼业务相关

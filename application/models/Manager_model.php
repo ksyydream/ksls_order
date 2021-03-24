@@ -630,7 +630,7 @@ class Manager_model extends MY_Model
     public function users_list($page = 1) {
         $data['limit'] = $this->limit;//每页显示多少调数据
         $data['keyword'] = trim($this->input->get('keyword')) ? trim($this->input->get('keyword')) : null;
-        $data['type_id'] = trim($this->input->get('type_id')) ? trim($this->input->get('type_id')) : null;
+        $data['sel_admin_id'] = trim($this->input->get('sel_admin_id')) ? trim($this->input->get('sel_admin_id')) : null;
         $data['status'] = trim($this->input->get('status')) ? trim($this->input->get('status')) : null;
         $data['s_date'] = trim($this->input->get('s_date')) ? trim($this->input->get('s_date')) : '';
         $data['e_date'] = trim($this->input->get('e_date')) ? trim($this->input->get('e_date')) : '';
@@ -650,8 +650,8 @@ class Manager_model extends MY_Model
         if ($data['e_date']) {
             $this->db->where('us.reg_time <=', strtotime($data['e_date'] . " 23:59:59"));
         }
-        if ($data['type_id']) {
-            $this->db->where('us.type_id', $data['type_id']);
+        if ($data['sel_admin_id']) {
+            $this->db->where('us.invite', $data['sel_admin_id']);
         }
         if ($data['status']) {
             $this->db->where('us.status', $data['status']);
@@ -662,14 +662,14 @@ class Manager_model extends MY_Model
         $total_rows = $rs_total->num;
         $data['total_rows'] = $total_rows;
         //list
-        $this->db->select('us.*,b.brand_name,r1.name r1_name,r2.name r2_name,r3.name r3_name,r4.name r4_name, m.rel_name m_rel_name_,m.mobile m_mobile_');
+        $this->db->select('us.*,b.brand_name,r1.name r1_name,r2.name r2_name,r3.name r3_name,r4.name r4_name, ad.admin_name ad_admin_name');
         $this->db->from('users us');
         $this->db->join('brand b','us.brand_id = b.id','left');
         $this->db->join('region r1', 'us.province = r1.id', 'left');
         $this->db->join('region r2', 'us.city = r2.id', 'left');
         $this->db->join('region r3', 'us.district = r3.id', 'left');
         $this->db->join('region r4', 'us.twon = r4.id', 'left');
-        $this->db->join('members m', 'm.m_id = us.invite', 'left');
+        $this->db->join('admin ad', 'ad.admin_id = us.invite', 'left');
         if ($data['keyword']) {
             $this->db->group_start();
             $this->db->like('us.rel_name', $data['keyword']);
@@ -682,8 +682,8 @@ class Manager_model extends MY_Model
         if ($data['e_date']) {
             $this->db->where('us.reg_time <=', strtotime($data['e_date'] . " 23:59:59"));
         }
-        if ($data['type_id']) {
-            $this->db->where('us.type_id', $data['type_id']);
+        if ($data['sel_admin_id']) {
+            $this->db->where('us.invite', $data['sel_admin_id']);
         }
         if ($data['status']) {
             $this->db->where('us.status', $data['status']);
@@ -692,7 +692,10 @@ class Manager_model extends MY_Model
         $this->db->limit($data['limit'], $offset = ($page - 1) * $data['limit']);
         $this->db->order_by('us.reg_time', 'desc');
         $data['res_list'] = $this->db->get()->result_array();
-
+        $this->db->select()->from('admin');
+        $this->db->where('status', 1);
+        $this->db->where('role_id <>', -1);
+        $data['sel_admin_list'] = $this->db->get()->result_array();
         return $data;
     }
 
@@ -702,9 +705,10 @@ class Manager_model extends MY_Model
      * @date 2018-07-22
      */
     public function users_edit($user_id){
-        $this->db->select('us.*,b.brand_name,r1.name r1_name,r2.name r2_name,r3.name r3_name,r4.name r4_name, m.rel_name m_rel_name_,m.mobile m_mobile_');
+        $this->db->select('us.*,b.brand_name,s.store_name,r1.name r1_name,r2.name r2_name,r3.name r3_name,r4.name r4_name, m.rel_name m_rel_name_,m.mobile m_mobile_');
         $this->db->from('users us');
         $this->db->join('brand b','us.brand_id = b.id','left');
+        $this->db->join('brand_stores s','us.store_id = s.store_id','left');
         $this->db->join('region r1', 'us.province = r1.id', 'left');
         $this->db->join('region r2', 'us.city = r2.id', 'left');
         $this->db->join('region r3', 'us.district = r3.id', 'left');
@@ -713,13 +717,12 @@ class Manager_model extends MY_Model
         $user_info = $this->db->where('user_id', $user_id)->get()->row_array();
         if(!$user_info)
             return $user_info;
-        $this->db->select()->from('members');
+        $this->db->select()->from('admin');
         $this->db->group_start();
-        $this->db->where_in('level', array(2,3));
         $this->db->where('status', 1);
         $this->db->group_end();
         $this->db->or_group_start();
-        $this->db->where('m_id', $user_info['invite']);
+        $this->db->where('admin_id', $user_info['invite']);
         $this->db->group_end();
         $user_info['sel_member_list'] = $this->db->get()->result_array();
         return $user_info;
@@ -755,6 +758,20 @@ class Manager_model extends MY_Model
             return $this->fun_fail('信息缺失!');
         $this->db->where(array('user_id' => $id))->update('users', array('password' => sha1('888888')));
         return $this->fun_success('重置成功!');
+    }
+
+    public function invite_change4user($admin_id){
+        $invite = $this->input->post("sel_invite_admin_id") ? $this->input->post("sel_invite_admin_id") : null;
+        $user_id = $this->input->post("user_id");
+        if(!$user_id)
+            return $this->fun_fail('信息缺失!');
+        if($invite){
+            $check_invite_ = $this->db->select()->from('admin')->where(array('admin_id' => $invite, 'status' => 1))->get()->row_array();
+            if(!$check_invite_)
+                return $this->fun_fail('推广专员不可使用!');
+        }
+        $this->db->where(array('user_id' => $user_id))->update('users', array('invite' => $invite));
+        return $this->fun_success('操作成功!');
     }
 
       /**

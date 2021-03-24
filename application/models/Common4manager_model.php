@@ -48,6 +48,10 @@ class Common4manager_model extends MY_Model
         return $data;
     }
 
+    public function get_admin_list4user() {
+        $data = $this->db->select()->from('admin')->where(array('status' => 1, 'role_id <>' => -1))->get()->result_array();
+        return $data;
+    }
 
     /** check fun */
 
