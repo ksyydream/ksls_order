@@ -195,7 +195,7 @@ class Loan_model extends MY_Model
         fk.admin_name fk_name,fk.phone fk_phone,
         qz.admin_name qz_name,qz.phone qz_phone,
         fc.admin_name fc_name,fc.phone fc_phone,
-         bd.brand_name,FROM_UNIXTIME(a.create_time) loan_cdate,a.appointment_date,a.store_id,a.store_name");
+         bd.brand_name,FROM_UNIXTIME(a.create_time) loan_cdate,a.appointment_date,a.store_id,s.store_name");
         $this->db->from('loan_master a');
         $this->db->join('users u','a.user_id = u.user_id','left');
         $this->db->join('users u1','a.create_user_id = u1.user_id','left');
